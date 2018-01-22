@@ -28,6 +28,15 @@ public class JsonTools {
 		}
         return null;
     }
+	
+	public static String toXmlString(Object obj) {
+        try {
+			return new XmlMapper().writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+        return null;
+    }
 
 	public static <T> T jsonToObj(String json, Class<T> clss) {
         try {
@@ -74,10 +83,13 @@ public class JsonTools {
 	
 	//TODO jsonToObj 实现
 
-	@SuppressWarnings("unchecked")
-	public static Map<String, String> jsonToMap(String json) {
+	public static Map<String, Object> jsonToMap(String json) {
 		try {
-			return new ObjectMapper().readValue(json, Map.class);
+			ObjectMapper mapper = new ObjectMapper();
+			JavaType javaType = mapper
+					.getTypeFactory()
+					.constructParametricType(HashMap.class, String.class, Object.class); 
+			return mapper.readValue(json, javaType);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}  
@@ -123,10 +135,13 @@ public class JsonTools {
 	
 	//TODO xmlToObj 实现
 
-	@SuppressWarnings("unchecked")
-	public static Map<String, String> xmlToMap(String xml) {
+	public static Map<String, Object> xmlToMap(String xml) {
 		try {
-			return new XmlMapper().readValue(xml, Map.class);
+			XmlMapper mapper = new XmlMapper();
+			JavaType javaType = mapper
+					.getTypeFactory()
+					.constructParametricType(HashMap.class, String.class, Object.class); 
+			return mapper.readValue(xml, javaType);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}  
@@ -172,8 +187,8 @@ public class JsonTools {
 	
 	
 	public static void main(String[] args) {
-		/*String xml = "";
-		xml += "<returnsms>";
+		String xml = "";
+		/*xml += "<returnsms>";
 		xml += "	<returnstatus>Success</returnstatus>";
 		xml += "	<message>ok</message>";
 		xml += "	<remainpoint>11032</remainpoint>";
@@ -193,7 +208,7 @@ public class JsonTools {
 		
 
 		User user = JsonTools.xmlToObj(xml, User.class);
-		System.out.println(JsonTools.toJsonString(user));
+		System.out.println(JsonTools.toJsonString(user));*/
 		
 		xml = "";
 		xml += "<root>";
@@ -221,8 +236,15 @@ public class JsonTools {
 		xml += "</root>";
 		List<Map<String, Object>> list = JsonTools.xmlToList(xml);
 		System.out.println(JsonTools.toJsonString(list));
-		
+		Map<String, Object> map = new HashMap<>();
+		map.put("test", "list");
 
+		System.out.println(JsonTools.toJsonString(map));
+		Map<String, Object> test = JsonTools.jsonToMap(JsonTools.toJsonString(map), String.class, Object.class);
+		Object data = test.get("test");
+		System.out.println(JsonTools.toJsonString(data));
+		System.out.println(data instanceof List<?>);
+		/*
 		List<User> list2 = JsonTools.xmlToList(xml, User.class);
 		System.out.println(JsonTools.toJsonString(list2));*/
 	}
