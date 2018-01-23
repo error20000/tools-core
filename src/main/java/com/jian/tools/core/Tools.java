@@ -218,7 +218,9 @@ public class Tools {
 	/**
 	 * 格式化日期
 	 * @return 返回当前日期，格式：initDateFormatStr
+     * @deprecated 请使用{@code DateTools}。 参见{@link DateTools#formatDate()}
 	 */
+	@Deprecated
 	public static String formatDate(){
 		return formatDate(initDateFormatStr);
 	}
@@ -227,7 +229,9 @@ public class Tools {
 	 * 格式化日期
 	 * @param str 日期格式
 	 * @return 返回当前日期.
+     * @deprecated 请使用{@code DateTools}。 参见{@link DateTools#formatDate(String)}
 	 */
+	@Deprecated
 	public static String formatDate(String str){
 		return formatDate(null, str);
 	}
@@ -236,7 +240,9 @@ public class Tools {
 	 * 格式化日期
 	 * @param date 日期
 	 * @return 返回传入日期，格式：initDateFormatStr
+     * @deprecated 请使用{@code DateTools}。 参见{@link DateTools#formatDate(Date)}
 	 */
+	@Deprecated
 	public static String formatDate(Date date){
 		return formatDate(date, initDateFormatStr);
 	}
@@ -246,7 +252,9 @@ public class Tools {
 	 * @param date 日期
 	 * @param str 返回日期格式，默认：initDateFormatStr
 	 * @return 返回传入日期，传入格式。
+     * @deprecated 请使用{@code DateTools}。 参见{@link DateTools#formatDate(Date, String)}
 	 */
+	@Deprecated
 	public static String formatDate(Date date, String str){
 		if(date == null){
 			Calendar calendar = Calendar.getInstance();
@@ -1624,6 +1632,7 @@ public class Tools {
 //		String imgstr = getImageStr("C:\\Users\\Administrator\\Desktop\\65.png");
 //		System.out.println(imgstr);
 //		generateImage(imgstr, "C:\\Users\\Administrator\\Desktop\\63.png");
+		
 	}
 	
 }
