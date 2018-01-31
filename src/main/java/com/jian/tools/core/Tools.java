@@ -218,7 +218,7 @@ public class Tools {
 	/**
 	 * 格式化日期
 	 * @return 返回当前日期，格式：initDateFormatStr
-     * @deprecated 请使用{@code DateTools}。 参见{@link DateTools#formatDate()}
+     * @deprecated 请使用{@code DateTools}。 参见{@link DebugTools#formatDate()}
 	 */
 	@Deprecated
 	public static String formatDate(){
@@ -229,7 +229,7 @@ public class Tools {
 	 * 格式化日期
 	 * @param str 日期格式
 	 * @return 返回当前日期.
-     * @deprecated 请使用{@code DateTools}。 参见{@link DateTools#formatDate(String)}
+     * @deprecated 请使用{@code DateTools}。 参见{@link DebugTools#formatDate(String)}
 	 */
 	@Deprecated
 	public static String formatDate(String str){
@@ -240,7 +240,7 @@ public class Tools {
 	 * 格式化日期
 	 * @param date 日期
 	 * @return 返回传入日期，格式：initDateFormatStr
-     * @deprecated 请使用{@code DateTools}。 参见{@link DateTools#formatDate(Date)}
+     * @deprecated 请使用{@code DateTools}。 参见{@link DebugTools#formatDate(Date)}
 	 */
 	@Deprecated
 	public static String formatDate(Date date){
@@ -252,7 +252,7 @@ public class Tools {
 	 * @param date 日期
 	 * @param str 返回日期格式，默认：initDateFormatStr
 	 * @return 返回传入日期，传入格式。
-     * @deprecated 请使用{@code DateTools}。 参见{@link DateTools#formatDate(Date, String)}
+     * @deprecated 请使用{@code DateTools}。 参见{@link DebugTools#formatDate(Date, String)}
 	 */
 	@Deprecated
 	public static String formatDate(Date date, String str){
