@@ -22,7 +22,11 @@ public class JsonTools {
 	
 	public static String toJsonString(Object obj) {
         try {
-			return objectMapper.writeValueAsString(obj);
+        	if(obj instanceof String){
+        		return obj.toString();
+        	}else{
+        		return objectMapper.writeValueAsString(obj);
+        	}
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
@@ -238,6 +242,8 @@ public class JsonTools {
 		System.out.println(JsonTools.toJsonString(list));
 		Map<String, Object> map = new HashMap<>();
 		map.put("test", "list");
+		map.put("test1", "list1");
+		map.put("test2", "list2");
 
 		System.out.println(JsonTools.toJsonString(map));
 		Map<String, Object> test = JsonTools.jsonToMap(JsonTools.toJsonString(map), String.class, Object.class);
@@ -247,6 +253,19 @@ public class JsonTools {
 		/*
 		List<User> list2 = JsonTools.xmlToList(xml, User.class);
 		System.out.println(JsonTools.toJsonString(list2));*/
+
+		System.out.println("=================================================");
+		
+		Map<String, Object> test2 = JsonTools.jsonToMap(JsonTools.toJsonString("{}"), String.class, Object.class);
+		System.out.println(JsonTools.toJsonString(test2));
+		
+		List<String> test3 = JsonTools.jsonToList(JsonTools.toJsonString("[]"), String.class);
+		System.out.println(JsonTools.toJsonString(test3));
+		
+		System.out.println("-------------------------------------------------");
+		
+		System.out.println(JsonTools.toXmlString("[]"));
+		System.out.println(JsonTools.toXmlString("{}"));
 	}
 }
 

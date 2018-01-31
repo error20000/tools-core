@@ -15,7 +15,22 @@ public class MapTools {
 	}
 	
 	public static MapTools.Builder custom(Map<String, Object> map){
-		return new Builder(map);
+		return custom(map, true);
+	}
+	
+	public static MapTools.Builder custom(Map<String, Object> map, boolean newMap){
+		if(newMap){
+			Map<String, Object> tmp = new HashMap<String, Object>();
+			Set<String> set = map.keySet();
+        	Iterator<String> it = set.iterator();
+        	while (it.hasNext()) {
+				String str = it.next();
+				tmp.put(str, map.get(str));
+			}
+			return new Builder(tmp);
+		}else{
+			return new Builder(map);
+		}
 	}
 	
 	public static String toJSONString(Map<?, ?> map) {

@@ -53,6 +53,20 @@ public class Tips2  {
 	public static final Tips2 ERROR2105 = new Tips2(-2105, "{param}不存在");
 	/**{param}被禁用*/
 	public static final Tips2 ERROR2106 = new Tips2(-2106, "{param}被禁用");
+	/**{param}暂不可保存*/
+	public static final Tips2 ERROR2107 = new Tips2(-2107, "{param}暂不可保存");
+	/**{param}暂不可修改*/
+	public static final Tips2 ERROR2108 = new Tips2(-2108, "{param}暂不可修改");
+	/**{param}暂不可查询*/
+	public static final Tips2 ERROR2109 = new Tips2(-2109, "{param}暂不可查询");
+	/**{param}暂不可删除*/
+	public static final Tips2 ERROR2110 = new Tips2(-2110, "{param}暂不可删除");
+	/**{param}暂不可编辑*/
+	public static final Tips2 ERROR2111 = new Tips2(-2111, "{param}暂不可编辑");
+	/**{param}进行中...暂不可操作*/
+	public static final Tips2 ERROR2112 = new Tips2(-2112, "{param}进行中...暂不可操作");
+	/**{param}不匹配*/
+	public static final Tips2 ERROR2113 = new Tips2(-2113, "{param}不匹配");
 	
 	/**{param}登录失败*/
 	public static final Tips2 ERROR2200 = new Tips2(-2200, "{param}登录失败");
@@ -69,6 +83,10 @@ public class Tips2  {
 	public static final Tips2 ERROR2300 = new Tips2(-2300, "{param}不正确");
 	/**{param}已过期*/
 	public static final Tips2 ERROR2301 = new Tips2(-2301, "{param}已过期");
+	/**{param}未配置*/
+	public static final Tips2 ERROR2302 = new Tips2(-2302, "{param}未配置");
+	/**{param}未启用*/
+	public static final Tips2 ERROR2303 = new Tips2(-2303, "{param}未启用");
 	
 	/**不在活动时间段*/
 	public static final Tips2 ERROR2400 = new Tips2(-2400, "不在活动时间段");
