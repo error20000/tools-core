@@ -1,4 +1,4 @@
-package com.jian.tools.annotation;
+package com.jian.annotation;
 
 /**
  * 存储过程调用参数的枚举

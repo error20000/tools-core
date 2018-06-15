@@ -1,4 +1,4 @@
-package com.jian.tools.annotation;
+package com.jian.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -7,12 +7,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-public @interface PrimaryKey {
+public @interface Column {
 	public String value() default "";
-	public PrimaryKeyType type() default PrimaryKeyType.UUID;
 }

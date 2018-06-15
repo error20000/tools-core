@@ -1,0 +1,13 @@
+package PK;
+
+import T;
+
+
+/**
+ * com.tools.auto 自动生成  TempDao
+ * @author liujian
+ *
+ */
+public interface TempDao extends BaseDao<T> {
+	
+}

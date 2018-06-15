@@ -14,7 +14,7 @@ public class ArrayTools {
 	}
 	
 	public static <T> ArrayTools.Builder<T> custom(Class<T> type){
-		return new Builder<T>(type);
+		return new Builder<T>(type, -1);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -30,20 +30,40 @@ public class ArrayTools {
 		return dist;
 	}
 	
+	public static <T> void concat(T[] dest, T[]... array){
+		int index = 0;
+		for (int i = 0; i < array.length; i++) {
+			System.arraycopy(array[i], 0, dest, index, array[i].length);
+			index += array[i].length;
+		}
+	}
+	
+	public static <T> T[] concat(T[]... array){
+		int newlength = 0;
+		Class<? extends T[]> type = null;
+		for (int i = 0; i < array.length; i++) {
+			newlength += array[i].length;
+			
+		}
+		T[] dist =  (T[]) Array.newInstance(type, newlength);
+		
+		int index = 0;
+		for (int i = 0; i < array.length; i++) {
+			System.arraycopy(array[i], 0, dist, index, array[i].length);
+			index += array[i].length;
+		}
+		return dist;
+	}
+	
 	public static class Builder<T> {
 
 		private T[] dist = null;
 		private Class<T>  type = null;
+		private int size = -1;
 		
-		@SuppressWarnings("unchecked")
-		Builder(Class<T>  type) {
-            this.type = type;
-            this.dist =  (T[]) Array.newInstance(type, 0); 
-        }
-
-        @SuppressWarnings("unchecked")
 		Builder(Class<T>  type, int size) {
             this.type = type;
+            this.size = size;
             this.dist =  (T[]) Array.newInstance(type, size); 
         }
 
@@ -285,4 +305,8 @@ public class ArrayTools {
         }
 	}
 	
+	
+	public static void main(String[] args) {
+		ArrayTools.custom(Long.class, 10).add(new Integer[10]).build();
+	}
 }

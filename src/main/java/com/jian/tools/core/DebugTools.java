@@ -10,7 +10,7 @@ public class DebugTools {
 	 */
 	public static void println(String info, boolean debug){
 		if(debug) {
-			System.out.println(info);
+			System.out.println(DateTools.formatDate()+"	"+info);
 		}else {
 			//TODO 输出日志
 		}

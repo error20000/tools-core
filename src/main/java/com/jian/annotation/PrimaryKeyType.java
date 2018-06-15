@@ -1,4 +1,4 @@
-package com.jian.tools.annotation;
+package com.jian.annotation;
 
 public enum PrimaryKeyType {
 	

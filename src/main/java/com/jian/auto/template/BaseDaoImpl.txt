@@ -1,0 +1,23 @@
+package PK;
+
+import Dao;
+import JdbcOperateManager;
+import com.tools.db.dao.impl.MysqlBaseDaoImpl;
+
+/**
+ * com.tools.auto 自动生成  BaseDaoImpl
+ * @author liujian
+ *
+ * @param <T>
+ */
+public abstract class BaseDaoImpl<T> extends MysqlBaseDaoImpl<T> implements BaseDao<T> {
+	
+	
+	@Override
+	public void initJdbcOperate() {
+		this.jdbcOperate = JdbcOperateManager.getJdbcOperate();
+		this.log = false;
+	}
+
+	
+}

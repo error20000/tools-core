@@ -67,6 +67,18 @@ public class Tips2  {
 	public static final Tips2 ERROR2112 = new Tips2(-2112, "{param}进行中...暂不可操作");
 	/**{param}不匹配*/
 	public static final Tips2 ERROR2113 = new Tips2(-2113, "{param}不匹配");
+	/**{param}不可保存*/
+	public static final Tips2 ERROR2114 = new Tips2(-2114, "{param}不可保存");
+	/**{param}不可修改*/
+	public static final Tips2 ERROR2115 = new Tips2(-2115, "{param}不可修改");
+	/**{param}不可查询*/
+	public static final Tips2 ERROR2116 = new Tips2(-2116, "{param}不可查询");
+	/**{param}不可删除*/
+	public static final Tips2 ERROR2117 = new Tips2(-2117, "{param}不可删除");
+	/**{param}不可编辑*/
+	public static final Tips2 ERROR2118 = new Tips2(-2118, "{param}不可编辑");
+	/**{param}不可操作*/
+	public static final Tips2 ERROR2119 = new Tips2(-2119, "{param}不可操作");
 	
 	/**{param}登录失败*/
 	public static final Tips2 ERROR2200 = new Tips2(-2200, "{param}登录失败");

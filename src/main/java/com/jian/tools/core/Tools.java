@@ -14,6 +14,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
@@ -22,6 +24,8 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,81 +115,204 @@ public class Tools {
 		}
 	}
 	
-	public static int parseInt(String str){
-		if(isNullOrEmpty(str)){
-			return 0;
+	public static int parseInt(Object str){
+		if(str instanceof String){
+			return parseNumber((String) str).intValue();
+		}else if(str instanceof Integer){
+			return ((Integer) str).intValue();
+		}else if(str instanceof Double){
+			return ((Double) str).intValue();
+		}else if(str instanceof Float){
+			return ((Float) str).intValue();
+		}else if(str instanceof Long){
+			return ((Long) str).intValue();
+		}else if(str instanceof Byte){
+			return ((Byte) str).intValue();
+		}else if(str instanceof Short){
+			return ((Short) str).intValue();
+		}else if(str instanceof BigInteger){
+			return ((BigInteger) str).intValue();
+		}else if(str instanceof BigDecimal){
+			return ((BigDecimal) str).intValue();
+		}else if(str instanceof Character){
+			return Character.isDigit((Character) str) ? Character.getNumericValue((Character) str) : (int) (char) str;  
 		}else{
-			try {
-				return Integer.parseInt(str);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return 0;
-			}
+			return 0;
 		}
 	}
 	
-	public static long parseLong(String str){
-		if(isNullOrEmpty(str)){
-			return 0;
+	public static long parseLong(Object str){
+		if(str instanceof String){
+			return parseNumber((String) str).longValue();
+		}else if(str instanceof Integer){
+			return ((Integer) str).longValue();
+		}else if(str instanceof Double){
+			return ((Double) str).longValue();
+		}else if(str instanceof Float){
+			return ((Float) str).longValue();
+		}else if(str instanceof Long){
+			return ((Long) str).longValue();
+		}else if(str instanceof Byte){
+			return ((Byte) str).longValue();
+		}else if(str instanceof Short){
+			return ((Short) str).longValue();
+		}else if(str instanceof BigInteger){
+			return ((BigInteger) str).longValue();
+		}else if(str instanceof BigDecimal){
+			return ((BigDecimal) str).longValue();
 		}else{
-			try {
-				return Long.parseLong(str);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return 0;
-			}
+			return 0L;
 		}
 	}
 	
-	public static float parseFloat(String str){
-		if(isNullOrEmpty(str)){
-			return 0;
+	public static float parseFloat(Object str){
+		if(str instanceof String){
+			return parseNumber((String) str).floatValue();
+		}else if(str instanceof Integer){
+			return ((Integer) str).floatValue();
+		}else if(str instanceof Double){
+			return ((Double) str).floatValue();
+		}else if(str instanceof Float){
+			return ((Float) str).floatValue();
+		}else if(str instanceof Long){
+			return ((Long) str).floatValue();
+		}else if(str instanceof Byte){
+			return ((Byte) str).floatValue();
+		}else if(str instanceof Short){
+			return ((Short) str).floatValue();
+		}else if(str instanceof BigInteger){
+			return ((BigInteger) str).floatValue();
+		}else if(str instanceof BigDecimal){
+			return ((BigDecimal) str).floatValue();
 		}else{
-			try {
-				return Float.parseFloat(str);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return 0;
-			}
+			return 0F;
 		}
 	}
 	
-	public static double parseDouble(String str){
-		if(isNullOrEmpty(str)){
-			return 0;
+	public static double parseDouble(Object str){
+		if(str instanceof String){
+			return parseNumber((String) str).doubleValue();
+		}else if(str instanceof Integer){
+			return ((Integer) str).doubleValue();
+		}else if(str instanceof Double){
+			return ((Double) str).doubleValue();
+		}else if(str instanceof Float){
+			return ((Float) str).doubleValue();
+		}else if(str instanceof Long){
+			return ((Long) str).doubleValue();
+		}else if(str instanceof Byte){
+			return ((Byte) str).doubleValue();
+		}else if(str instanceof Short){
+			return ((Short) str).doubleValue();
+		}else if(str instanceof BigInteger){
+			return ((BigInteger) str).doubleValue();
+		}else if(str instanceof BigDecimal){
+			return ((BigDecimal) str).doubleValue();
 		}else{
-			try {
-				return Double.parseDouble(str);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return 0;
-			}
+			return 0D;
+		}
+	}
+
+	public static short parseShort(Object str){
+		if(str instanceof String){
+			return parseNumber((String) str).shortValue();
+		}else if(str instanceof Integer){
+			return ((Integer) str).shortValue();
+		}else if(str instanceof Double){
+			return ((Double) str).shortValue();
+		}else if(str instanceof Float){
+			return ((Float) str).shortValue();
+		}else if(str instanceof Long){
+			return ((Long) str).shortValue();
+		}else if(str instanceof Byte){
+			return ((Byte) str).shortValue();
+		}else if(str instanceof Short){
+			return ((Short) str).shortValue();
+		}else if(str instanceof BigInteger){
+			return ((BigInteger) str).shortValue();
+		}else if(str instanceof BigDecimal){
+			return ((BigDecimal) str).shortValue();
+		}else{
+			return 0;
+		}
+	}
+
+	public static byte parseByte(Object str){
+		if(str instanceof String){
+			return parseNumber((String) str).byteValue();
+		}else if(str instanceof Integer){
+			return ((Integer) str).byteValue();
+		}else if(str instanceof Double){
+			return ((Double) str).byteValue();
+		}else if(str instanceof Float){
+			return ((Float) str).byteValue();
+		}else if(str instanceof Long){
+			return ((Long) str).byteValue();
+		}else if(str instanceof Byte){
+			return ((Byte) str).byteValue();
+		}else if(str instanceof Short){
+			return ((Short) str).byteValue();
+		}else if(str instanceof BigInteger){
+			return ((BigInteger) str).byteValue();
+		}else if(str instanceof BigDecimal){
+			return ((BigDecimal) str).byteValue();
+		}else{
+			return 0;
+		}
+	}
+
+	public static BigInteger parseBigInteger(Object str){
+		if(str instanceof String){
+			return new BigInteger((String) str);
+		}else if(str instanceof Integer){
+			return new BigInteger(((Integer) str).toString());
+		}else if(str instanceof Double){
+			return new BigInteger(parseString(parseInt(str)));
+		}else if(str instanceof Float){
+			return new BigInteger(parseString(parseInt(str)));
+		}else if(str instanceof Long){
+			return BigInteger.valueOf((Long) str);
+		}else if(str instanceof Byte){
+			return new BigInteger(parseString(parseInt(str)));
+		}else if(str instanceof Short){
+			return new BigInteger(parseString(parseInt(str)));
+		}else{
+			return new BigInteger("0");
+		}
+	}
+	
+	public static boolean parseBoolean(Object str){
+		if(str instanceof String){
+			return Boolean.parseBoolean((String) str);
+		}else if(str instanceof Integer){
+			return ((Integer) str) == 0 ? false : true;
+		}else if(str instanceof Double){
+			return ((Double) str) == 0 ? false : true;
+		}else if(str instanceof Float){
+			return ((Float) str) == 0 ? false : true;
+		}else if(str instanceof Long){
+			return ((Long) str) == 0 ? false : true;
+		}else if(str instanceof Byte){
+			return ((Byte) str) == 0 ? false : true;
+		}else if(str instanceof Short){
+			return ((Short) str) == 0 ? false : true;
+		}else{
+			return false;
 		}
 	}
 	
 	public static Number parseNumber(String str){
-		if(isNullOrEmpty(str)){
-			return 0;
-		}else{
-			try {
-				return Long.parseLong(str);
-			} catch (Exception e) {
-				return Double.parseDouble(str);
-			}
+		Number number = 0;
+		try {
+			number = NumberFormat.getInstance().parse(str);
+		} catch (ParseException e) {
+			e.printStackTrace();
 		}
+		return number;
 	}
-	
-	public static boolean parseBoolean(String str){
-		if(isNullOrEmpty(str)){
-			return false;
-		}else{
-			try {
-				return Boolean.parseBoolean(str);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return false;
-			}
-		}
+
+	public static String parseString(Object str){
+		return String.valueOf(str);
 	}
 	
 	/**

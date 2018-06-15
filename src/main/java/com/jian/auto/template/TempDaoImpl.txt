@@ -1,0 +1,14 @@
+package PK;
+
+import Dao;
+import T;
+
+/**
+ * com.tools.auto 自动生成  TempDaoImpl
+ * @author liujian
+ *
+ */
+ public class TempDaoImpl extends BaseDaoImpl<T> implements TempDao {
+	
+	
+}

@@ -144,7 +144,7 @@ public class HttpTools {
 	 * @param httpPost
 	 * @return
 	 */
-	private String sendHttpPost(HttpPost httpPost) {
+	public String sendHttpPost(HttpPost httpPost) {
 		return sendHttpPost(httpPost, requestConfig);
 	}
 	
@@ -154,7 +154,7 @@ public class HttpTools {
 	 * @param requestConfig
 	 * @return
 	 */
-	private String sendHttpPost(HttpPost httpPost, RequestConfig requestConfig) {
+	public String sendHttpPost(HttpPost httpPost, RequestConfig requestConfig) {
 		CloseableHttpClient httpClient = null;
 		CloseableHttpResponse response = null;
 		HttpEntity entity = null;
@@ -209,7 +209,7 @@ public class HttpTools {
 	 * @param httpGet
 	 * @return
 	 */
-	private String sendHttpGet(HttpGet httpGet) {
+	public String sendHttpGet(HttpGet httpGet) {
 		return  sendHttpGet(httpGet, requestConfig);
 	}
 	
@@ -219,7 +219,7 @@ public class HttpTools {
 	 * @param requestConfig
 	 * @return
 	 */
-	private String sendHttpGet(HttpGet httpGet, RequestConfig requestConfig) {
+	public String sendHttpGet(HttpGet httpGet, RequestConfig requestConfig) {
 		CloseableHttpClient httpClient = null;
 		CloseableHttpResponse response = null;
 		HttpEntity entity = null;
@@ -255,7 +255,7 @@ public class HttpTools {
 	 * @param httpPost
 	 * @return
 	 */
-	private String sendHttpsGet(HttpGet httpGet) {
+	public String sendHttpsGet(HttpGet httpGet) {
 		return sendHttpsGet(httpGet, requestConfig);
 	}
 	
@@ -264,7 +264,7 @@ public class HttpTools {
 	 * @param httpPost
 	 * @return
 	 */
-	private String sendHttpsGet(HttpGet httpGet, RequestConfig requestConfig) {
+	public String sendHttpsGet(HttpGet httpGet, RequestConfig requestConfig) {
 		CloseableHttpClient httpClient = null;
 		CloseableHttpResponse response = null;
 		HttpEntity entity = null;
