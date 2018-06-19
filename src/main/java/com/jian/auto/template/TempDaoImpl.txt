@@ -4,7 +4,7 @@ import Dao;
 import T;
 
 /**
- * com.tools.auto 自动生成  TempDaoImpl
+ * com.jian.auto 自动生成  TempDaoImpl
  * @author liujian
  *
  */

@@ -3,7 +3,7 @@ package PK;
 import T;
 
 /**
- * com.tools.auto 自动生成  TempService
+ * com.jian.auto 自动生成  TempService
  * @author liujian
  *
  */

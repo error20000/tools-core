@@ -3,10 +3,10 @@ package PK;
 import DB;
 import T;
 import Service;
-import com.tools.service.impl.AbstractBaseServiceImpl;
+import com.jian.service.impl.AbstractBaseServiceImpl;
 
 /**
- * com.tools.auto 自动生成  TempServiceImpl
+ * com.jian.auto 自动生成  TempServiceImpl
  * @author liujian
  *
  */

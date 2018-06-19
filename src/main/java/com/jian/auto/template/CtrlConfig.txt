@@ -2,7 +2,7 @@ package PK;
 
 
 /**
- * com.tools.auto 自动生成  CtrlConfig
+ * com.jian.auto 自动生成  CtrlConfig
  * @author liujian
  *
  */
@@ -11,7 +11,6 @@ public class CtrlConfig {
 	//权限验证配置
 	public final static String uidName = "uid"; //登录验证的uid名称
 	public final static String tokenName = "token"; //登录验证的token名称
-	public final static boolean point = false; //验证token
 	
 	//共有验证配置
 	public static boolean saveLogin = true; //是否需要登录验证，save

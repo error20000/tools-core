@@ -1,9 +1,9 @@
 package PK;
 
-import com.tools.service.AbstractBaseService;
+import com.jian.service.AbstractBaseService;
 
 /**
- * com.tools.auto 自动生成  BaseService
+ * com.jian.auto 自动生成  BaseService
  * @author liujian
  *
  * @param <T>

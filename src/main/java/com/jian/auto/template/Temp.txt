@@ -2,11 +2,11 @@ package PK;
 
 //import
 import com.alibaba.fastjson.JSONObject;
-import com.tools.jdbc.Table;
-import com.tools.annotation.Excel;
+import com.jian.annotation.Table;
+import com.jian.annotation.Excel;
 
 /**
- * com.tools.auto 自动生成  Temp
+ * com.jian.auto 自动生成  Temp
  * @author liujian
  *
  */

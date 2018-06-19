@@ -10,13 +10,13 @@ public class Config {
 	private static final String ENTITY_PATH = "entity";
 	private static final String DAO_PATH = "dao";
 	private static final String DAO_IMPL_PATH = "dao.impl";
+	private static final String DAO_UTIL_PATH = "dao.util";
 	private static final String SERVICE_PATH = "service";
 	private static final String SERVICE_IMPL_PATH = "service.impl";
 	private static final String SERVLET_PATH = "servlet";
 	private static final String CONTROLLER_PATH = "controller";
 	private static final String CONFIG_PATH = "config";
 	private static final String UTIL_PATH = "util";
-	public static final String TEMPLATE_PATH = "/com/jian/spring/template";
 	
 	//配置
 	private String dbPropertiesName = "autodb.properties"; //数据库配置文件名
@@ -24,6 +24,7 @@ public class Config {
 	private boolean overWrite = false; //文件已存在是否覆盖
 	private String reqPrefix = "/api"; //请求前缀
 	private String chartset = "utf-8";//文件字符集
+	private static String tempPath = "/com/jian/auto/template/";//模版路径
 	
 	
 	public Config(){
@@ -38,9 +39,6 @@ public class Config {
 		this.basePackge = basePackge;
 	}
 	
-	public String getBasePath(){
-		return basePackge;
-	}
 	
 	public String getEntityPath(){
 		return basePackge+"."+ENTITY_PATH;
@@ -52,6 +50,10 @@ public class Config {
 	
 	public String getDaoImplPath(){
 		return basePackge+"."+DAO_IMPL_PATH;
+	}
+	
+	public String getDaoUtilPath(){
+		return basePackge+"."+DAO_UTIL_PATH;
 	}
 
 	public String getServicePath(){
@@ -77,7 +79,6 @@ public class Config {
 	public String getUtilPath(){
 		return basePackge+"."+UTIL_PATH;
 	}
-	
 	
 	
 	public String getBasePackge() {
@@ -165,6 +166,17 @@ public class Config {
 		chartset = chartset.trim();
 		if(!Tools.isNullOrEmpty(chartset)){
 			this.chartset = chartset;
+		}
+	}
+
+	public static String getTempPath() {
+		return tempPath;
+	}
+
+	public static void setTempPath(String tempPath) {
+		tempPath = tempPath.trim();
+		if(!Tools.isNullOrEmpty(tempPath)){
+			Config.tempPath = tempPath;
 		}
 	}
 	

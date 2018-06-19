@@ -2,10 +2,10 @@ package PK;
 
 import Dao;
 import JdbcOperateManager;
-import com.tools.db.dao.impl.MysqlBaseDaoImpl;
+import com.jian.dao.impl.MysqlBaseDaoImpl;
 
 /**
- * com.tools.auto 自动生成  BaseDaoImpl
+ * com.jian.auto 自动生成  BaseDaoImpl
  * @author liujian
  *
  * @param <T>

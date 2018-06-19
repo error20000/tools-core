@@ -4,11 +4,11 @@ import java.io.File;
 
 import javax.sql.DataSource;
 
-import com.tools.jdbc.JdbcOperate;
-import com.tools.jdbc.c3p0.C3P0PropertiesConfig;
+import com.jian.jdbc.JdbcOperate;
+import com.jian.jdbc.c3p0.C3P0PropertiesConfig;
 
 /**
- * com.tools.auto 自动生成
+ * com.jian.auto 自动生成
  * @author liujian
  *
  * @param <T>

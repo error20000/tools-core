@@ -3,7 +3,7 @@ package PK;
 //import
 
 /**
- * com.tools.auto 自动生成  DB
+ * com.jian.auto 自动生成  DB
  * @author liujian
  *
  */

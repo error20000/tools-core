@@ -18,34 +18,30 @@ import com.jian.tools.core.DateTools;
 import com.jian.tools.core.Tools;
 
 /**
- * 自动生成管理器。需要配置的参数：
- * <p>{@code packge} 包路径
- * <p>{@code dbPath} 数据库配置文件（必填）
- * <p>{@code dbPathSecond} 数据库从库配置文件
- * <p>{@code prefix} 表前缀
- * <p>{@code separator} 表分隔符
- * <p>{@code chartset} 生成文件字符集，默认“utf-8”
+ * 自动生成管理器，自己的实现
  * @author liujian
  *
- * @see com.tools.auto.Config
- * @see com.tools.auto.db.TableManager
+ * @see com.jian.auto.Config
+ * @see com.jian.auto.db.TableManager
  */
 public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 	
 	private Config config =  null;
 	private TableManager manager = null;
 	private ConfigDB dbConfig = null;
+	private String dbPath = ""; //数据库配置
+	private String dbPathSecond = ""; //数据库从库配置
 	
-	public AutoCreateNormal(){
-		config = new Config();
-	}
 	
 	public AutoCreateNormal(Config config, ConfigDB dbConfig){
 		//配置
 		this.config = config;
 		this.dbConfig = dbConfig;
-		//数据库配置
+		//数据库配置文件
 		String realPath = dbConfig.getDBPath();
+		String realPath2 = dbConfig.getDBPathSecond();
+		this.dbPath = realPath.substring(realPath.lastIndexOf("/")+1);
+		this.dbPathSecond = realPath2.substring(realPath2.lastIndexOf("/")+1);
 		//绝对地址，不能用相对地址。因为创建的文件还没有刷新到项目里
 		manager = new TableManager(realPath);
 	}
@@ -66,105 +62,166 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 	
 	@Override
 	public void createEntity(Table table) {
-		doCreateEntity(table);
-	}
-
-	@Override
-	public void createDao(Table table){
-		doCreateDao(table);
-	}
-	
-	/**
-	 * 创建dao层实现
-	 * @param tempName 模版名
-	 * @param fileName 生成文件名
-	 */
-	public void createDaoImpl(String tempName, String fileName){
-		String packName = config.getDaoImplPath(); //包路径
-		createDaoFile(packName, tempName, fileName, config.getChartset());
-	}
-
-	/**
-	 * 创建dao层工具
-	 * @param tempName 模版名
-	 * @param fileName 生成文件名
-	 */
-	public void createDaoUtil(String tempName, String fileName){
-		String packName = config.getUtilPath(); //包路径
-		createDaoFile(packName, tempName, fileName, config.getChartset());
-	}
-	
-	/**
-	 * 注册dao层到DB。 例如：public static final UserDao USER_DAO = new UserDaoImpl();
-	 * @param fileName 生成文件名
-	 */
-	public void createDB(String fileName){
-		String packName = config.getUtilPath(); //包路径
-		createDBFile(packName, fileName, config.getChartset());
-	}
-
-	/**
-	 * 创建service层接口
-	 * @param tempName 模版名
-	 * @param fileName 生成文件名
-	 */
-	public void createService(String tempName, String fileName){
-		String packName = config.getServicePath(); //包路径
-		createServiceFile(packName, tempName, fileName, config.getChartset());
-	}
-	
-	/**
-	 * 创建service层实现
-	 * @param tempName 模版名
-	 * @param fileName 生成文件名
-	 */
-	public void createServiceImpl(String tempName, String fileName){
-		String packName = config.getServiceImplPath(); //包路径
-		createServiceFile(packName, tempName, fileName, config.getChartset());
-	}
-
-	/**
-	 * 创建控制层，以Servlet模式
-	 * @param tempName 模版名
-	 * @param fileName 生成文件名
-	 */
-	public void createServlet(String tempName, String fileName){
-		String packName = config.getServletPath(); //包路径
-		createServletFile(packName, tempName, fileName, config.getChartset());
-	}
-
-	/**
-	 * 创建控制层，以Controller模式
-	 * @param tempName 模版名
-	 * @param fileName 生成文件名
-	 */
-	public void createController(String tempName, String fileName, Table table){
-		String packName = config.getControllerPath(); //包路径
-		createControllerFile(packName, tempName, fileName, config.getChartset(), table);
-	}
-	
-	/**
-	 * 创建配置文件
-	 * @param tempName 模版名
-	 * @param fileName 生成文件名
-	 */
-	public void createConfig(String tempName, String fileName){
-		String packName = config.getConfigPath(); //包路径
-		createConfigFile(packName, tempName, fileName, config.getChartset());
-	}
-	
-	
-	private void doCreateEntity(Table table){
 		if(table == null){ //没有基础entity
 			return;
 		}
 		String packName = config.getEntityPath(); //包路径
-		String chartset = config.getChartset();
+		String chartset = config.getChartset(); //字符集
 		String tempName = "Temp"; //模版名
 		String fileName = table.getEntityName(); //文件名
+		doCreateEntity(packName, tempName, fileName, chartset, table);
+	}
+
+	@Override
+	public void createDao(Table table){
+		String packName = config.getDaoPath(); //包路径
+		String chartset = config.getChartset(); //字符集
+		String tempName = ""; //模版名
+		String fileName = ""; //文件名
+		if(table == null){
+			tempName = "BaseDao";
+			fileName = "BaseDao";
+		}else{
+			tempName = "TempDao";
+			fileName = table.getEntityName() + "Dao";
+		}
+		doCreateDao(packName, tempName, fileName, chartset);
+	}
+	
+	@Override
+	public void createDaoImpl(Table table){
+		String packName = config.getDaoImplPath(); //包路径
+		String chartset = config.getChartset(); //字符集
+		String tempName = ""; //模版名
+		String fileName = ""; //文件名
+		if(table == null){
+			tempName = "BaseDaoImpl";
+			fileName = "BaseDaoImpl";
+		}else{
+			tempName = "TempDaoImpl";
+			fileName = table.getEntityName() + "DaoImpl";
+		}
+		doCreateDao(packName, tempName, fileName, chartset);
+	}
+
+	@Override
+	public void createDaoUtil(Table table){
+		String packName = config.getDaoUtilPath(); //包路径
+		String chartset = config.getChartset(); //字符集
+		String tempName = "JdbcOperateManager"; //模版名
+		String fileName = "JdbcOperateManager"; //文件名
+		doCreateDao(packName, tempName, fileName, chartset);
+	}
+	
+	@Override
+	public void createDB(Table table){
+		if(table == null){
+			return;
+		}
+		String packName = config.getDaoUtilPath(); //包路径
+		String chartset = config.getChartset(); //字符集
+		String tempName = "DB"; //模版名
+		String fileName = "DB"; //文件名
+		String entityName = table.getEntityName(); //文件名
+		doCreateDB(packName, tempName, fileName, chartset, entityName);
+	}
+
+	@Override
+	public void createService(Table table){
+		String packName = config.getServicePath(); //包路径
+		String chartset = config.getChartset(); //字符集
+		String tempName = ""; //模版名
+		String fileName = ""; //文件名
+		if(table == null){
+			tempName = "BaseService";
+			fileName = "BaseService";
+		}else{
+			tempName = "TempService";
+			fileName = table.getEntityName() + "Service";
+		}
+		doCreateService(packName, tempName, fileName, chartset);
+	}
+	
+	@Override
+	public void createServiceImpl(Table table){
+		String packName = config.getServiceImplPath(); //包路径
+		String chartset = config.getChartset(); //字符集
+		String tempName = ""; //模版名
+		String fileName = ""; //文件名
+		if(table == null){
+			tempName = "BaseServiceImpl";
+			fileName = "BaseServiceImpl";
+		}else{
+			tempName = "TempServiceImpl";
+			fileName = table.getEntityName() + "ServiceImpl";
+		}
+		doCreateService(packName, tempName, fileName, chartset);
+	}
+
+	@Override
+	public void createServlet(Table table){
+		if(table == null){
+			return;
+		}
+		String packName = config.getServletPath(); //包路径
+		String chartset = config.getChartset(); //字符集
+		String tempName = "Servlet"; //模版名
+		String fileName = table.getEntityName() + "Servlet"; //文件名
+		doCreateServlet(packName, tempName, fileName, chartset);
+	}
+
+	@Override
+	public void createController(Table table){
+		if(table == null){
+			return;
+		}
+		String packName = config.getControllerPath(); //包路径
+		String chartset = config.getChartset(); //字符集
+		String tempName = "TempController"; //模版名
+		String fileName = table.getEntityName() + "Controller"; //文件名
+		doCreateController(packName, tempName, fileName, chartset, table);
+	}
+	
+	@Override
+	public void createConfig(){
+		String packName = config.getConfigPath(); //包路径
+		String chartset = config.getChartset(); //字符集
+		String tempName = "CtrlConfig"; //模版名
+		String fileName = "CtrlConfig"; //文件名
+		doCreateConfig(packName, tempName, fileName, chartset);
+		tempName = "VerifyConfig"; //模版名
+		fileName = "VerifyConfig"; //文件名
+		doCreateConfig(packName, tempName, fileName, chartset);
+	}
+
+	@Override
+	public void createUtils(){
+		String packName = config.getUtilPath(); //包路径
+		String chartset = config.getChartset(); //字符集
+		String tempName = "Utils"; //模版名
+		String fileName = "Utils"; //文件名
+		doCreateUtils(packName, tempName, fileName, chartset);
+	}
+
+	@Override
+	public void createResources(){
+		return;
+	}
+	
+	@Override
+	public void createStart(){
+		doCreateStart();
+	}
+	
+	
+	private void doCreateEntity(String packName, String tempName, String fileName, String chartset, Table table){
 		
 		System.out.println(DateTools.formatDate()+":	start create entity file... " +packName+" "+fileName);
-		InputStream in = getClass().getResourceAsStream(tempName + ".txt"); //模版
+		InputStream in = getClass().getResourceAsStream(Config.getTempPath() + tempName + ".txt"); //模版
+		if(in == null){
+			System.out.println(DateTools.formatDate()+":	not find template... " + tempName + ".txt");
+			return;
+		}
 		String outPath = Tools.getBaseSrcPath() + packName.replace(".", File.separator) + File.separator + fileName + ".java"; //输出路径
 		BufferedWriter bw = null;
 		BufferedReader br = null;
@@ -294,21 +351,13 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 	}
 	
 	
-	private void doCreateDao(Table table){
-		String packName = config.getEntityPath(); //包路径
-		String chartset = config.getChartset(); //字符集
-		String tempName = ""; //模版名
-		String fileName = ""; //文件名
-		if(table == null){
-			tempName = "BaseDao";
-			fileName = "BaseDao";
-		}else{
-			tempName = "TempDao";
-			fileName = table.getEntityName() + "Dao";
+	private void doCreateDao(String packName, String tempName, String fileName, String chartset){
+		System.out.println(DateTools.formatDate()+":	start create dao file... " +packName+" "+fileName);
+		InputStream in = getClass().getResourceAsStream(Config.getTempPath() + tempName + ".txt"); //模版
+		if(in == null){
+			System.out.println(DateTools.formatDate()+":	not find template... " + tempName + ".txt");
+			return;
 		}
-		
-		System.out.println("start create dao file... " +packName+" "+fileName);
-		InputStream in = getClass().getResourceAsStream(tempName + ".txt"); //模版
 		String outPath = Tools.getBaseSrcPath() + packName.replace(".", File.separator) + File.separator + fileName + ".java"; //输出路径
 		BufferedWriter bw = null;
 		BufferedReader br = null;
@@ -317,7 +366,7 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
 			return;
 		}
-		System.out.println("output file... " +outPath);
+		System.out.println(DateTools.formatDate()+":	output file... " +outPath);
 		File pfile = outFile.getParentFile();
 		if(!pfile.exists()){
 			pfile.mkdirs();
@@ -373,12 +422,81 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 				e.printStackTrace(); 
 			}
 		}
-		System.out.println("end create dao file... " +packName+" "+fileName);
+		System.out.println(DateTools.formatDate()+":	end create dao file... " +packName+" "+fileName);
 	}
 	
-	private void createServiceFile(String packName, String tempName, String fileName, String chartset){
-		System.out.println("start create service file... " +packName+" "+fileName);
-		InputStream in = getClass().getResourceAsStream(tempName + ".txt"); //模版
+	private void doCreateDB(String packName, String tempName, String fileName, String chartset, String entityName){
+		System.out.println(DateTools.formatDate()+":	start add db file... " +packName+" "+fileName);
+		InputStream in = getClass().getResourceAsStream(Config.getTempPath() + tempName+".txt"); //模版
+		if(in == null){
+			System.out.println(DateTools.formatDate()+":	not find template... " + tempName + ".txt");
+			return;
+		}
+		String outPath = Tools.getBaseSrcPath() + packName.replace(".", File.separator) + File.separator + fileName +".java"; //输出路径
+		File outFile = new File(outPath);
+		System.out.println(DateTools.formatDate()+":	output file... " +outPath);
+		try {
+			boolean isExist = outFile.exists();
+			RandomAccessFile rafWrite = new RandomAccessFile(outFile, "rw"); 
+			List<String> content = new ArrayList<String>();
+			String line;
+			//如果文件不存在，先创建模版。
+			if(!isExist || outFile.length() == 0){
+				//以只读方式打开并读取一行数据
+				BufferedReader br = new BufferedReader(new InputStreamReader(in, chartset)); 
+				File pfile = outFile.getParentFile();
+				if(!pfile.exists()){
+					pfile.mkdirs();
+				}
+				while ((line = br.readLine()) != null) {
+					if(line.indexOf("package PK;") != -1){
+						line = "package " + packName + ";";
+					}
+					content.add(line);
+				}
+				br.close();
+			}else{
+				while ((line = rafWrite.readLine()) != null) {
+					content.add(new String(line.getBytes("ISO-8859-1"), chartset));
+				}
+				rafWrite.seek(0);
+			}
+			//判断dao层是否已注册
+			boolean flag = true;
+			for (String str : content) {
+				if(str.matches(".*\\s+"+entityName.toUpperCase()+"_DAO\\s+.*")){
+					flag = false;
+					System.out.println(DateTools.formatDate()+":	db已注册... "+ entityName);
+				}
+			}
+			if(flag){
+				for (int i = 0; i < content.size(); i++) {
+					if("//import".equals(content.get(i).trim())){
+						content.add(i+1, "import "+ packName.replace("util", "") + entityName+"Dao;");
+						content.add(i+1, "import "+ packName.replace("util", "impl.") + entityName+"DaoImpl;");
+					}else if("//dao".equals(content.get(i).trim())){
+						content.add(i+1, "	public static final "+entityName+"Dao "+entityName.toUpperCase()+"_DAO = new "+entityName+"DaoImpl();");
+					}
+				}
+				for (String str : content) {
+					rafWrite.write(str.getBytes());
+					rafWrite.write("\n".getBytes());
+				}
+			}
+			rafWrite.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println(DateTools.formatDate()+":	end add dao file... " +packName+" "+entityName);
+	}
+	
+	private void doCreateService(String packName, String tempName, String fileName, String chartset){
+		System.out.println(DateTools.formatDate()+":	start create service file... " +packName+" "+fileName);
+		InputStream in = getClass().getResourceAsStream(Config.getTempPath() + tempName + ".txt"); //模版
+		if(in == null){
+			System.out.println(DateTools.formatDate()+":	not find template... " + tempName + ".txt");
+			return;
+		}
 		String outPath = Tools.getBaseSrcPath() + packName.replace(".", File.separator) + File.separator + fileName + ".java"; //输出路径
 		BufferedWriter bw = null;
 		BufferedReader br = null;
@@ -387,7 +505,7 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
 			return;
 		}
-		System.out.println("output file... " +outPath);
+		System.out.println(DateTools.formatDate()+":	output file... " +outPath);
 		File pfile = outFile.getParentFile();
 		if(!pfile.exists()){
 			pfile.mkdirs();
@@ -439,73 +557,18 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 				e.printStackTrace(); 
 			}
 		}
-		System.out.println("end create service file... " +packName+" "+fileName);
+		System.out.println(DateTools.formatDate()+":	end create service file... " +packName+" "+fileName);
 	}
 	
-	private void createDBFile(String packName, String fileName, String chartset){
-		System.out.println("start add db file... " +packName+" "+fileName);
-		InputStream in = getClass().getResourceAsStream("DB.txt"); //模版
-		String outPath = Tools.getBaseSrcPath() + packName.replace(".", File.separator) + File.separator + "DB.java"; //输出路径
-		File outFile = new File(outPath);
-		System.out.println("output file... " +outPath);
-		try {
-			boolean isExist = outFile.exists();
-			RandomAccessFile rafWrite = new RandomAccessFile(outFile, "rw"); 
-			List<String> content = new ArrayList<String>();
-			String line;
-			//如果文件不存在，先创建模版。
-			if(!isExist || outFile.length() == 0){
-				//以只读方式打开并读取一行数据
-				BufferedReader br = new BufferedReader(new InputStreamReader(in, chartset)); 
-				File pfile = outFile.getParentFile();
-				if(!pfile.exists()){
-					pfile.mkdirs();
-				}
-				while ((line = br.readLine()) != null) {
-					if(line.indexOf("package PK;") != -1){
-						line = "package " + packName + ";";
-					}
-					content.add(line);
-				}
-				br.close();
-			}else{
-				while ((line = rafWrite.readLine()) != null) {
-					content.add(new String(line.getBytes("ISO-8859-1"), chartset));
-				}
-				rafWrite.seek(0);
-			}
-			//判断dao层是否已注册
-			boolean flag = true;
-			for (String str : content) {
-				if(str.matches(".*\\s+"+fileName.toUpperCase()+"_DAO\\s+.*")){
-					flag = false;
-					System.out.println("db已注册... "+ fileName);
-				}
-			}
-			if(flag){
-				for (int i = 0; i < content.size(); i++) {
-					if("//import".equals(content.get(i).trim())){
-						content.add(i+1, "import "+ packName.replace("util", "") + fileName+"Dao;");
-						content.add(i+1, "import "+ packName.replace("util", "impl.") + fileName+"DaoImpl;");
-					}else if("//dao".equals(content.get(i).trim())){
-						content.add(i+1, "	public static final "+fileName+"Dao "+fileName.toUpperCase()+"_DAO = new "+fileName+"DaoImpl();");
-					}
-				}
-				for (String str : content) {
-					rafWrite.write(str.getBytes());
-					rafWrite.write("\n".getBytes());
-				}
-			}
-			rafWrite.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+	
+	
+	private void doCreateServlet(String packName, String tempName, String fileName, String chartset){
+		System.out.println(DateTools.formatDate()+":	start create servlet file... " +packName+" "+fileName);
+		InputStream in = getClass().getResourceAsStream(Config.getTempPath() + tempName + ".txt"); //模版
+		if(in == null){
+			System.out.println(DateTools.formatDate()+":	not find template... " + tempName + ".txt");
+			return;
 		}
-		System.out.println("end add dao file... " +packName+" "+fileName);
-	}
-	
-	private void createServletFile(String packName, String tempName, String fileName, String chartset){
-		System.out.println("start create servlet file... " +packName+" "+fileName);
-		InputStream in = getClass().getResourceAsStream(tempName + ".txt"); //模版
 		String outPath = Tools.getBaseSrcPath() + packName.replace(".", File.separator) + File.separator + fileName + ".java"; //输出路径
 		BufferedWriter bw = null;
 		BufferedReader br = null;
@@ -514,7 +577,7 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
 			return;
 		}
-		System.out.println("output file... " +outPath);
+		System.out.println(DateTools.formatDate()+":	output file... " +outPath);
 		File pfile = outFile.getParentFile();
 		if(!pfile.exists()){
 			pfile.mkdirs();
@@ -564,12 +627,16 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 				e.printStackTrace(); 
 			}
 		}
-		System.out.println("end create servlet file... " +packName+" "+fileName);
+		System.out.println(DateTools.formatDate()+":	end create servlet file... " +packName+" "+fileName);
 	}
 	
-	private void createControllerFile(String packName, String tempName, String fileName, String chartset, Table table){
-		System.out.println("start create controller file... " +packName+" "+fileName);
-		InputStream in = getClass().getResourceAsStream(tempName + ".txt"); //模版路径
+	private void doCreateController(String packName, String tempName, String fileName, String chartset, Table table){
+		System.out.println(DateTools.formatDate()+":	start create controller file... " +packName+" "+fileName);
+		InputStream in = getClass().getResourceAsStream(Config.getTempPath() + tempName + ".txt"); //模版路径
+		if(in == null){
+			System.out.println(DateTools.formatDate()+":	not find template... " + Config.getTempPath() + tempName + ".txt");
+			return;
+		}
 		String outPath = Tools.getBaseSrcPath() + packName.replace(".", File.separator) + File.separator + fileName + ".java"; //输出路径
 		BufferedWriter bw = null;
 		BufferedReader br = null;
@@ -578,7 +645,7 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
 			return;
 		}
-		System.out.println("output file... " +outPath);
+		System.out.println(DateTools.formatDate()+":	output file... " +outPath);
 		File pfile = outFile.getParentFile();
 		if(!pfile.exists()){
 			pfile.mkdirs();
@@ -604,6 +671,8 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 					line = "import " + packName.replace("controller", "config.CtrlConfig") + ";";//import xxxx.config.CtrlConfig
 				}else if(line.indexOf("import VerifyConfig;") != -1){
 					line = "import " + packName.replace("controller", "config.VerifyConfig") + ";";//import xxxx.config.VerifyConfig
+				}else if(line.indexOf("import Utils;") != -1){
+					line = "import " + packName.replace("controller", "util.Utils") + ";";//import xxxx.util.Utils
 				}else{
 					line = line.replace("Temp", en);
 				}
@@ -636,13 +705,17 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 				e.printStackTrace(); 
 			}
 		}
-		System.out.println("end create controller file... " +packName+" "+fileName);
+		System.out.println(DateTools.formatDate()+":	end create controller file... " +packName+" "+fileName);
 	}
 	
 	
-	private void createConfigFile(String packName, String tempName, String fileName, String chartset){
-		System.out.println("start create config file... " +packName+" "+fileName);
-		InputStream in = getClass().getResourceAsStream(tempName + ".txt"); //模版路径
+	private void doCreateConfig(String packName, String tempName, String fileName, String chartset){
+		System.out.println(DateTools.formatDate()+":	start create config file... " +packName+" "+fileName);
+		InputStream in = getClass().getResourceAsStream(Config.getTempPath() + tempName + ".txt"); //模版路径
+		if(in == null){
+			System.out.println(DateTools.formatDate()+":	not find template... " + tempName + ".txt");
+			return;
+		}
 		String outPath = Tools.getBaseSrcPath() + packName.replace(".", File.separator) + File.separator + fileName + ".java"; //输出路径
 		BufferedWriter bw = null;
 		BufferedReader br = null;
@@ -651,7 +724,59 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
 			return;
 		}
-		System.out.println("output file... " +outPath);
+		System.out.println(DateTools.formatDate()+":	output file... " +outPath);
+		File pfile = outFile.getParentFile();
+		if(!pfile.exists()){
+			pfile.mkdirs();
+		}
+		try {
+			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), chartset)); 
+			br = new BufferedReader(new InputStreamReader(in, chartset)); 
+			String line; 
+			while((line = br.readLine()) != null){ 
+				//packge
+				if(line.indexOf("package PK;") != -1){
+					line = "package " + packName + ";";
+				}else if(line.indexOf("import Utils;") != -1){
+					line = "import " + packName.replace("config", "util.Utils") + ";";//import xxxx.util.Utils
+				}
+				bw.write(line); 
+				bw.newLine(); 
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try { 
+				if(br != null){
+					br.close(); 
+				}
+				if(bw != null){
+					bw.flush();
+					bw.close(); 
+				}
+			}catch (Exception e) { 
+				e.printStackTrace(); 
+			}
+		}
+		System.out.println(DateTools.formatDate()+":	end create config file... " +packName+" "+fileName);
+	}
+	
+	private void doCreateUtils(String packName, String tempName, String fileName, String chartset){
+		System.out.println(DateTools.formatDate()+":	start create config file... " +packName+" "+fileName);
+		InputStream in = getClass().getResourceAsStream(Config.getTempPath() + tempName + ".txt"); //模版路径
+		if(in == null){
+			System.out.println(DateTools.formatDate()+":	not find template... " + tempName + ".txt");
+			return;
+		}
+		String outPath = Tools.getBaseSrcPath() + packName.replace(".", File.separator) + File.separator + fileName + ".java"; //输出路径
+		BufferedWriter bw = null;
+		BufferedReader br = null;
+		File outFile = new File(outPath);
+		//如果文件已存在，并且不开启重写。结束创建。
+		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
+			return;
+		}
+		System.out.println(DateTools.formatDate()+":	output file... " +outPath);
 		File pfile = outFile.getParentFile();
 		if(!pfile.exists()){
 			pfile.mkdirs();
@@ -683,7 +808,53 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 				e.printStackTrace(); 
 			}
 		}
-		System.out.println("end create config file... " +packName+" "+fileName);
+		System.out.println(DateTools.formatDate()+":	end create config file... " +packName+" "+fileName);
+	}
+	
+	private void doCreateStart(){
+		System.out.println(DateTools.formatDate()+":	start create config file... " +" javax.servlet.ServletContainerInitializer");
+		InputStream in = getClass().getResourceAsStream(Config.getTempPath() + "javax.servlet.ServletContainerInitializer"); //模版路径
+		if(in == null){
+			System.out.println(DateTools.formatDate()+":	not find template... "  +" javax.servlet.ServletContainerInitializer");
+			return;
+		}
+		String outPath = Tools.getBaseSrcPath() + "/META-INF/services/javax.servlet.ServletContainerInitializer"; //输出路径
+		BufferedWriter bw = null;
+		BufferedReader br = null;
+		File outFile = new File(outPath);
+		//如果文件已存在，并且不开启重写。结束创建。
+		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
+			return;
+		}
+		System.out.println(DateTools.formatDate()+":	output file... " +outPath);
+		File pfile = outFile.getParentFile();
+		if(!pfile.exists()){
+			pfile.mkdirs();
+		}
+		try {
+			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile))); 
+			br = new BufferedReader(new InputStreamReader(in)); 
+			String line; 
+			while((line = br.readLine()) != null){ 
+				bw.write(line); 
+				bw.newLine(); 
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try { 
+				if(br != null){
+					br.close(); 
+				}
+				if(bw != null){
+					bw.flush();
+					bw.close(); 
+				}
+			}catch (Exception e) { 
+				e.printStackTrace(); 
+			}
+		}
+		System.out.println(DateTools.formatDate()+":	end create config file... " +" javax.servlet.ServletContainerInitializer");
 	}
 	
 	

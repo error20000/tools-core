@@ -9,25 +9,18 @@ import com.jian.tools.core.Tools;
 
 /**
  * 自动生成管理器。需要配置的参数：
- * <p>{@code packge} 包路径
- * <p>{@code dbPath} 数据库配置文件（必填）
- * <p>{@code dbPathSecond} 数据库从库配置文件
- * <p>{@code prefix} 表前缀
- * <p>{@code separator} 表分隔符
- * <p>{@code chartset} 生成文件字符集，默认“utf-8”
+ * <p>{@code config} 数据库配置
+ * <p>{@code manager} 数据库管理器
  * @author liujian
  *
- * @see com.tools.auto.Config
- * @see com.tools.auto.db.TableManager
+ * @see com.jian.auto.ConfigDB
+ * @see com.jian.auto.db.TableManager
  */
 public abstract class AbstractAutoCreate implements AutoCreate {
 	
 	public TableManager manager = null;
 	public ConfigDB config =  null;
 	
-	public AbstractAutoCreate(){
-		init();
-	}
 	
 	public void init() {
 		initConfigDB();
@@ -43,6 +36,7 @@ public abstract class AbstractAutoCreate implements AutoCreate {
 	 */
 	@Override
 	public void start(){
+		init();
 		if(manager == null){
 			System.out.println(DateTools.formatDate()+":	没有配置数据库地址（dbPath）。。。。。。");
 			return;
@@ -57,6 +51,7 @@ public abstract class AbstractAutoCreate implements AutoCreate {
 	 */
 	@Override
 	public void start(String tableName){
+		init();
 		if(manager == null){
 			System.out.println(DateTools.formatDate()+":	没有配置数据库地址（dbPath）。。。。。。");
 			return;
@@ -84,7 +79,11 @@ public abstract class AbstractAutoCreate implements AutoCreate {
 		createServiceImpl(null);
 		createServlet(null);
 		createController(null);
-		createConfig(null);
+		
+		createConfig();
+		createUtils();
+		createResources();
+		createStart();
 		System.out.println(DateTools.formatDate()+":	end create base file.");
 	}
 
@@ -213,7 +212,25 @@ public abstract class AbstractAutoCreate implements AutoCreate {
 	 * 创建配置文件
 	 * @param table 数据表
 	 */
-	public abstract void createConfig(Table table);
+	public abstract void createConfig();
+	
+	/**
+	 * 创建工具文件
+	 * @param table 数据表
+	 */
+	public abstract void createUtils();
+	
+	/**
+	 * 创建资源文件
+	 * @param table 数据表
+	 */
+	public abstract void createResources();
+	
+	/**
+	 * 开始文件
+	 * @param table 数据表
+	 */
+	public abstract void createStart();
 	
 	
 }

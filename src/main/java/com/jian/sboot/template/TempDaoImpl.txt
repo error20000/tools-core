@@ -1,0 +1,16 @@
+package PK;
+
+import org.springframework.stereotype.Repository;
+
+import T;
+import Dao;
+
+/**
+ * @author liujian
+ * @Date  
+ */
+@Repository
+public class TempDaoImpl extends BaseDaoImpl<T> implements TempDao {
+
+
+}

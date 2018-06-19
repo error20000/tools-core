@@ -20,16 +20,18 @@ import Service;
 import ServiceImpl;
 import CtrlConfig;
 import VerifyConfig;
+import Utils;
 
-import com.tools.annotation.Excel;
-import com.tools.annotation.API;
-import com.tools.annotation.ParamsInfo;
-import com.tools.jdbc.PrimaryKeyCondition;
-import com.tools.utils.ResultKey;
-import com.tools.utils.Tips;
-import com.tools.utils.Tools;
-import com.tools.web.annotation.Controller;
-import com.tools.web.annotation.RequestMapping;
+import com.jian.annotation.Excel;
+import com.jian.annotation.API;
+import com.jian.annotation.ParamsInfo;
+import com.jian.annotation.PrimaryKeyCondition;
+import com.jian.tools.core.ResultKey;
+import com.jian.tools.core.Tips;
+import com.jian.tools.core.Tools;
+import com.jian.annotation.Controller;
+import com.jian.annotation.RequestMapping;
+
 
 /**
  * com.tools.auto 自动生成  TempController
@@ -174,7 +176,7 @@ public class TempController{
 		//执行
 		JSONObject json = new JSONObject();
 		Temp obj = Tools.getReqParamsToObject(req, new Temp());
-		obj = Tools.fillDate(CtrlConfig.fillDateForAdd, obj);	//日期填充
+		obj = Utils.fillDate(CtrlConfig.fillDateForAdd, obj);	//日期填充
 		int res = service.save(obj);
 		if(res > 0){
 			json.put(ResultKey.CODE, Tips.ERROR1.getCode());
@@ -201,10 +203,10 @@ public class TempController{
 		JSONObject json = new JSONObject();
 		//修改为不用传entity的全字段
 //		Temp obj = Tools.getReqParamsToObject(req, new Temp());
-//		obj = Tools.fillDate(CtrlConfig.fillDateForModify, obj);
+//		obj = Utils.fillDate(CtrlConfig.fillDateForModify, obj);
 //		int res = service.modify(obj);
 		
-		List<PrimaryKeyCondition> pkeys = Tools.getPrimaryKeys(Temp.class);//获取主键
+		List<PrimaryKeyCondition> pkeys = Utils.getPrimaryKeys(Temp.class);//获取主键
 		Map<String, Object> modifyValue = Tools.getReqParamsToMap(req, Temp.class);//获取更新字段
 		Map<String, Object> modifyCondition = new HashMap<String, Object>();//查询条件
 		for (PrimaryKeyCondition pkc : pkeys) {
@@ -232,7 +234,7 @@ public class TempController{
 			json.put(ResultKey.MSG, Tips.ERROR206.getDesc("修改")); //缺少修改参数
 			return json.toJSONString();
 		}
-		Map<String, Object> dates = Tools.fillDate(CtrlConfig.fillDateForModify, Temp.class); //日期填充
+		Map<String, Object> dates = Utils.fillDate(CtrlConfig.fillDateForModify, Temp.class); //日期填充
 		if(!dates.isEmpty()){
 			modifyValue.putAll(dates);
 		}

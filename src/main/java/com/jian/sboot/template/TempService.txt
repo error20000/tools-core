@@ -1,0 +1,12 @@
+package PK;
+
+import T;
+
+
+/**
+ * @author liujian
+ * @Date  
+ */
+public interface TempService extends BaseService<T> {
+
+}

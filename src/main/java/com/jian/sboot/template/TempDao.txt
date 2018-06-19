@@ -1,0 +1,11 @@
+package PK;
+
+import T;
+
+/**
+ * @author liujian
+ * @Date  
+ */
+public interface TempDao extends BaseDao<T> {
+
+}

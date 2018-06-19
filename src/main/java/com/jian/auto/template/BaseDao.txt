@@ -1,9 +1,9 @@
 package PK;
 
-import com.tools.db.dao.MysqlBaseDao;
+import com.jian.dao.MysqlBaseDao;
 
 /**
- * com.tools.auto 自动生成  BaseDao
+ * com.jian.auto 自动生成  BaseDao
  * @author liujian
  *
  * @param <T>

@@ -1,0 +1,28 @@
+package PK;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.jian.annotation.API;
+
+import T;
+import Service;
+
+@Controller
+@RequestMapping("{reqPrefix}/{path}")
+@API(info="{comment}", entity={Temp.class})
+public class TempController extends BaseController<Temp> {
+
+	@Autowired
+	private TempService service;
+	
+	@Override
+	public void initService() {
+		super.service = service;
+	}
+	
+
+	
+	
+}

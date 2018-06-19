@@ -7,14 +7,16 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.tools.jdbc.PrimaryKeyCondition;
-import com.tools.utils.AccessTokenTools;
-import com.tools.utils.ResultKey;
-import com.tools.utils.Tips;
-import com.tools.utils.Tools;
+import com.jian.annotation.PrimaryKeyCondition;
+import com.jian.tools.core.AccessTokenTools;
+import com.jian.tools.core.ResultKey;
+import com.jian.tools.core.Tips;
+import com.jian.tools.core.Tools;
+import Utils;
+
 
 /**
- * com.tools.auto 自动生成  VerifyConfig
+ * com.jian.auto 自动生成  VerifyConfig
  * @author liujian
  *
  */
@@ -22,7 +24,6 @@ public class VerifyConfig {
 	
 	private static String uidName = CtrlConfig.uidName; //登录验证的uid名称
 	private static String tokenName = CtrlConfig.tokenName; //登录验证的token名称
-	private static boolean point = CtrlConfig.point;	//开启单点登录验证
 	
 	//登录验证（公有）
 	private static Map<String, Object> verifyLogin(HttpServletRequest req, Class<?> clss){
@@ -37,7 +38,7 @@ public class VerifyConfig {
 		if(vMap != null){
 			return vMap;
 		}
-		if(!AccessTokenTools.checkToken(uid, token, point)){
+		if(!AccessTokenTools.checkToken(uid, token)){
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put(ResultKey.CODE, Tips.ERROR111.getCode());
 			map.put(ResultKey.MSG, Tips.ERROR111.getDesc());
@@ -92,7 +93,7 @@ public class VerifyConfig {
 			
 		}
 		//主键
-		List<PrimaryKeyCondition> pkeys = Tools.getPrimaryKeys(clss);//获取主键
+		List<PrimaryKeyCondition> pkeys = Utils.getPrimaryKeys(clss);//获取主键
 		for (PrimaryKeyCondition pkc : pkeys) {
 			String pkName = pkc.getField();
 			String pkValue = Tools.getReqParamSafe(req, pkName);
@@ -126,7 +127,7 @@ public class VerifyConfig {
 			
 		}
 		//主键
-		List<PrimaryKeyCondition> pkeys = Tools.getPrimaryKeys(clss);//获取主键
+		List<PrimaryKeyCondition> pkeys = Utils.getPrimaryKeys(clss);//获取主键
 		for (PrimaryKeyCondition pkc : pkeys) {
 			String pkName = pkc.getField();
 			String pkValue = Tools.getReqParamSafe(req, pkName);
@@ -219,5 +220,6 @@ public class VerifyConfig {
 		
 		return null;
 	}
+	
 	
 }

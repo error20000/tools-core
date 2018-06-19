@@ -11,9 +11,10 @@ public class Demo {
 		String separator = "_";
 		//包配置
 		Config config = new Config("com.testAuto");
+		config.setOverWrite(true);
 		//数据库配置
-		ConfigDB cdb = new ConfigDB(jdbcUrl, user, password, driverClass, prefix, separator)
-		AutoCreateManager test =  new AutoCreateManager(config, cdb, false);
+		ConfigDB cdb = new ConfigDB(jdbcUrl, user, password, driverClass, prefix, separator);
+		AutoCreateManager test =  new AutoCreateManager(config, cdb, 1);
 		test.start();
 //		test.start(tableName);
 	}
