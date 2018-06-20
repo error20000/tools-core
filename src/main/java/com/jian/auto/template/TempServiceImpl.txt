@@ -3,14 +3,13 @@ package PK;
 import DB;
 import T;
 import Service;
-import com.jian.service.impl.AbstractBaseServiceImpl;
 
 /**
  * com.jian.auto 自动生成  TempServiceImpl
  * @author liujian
  *
  */
-public class TempServiceImpl extends AbstractBaseServiceImpl<T> implements TempService {
+public class TempServiceImpl extends BaseServiceImpl<T> implements TempService {
 
 	@Override
 	public void initBaseDao() {

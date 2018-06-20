@@ -820,9 +820,9 @@ public class Tools {
 	public static void attackRecord (String path, String str){
 		File file = new File(path);
 		if(file.exists()){
-			path = path + File.separator + Tools.formatDate(null, "yyyyMMdd") + ".txt";
+			path = path + File.separator + DateTools.formatDate(null, "yyyyMMdd") + ".txt";
 		}else{
-			path = Tools.getBasePath() + (isNullOrEmpty(path) ? initAttackLogPath : path) + Tools.formatDate(null, "yyyyMMdd") + ".txt";
+			path = Tools.getBasePath() + (isNullOrEmpty(path) ? initAttackLogPath : path) + DateTools.formatDate(null, "yyyyMMdd") + ".txt";
 		}
 		Tools.fileWrite(path, str);
 	}
@@ -834,7 +834,7 @@ public class Tools {
 	 */
 	public static void attackRecord (String path, HttpServletRequest req, String name, String value){
 		//记录日志
-		String str = "参数值: {"+name+" : "+value+"}|"+attackType(value)+"|" + formatDate(null, "yyyy-MM-dd HH:mm:ss S") + "|"+getIp(req)+"|"+req.getRequestURI()+(req.getQueryString() != null ? "?"+req.getQueryString() : "");
+		String str = "参数值: {"+name+" : "+value+"}|"+attackType(value)+"|" + DateTools.formatDate(null, "yyyy-MM-dd HH:mm:ss S") + "|"+getIp(req)+"|"+req.getRequestURI()+(req.getQueryString() != null ? "?"+req.getQueryString() : "");
 		attackRecord("", str);
 	}
 
@@ -854,7 +854,7 @@ public class Tools {
 			//参数名attack，需过滤
 			if(isAttack(name)){
 				//记录日志
-				String str = "参数名: "+attackType(name)+"|" + formatDate(null, "yyyy-MM-dd HH:mm:ss S") + "|"+getIp(req)+"|"+req.getRequestURI()+(req.getQueryString() != null ? "?"+req.getQueryString() : "");
+				String str = "参数名: "+attackType(name)+"|" + DateTools.formatDate(null, "yyyy-MM-dd HH:mm:ss S") + "|"+getIp(req)+"|"+req.getRequestURI()+(req.getQueryString() != null ? "?"+req.getQueryString() : "");
 				attackRecord("", str);
 				continue;
 			}

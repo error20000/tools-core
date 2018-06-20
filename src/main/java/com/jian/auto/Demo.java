@@ -14,9 +14,10 @@ public class Demo {
 		config.setOverWrite(true);
 		//数据库配置
 		ConfigDB cdb = new ConfigDB(jdbcUrl, user, password, driverClass, prefix, separator);
-		AutoCreateManager test =  new AutoCreateManager(config, cdb, 1);
+		AutoCreateManager test =  new AutoCreateManager(config, cdb, 0);
 		test.start();
 //		test.start(tableName);
+		
 	}
 	
 }

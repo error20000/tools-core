@@ -84,6 +84,8 @@ public abstract class AbstractAutoCreate implements AutoCreate {
 		createUtils();
 		createResources();
 		createStart();
+		
+		createApi();
 		System.out.println(DateTools.formatDate()+":	end create base file.");
 	}
 
@@ -210,27 +212,28 @@ public abstract class AbstractAutoCreate implements AutoCreate {
 	
 	/**
 	 * 创建配置文件
-	 * @param table 数据表
 	 */
 	public abstract void createConfig();
 	
 	/**
 	 * 创建工具文件
-	 * @param table 数据表
 	 */
 	public abstract void createUtils();
 	
 	/**
 	 * 创建资源文件
-	 * @param table 数据表
 	 */
 	public abstract void createResources();
 	
 	/**
 	 * 开始文件
-	 * @param table 数据表
 	 */
 	public abstract void createStart();
+	
+	/**
+	 * 接口文档
+	 */
+	public abstract void createApi();
 	
 	
 }

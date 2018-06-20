@@ -213,6 +213,15 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 		doCreateStart();
 	}
 	
+	@Override
+	public void createApi(){
+		String packName = config.getControllerPath(); //包路径
+		String chartset = config.getChartset(); //字符集
+		String tempName = "APIController"; //模版名
+		String fileName = "APIController"; //文件名
+		doCreateApi(packName, tempName, fileName, chartset);
+	}
+	
 	
 	private void doCreateEntity(String packName, String tempName, String fileName, String chartset, Table table){
 		
@@ -855,6 +864,61 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 			}
 		}
 		System.out.println(DateTools.formatDate()+":	end create config file... " +" javax.servlet.ServletContainerInitializer");
+	}
+	
+	
+	private void doCreateApi(String packName, String tempName, String fileName, String chartset){
+		System.out.println(DateTools.formatDate()+":	start create controller file... " +packName+" "+fileName);
+		InputStream in = getClass().getResourceAsStream(Config.getTempPath() + tempName + ".txt"); //模版路径
+		if(in == null){
+			System.out.println(DateTools.formatDate()+":	not find template... " + Config.getTempPath() + tempName + ".txt");
+			return;
+		}
+		String outPath = Tools.getBaseSrcPath() + packName.replace(".", File.separator) + File.separator + fileName + ".java"; //输出路径
+		BufferedWriter bw = null;
+		BufferedReader br = null;
+		File outFile = new File(outPath);
+		//如果文件已存在，并且不开启重写。结束创建。
+		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
+			return;
+		}
+		System.out.println(DateTools.formatDate()+":	output file... " +outPath);
+		File pfile = outFile.getParentFile();
+		if(!pfile.exists()){
+			pfile.mkdirs();
+		}
+		try {
+			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile))); 
+			br = new BufferedReader(new InputStreamReader(in)); 
+			String line; 
+			while((line = br.readLine()) != null){ 
+				//packge
+				if(line.indexOf("package PK;") != -1){
+					line = "package " + packName + ";";
+				}
+				//mapping
+				if(line.indexOf("{reqPrefix}") != -1){
+					line = line.replace("{reqPrefix}", config.getReqPrefix());
+				}
+				bw.write(line); 
+				bw.newLine(); 
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try { 
+				if(br != null){
+					br.close(); 
+				}
+				if(bw != null){
+					bw.flush();
+					bw.close(); 
+				}
+			}catch (Exception e) { 
+				e.printStackTrace(); 
+			}
+		}
+		System.out.println(DateTools.formatDate()+":	end create config file... " +packName+" "+fileName);
 	}
 	
 	

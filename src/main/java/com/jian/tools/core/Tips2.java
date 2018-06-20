@@ -1,14 +1,14 @@
 package com.jian.tools.core;
 
 
-public class Tips2  {
+public class Tips2 extends Tips  {
 	
 	//-3000 以后自定义
 	
 	/**成功*/
-	public static final Tips2 ERROR1 = new Tips2(1, "成功 ");
+//	public static final Tips2 ERROR1 = new Tips2(1, "成功 ");
 	/**失败*/
-	public static final Tips2 ERROR0 = new Tips2(0, "失败 ");
+//	public static final Tips2 ERROR0 = new Tips2(0, "失败 ");
 	
 	//不建议直接展示
 	/**系统错误*/
@@ -139,6 +139,7 @@ public class Tips2  {
 	private String desc;
 	
 	public Tips2(int code, String desc) {
+		super(code, desc);
 		this.code = code;
 		this.desc = desc;
 	}

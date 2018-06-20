@@ -1,0 +1,18 @@
+package PK;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+@Component
+public class Config {
+	
+	public static String upload_path;
+	
+
+	@Value("${upload_path}")
+	public void setUpload_path(String upload_path) {
+		Config.upload_path = upload_path;
+	}
+	
+	
+}
