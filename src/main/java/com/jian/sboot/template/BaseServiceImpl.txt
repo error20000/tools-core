@@ -2,8 +2,13 @@ package PK;
 
 import Dao;
 import Service;
+import Config;
+import Utils;
 import java.util.List;
 import java.util.Map;
+import com.jian.annotation.Excel;
+import com.jian.tools.core.DateTools;
+import com.jian.tools.core.Tools;
 
 /**
  * @author liujian
@@ -109,6 +114,43 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	public long baseSize(String sql, Map<String, Object> condition){
 		init();
 		return baseDao.baseSize(sql, condition);
+	}
+	
+	
+	private Class<T> getObejctClass(){
+		return Utils.getObejctClass(getClass());
+	}
+	
+	/**
+	 * 填充日期
+	 * @param fillCondition  格式 “,xxxx,xxxx,xxxx,”
+	 * @param obj 对象
+	 */
+	private void fillDate(String fillCondition, T obj){
+		Field[] fields = Tools.getFields(obj.getClass());
+		for (Field f : fields) {
+			try {
+				String getName = "get"+f.getName().substring(0, 1).toUpperCase() + f.getName().substring(1);
+				String setName = "set"+f.getName().substring(0, 1).toUpperCase() + f.getName().substring(1);
+				Method getm = Tools.findMethod(obj.getClass(), getName);
+				Method setm = Tools.findMethod(obj.getClass(), setName, f.getType());
+				if(f.isAnnotationPresent(Excel.class)){
+					String[] name = f.getAnnotation(Excel.class).name().replace("：", " ").replace(":", " ").replace("\t", " ").replace("\n", " ").split(" ");
+					String dateName = name[0];
+					String dateType = name.length < 2 ? "yyyy-MM-dd HH:mm:ss" : name[1];
+					if(fillCondition.toLowerCase().indexOf(","+dateName.toLowerCase()+",") != -1 ){ //匹配  如：日期
+						Object value =  getm.invoke(obj);
+						//如果不为空，不填充
+						if(value == null){
+							setm.invoke(obj, DateTools.formatDate(dateType));
+						}
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+		}
 	}
 	
 }

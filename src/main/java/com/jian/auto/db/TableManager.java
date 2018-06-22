@@ -128,9 +128,11 @@ public class TableManager {
 			List<Map<String, Object>> map = jdbcOperate.queryMapList(sql);
 			Structure structure = null;
 			for (Map<String, Object> node : map) {
+				String stype = node.get("Type")+"";
 				structure = new Structure();
 				structure.setField(node.get("Field")+"");
-				structure.setType(getType((node.get("Type")+"").split("[(]")[0]));
+				structure.setType(getType(stype.split("[(]")[0]));
+				structure.setLength(stype.split("[(]").length < 2 ? "" : stype.split("[(]")[1].replace(")", ""));
 				structure.setIsNull(node.get("Null")+"");
 				structure.setKey(node.get("Key")+"");
 				structure.setDefaultValue(node.get("Default")== null ? "" : node.get("Default")+"");

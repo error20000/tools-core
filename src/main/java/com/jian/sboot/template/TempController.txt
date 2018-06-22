@@ -1,10 +1,15 @@
 package PK;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.jian.annotation.API;
+import com.jian.annotation.ParamsInfo;
+import com.jian.tools.core.ResultKey;
 
 import T;
 import Service;
@@ -22,7 +27,164 @@ public class TempController extends BaseController<Temp> {
 		super.service = service;
 	}
 	
-
+	//TODO 基本方法
 	
+	@Override
+	@RequestMapping("/add")
+    @ResponseBody
+	@API(name="新增", 
+		info="", 
+		request={
+				//add request
+		}, 
+		response={
+				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
+				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
+				@ParamsInfo(name=ResultKey.DATA, type="", info="数据集"),
+		})
+	public String add(HttpServletRequest req) {
+		return super.add(req);
+	}
+
+	@Override
+	@RequestMapping("/add2")
+    @ResponseBody
+	@API(name="新增", 
+		info="该新增返回新增数据", 
+		request={
+				//add request
+		}, 
+		response={
+				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
+				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
+				@ParamsInfo(name=ResultKey.DATA, type="", info="数据集"),
+		})
+	public String add2(HttpServletRequest req) {
+		return super.add2(req);
+	}
+
+	@Override
+	@RequestMapping("/update")
+    @ResponseBody
+	@API(name="修改", 
+		info="", 
+		request={
+				//modify request
+		}, 
+		response={
+				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
+				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
+				@ParamsInfo(name=ResultKey.DATA, type="", info="数据集"),
+		})
+	public String update(HttpServletRequest req) {
+		return super.update(req);
+	}
+
+	@Override
+	@RequestMapping("/delete")
+    @ResponseBody
+	@API(name="删除", 
+		info="", 
+		request={
+				//delete request
+		}, 
+		response={
+				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
+				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
+				@ParamsInfo(name=ResultKey.DATA, type="", info="数据集"),
+		})
+	public String delete(HttpServletRequest req) {
+		return super.delete(req);
+	}
+
+	@Override
+	@RequestMapping("/deleteBy")
+    @ResponseBody
+	@API(name="删除", 
+		info="条件删除", 
+		request={
+				//deleteBy request
+		}, 
+		response={
+				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
+				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
+				@ParamsInfo(name=ResultKey.DATA, type="", info="数据集"),
+		})
+	public String deleteBy(HttpServletRequest req) {
+		return super.deleteBy(req);
+	}
+
+	@Override
+	@RequestMapping("/findAll")
+    @ResponseBody
+	@API(name="查询所有", 
+		info="", 
+		request={
+				//findAll request
+		}, 
+		response={
+				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
+				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
+				@ParamsInfo(name=ResultKey.DATA, type="Array", info="数据集"),
+		})
+	public String findAll(HttpServletRequest req) {
+		return super.findAll(req);
+	}
+
+	@Override
+	@RequestMapping("/findPage")
+    @ResponseBody
+	@API(name="分页查询", 
+		info="条件查询", 
+		request={
+				@ParamsInfo(name="page", type="int", isNull=1, info="页码"),
+				@ParamsInfo(name="rows", type="int", isNull=1, info="每页条数"),
+				//findPage request
+		}, 
+		response={
+				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
+				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
+				@ParamsInfo(name=ResultKey.DATA, type="Array", info="数据集"),
+				@ParamsInfo(name=ResultKey.TOTAL, type="int", info="总数"),
+		})
+	public String findPage(HttpServletRequest req) {
+		return super.findPage(req);
+	}
+
+	@Override
+	@RequestMapping("/findOne")
+    @ResponseBody
+	@API(name="查询一个", 
+		info="条件查询", 
+		request={
+				//findOne request
+		}, 
+		response={
+				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
+				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
+				@ParamsInfo(name=ResultKey.DATA, type="Object", info="数据集"),
+		})
+	public String findOne(HttpServletRequest req) {
+		return super.findOne(req);
+	}
+
+	@Override
+	@RequestMapping("/findList")
+    @ResponseBody
+	@API(name="查询多个", 
+		info="条件查询", 
+		request={
+				//findList request
+		}, 
+		response={
+				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
+				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
+				@ParamsInfo(name=ResultKey.DATA, type="Array", info="数据集"),
+		})
+	public String findList(HttpServletRequest req) {
+		return super.findList(req);
+	}
+	
+	//TODO 自定义方法
 	
 }

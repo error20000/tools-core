@@ -3,17 +3,19 @@ package PK;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 
 @SpringBootApplication(scanBasePackages="{basePackage}")
 @EnableAutoConfiguration
 public class App {
 	
 	public static String rootPath = "";
+	public static ApplicationContext applicationContext = null;
 	
 	public static void main(String[] args) throws Exception {
 		rootPath = App.class.getResource("/").getPath().replace("/target/classes/", "/");
     	System.out.println(rootPath);
-        SpringApplication.run(App.class, args);
+        applicationContext = SpringApplication.run(App.class, args);
     }
 	
 	

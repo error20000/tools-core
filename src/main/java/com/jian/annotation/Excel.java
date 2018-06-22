@@ -20,4 +20,8 @@ public @interface Excel {
 	public int ignore() default 0; //是否忽略  0--否，1--是
 	
 	public int encrypt() default 0; //是否加密  0--否，1--是 （ 替换为*）
+
+	public int isNull() default 0; //是否为空  0--否，1--是
+	
+	public String length() default ""; //数据长度
 }

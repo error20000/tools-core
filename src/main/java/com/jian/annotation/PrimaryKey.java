@@ -14,5 +14,5 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface PrimaryKey {
 	public String value() default "";
-	public PrimaryKeyType type() default PrimaryKeyType.UUID;
+	public PrimaryKeyType type() default PrimaryKeyType.NORMAL;
 }

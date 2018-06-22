@@ -4,6 +4,7 @@ public class Structure {
 
 	private String field; //字段
 	private String type; //类型
+	private String length; //长度
 	private String isNull; //是否为空
 	private String key; //主键
 	private String defaultValue; //默认值
@@ -22,6 +23,12 @@ public class Structure {
 	}
 	public void setType(String type) {
 		this.type = type;
+	}
+	public String getLength() {
+		return length;
+	}
+	public void setLength(String length) {
+		this.length = length;
 	}
 	public String getIsNull() {
 		return isNull;
@@ -57,7 +64,7 @@ public class Structure {
 	public String toString() {
 		return "Structure [defaultValue=" + defaultValue + ", extra=" + extra
 				+ ", field=" + field + ", isNull=" + isNull + ", key=" + key
-				+ ", type=" + type + ", comment=" + comment + "]";
+				+ ", type=" + type + ", length=" + length + ", comment=" + comment + "]";
 	}
 	
 	

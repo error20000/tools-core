@@ -1,20 +1,15 @@
 package PK;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import Service;
 import LoginConfig;
+import Utils;
 import com.jian.tools.core.JsonTools;
-import com.jian.tools.core.MapTools;
 import com.jian.tools.core.ResultKey;
 import com.jian.tools.core.ResultTools;
 import com.jian.tools.core.Tips;
@@ -44,8 +39,7 @@ public abstract class BaseController<T> {
 	}
 	
 	
-	@RequestMapping("/add")
-    @ResponseBody
+	
     public String add(HttpServletRequest req) {
 		initService();
 		
@@ -63,8 +57,7 @@ public abstract class BaseController<T> {
 		
 		//保存
 		try {
-			Map<String, Object> tmp = Tools.getReqParamsToMap(req);
-			T obj = JsonTools.jsonToObj(JsonTools.toJsonString(tmp), getObejctClass());
+			T obj = Tools.getReqParamsToObject(req, getObejctClass().newInstance());
 			int res = service.add(obj);
 			if(res > 0){
 				return ResultTools.custom(Tips.ERROR1).put(ResultKey.DATA, res).toJSONString();
@@ -77,8 +70,7 @@ public abstract class BaseController<T> {
 		return ResultTools.custom(Tips.ERROR0).toJSONString();
     }
 	
-	@RequestMapping("/add2")
-    @ResponseBody
+	
     public String add2(HttpServletRequest req) {
 		initService();
 		
@@ -96,8 +88,7 @@ public abstract class BaseController<T> {
 		
 		//保存
 		try {
-			Map<String, Object> tmp = Tools.getReqParamsToMap(req);
-			T obj = JsonTools.jsonToObj(JsonTools.toJsonString(tmp), getObejctClass());
+			T obj = Tools.getReqParamsToObject(req, getObejctClass().newInstance());
 			T res = service.add2(obj);
 			if(res != null){
 				return ResultTools.custom(Tips.ERROR1).put(ResultKey.DATA, res).toJSONString();
@@ -110,8 +101,7 @@ public abstract class BaseController<T> {
 		return ResultTools.custom(Tips.ERROR0).toJSONString();
     }
 	
-	@RequestMapping("/update")
-    @ResponseBody
+	
     public String update(HttpServletRequest req) {
 		initService();
 		
@@ -128,15 +118,21 @@ public abstract class BaseController<T> {
 		}
 		
 		//参数
-		String pid = Tools.getReqParamSafe(req, "pid");
-		vMap = Tools.verifyParam("pid", pid, 0, 0);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
+		List<String> pkeys = Utils.getPrimaryKeys(getObejctClass());//获取主键
+		if(pkeys == null || pkeys.isEmpty()){
+			return ResultTools.custom(Tips.ERROR206).toJSONString();
 		}
-		//保存
 		Map<String, Object> condition = new HashMap<String, Object>();
-		condition.put("pid", pid);
+		for (String str : pkeys) {
+			String strv = Tools.getReqParamSafe(req, str);
+			vMap = Tools.verifyParam(str, strv, 0, 0);
+			if(vMap != null){
+				return ResultTools.custom(Tips.ERROR206, str).toJSONString();
+			}
+			condition.put(str, strv);
+		}
 		Map<String, Object> setValues = Tools.getReqParamsToMap(req, getObejctClass());
+		//保存
 		int res = service.modify(setValues, condition);
 		if(res > 0){
 			return ResultTools.custom(Tips.ERROR1).toJSONString();
@@ -146,8 +142,7 @@ public abstract class BaseController<T> {
     }
 	
 	
-	@RequestMapping("/delete")
-    @ResponseBody
+	
     public String delete(HttpServletRequest req) {
 		initService();
 		
@@ -164,13 +159,21 @@ public abstract class BaseController<T> {
 		}
 		
 		//参数
-		String pid = Tools.getReqParamSafe(req, "pid");
-		vMap = Tools.verifyParam("pid", pid, 0, 0);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
+		List<String> pkeys = Utils.getPrimaryKeys(getObejctClass());//获取主键
+		if(pkeys == null || pkeys.isEmpty()){
+			return ResultTools.custom(Tips.ERROR206).toJSONString();
+		}
+		Map<String, Object> condition = new HashMap<String, Object>();
+		for (String str : pkeys) {
+			String strv = Tools.getReqParamSafe(req, str);
+			vMap = Tools.verifyParam(str, strv, 0, 0);
+			if(vMap != null){
+				return ResultTools.custom(Tips.ERROR206, str).toJSONString();
+			}
+			condition.put(str, strv);
 		}
 		//保存
-		int res = service.delete(MapTools.custom().put("pid", pid).build());
+		int res = service.delete(condition);
 		if(res > 0){
 			return ResultTools.custom(Tips.ERROR1).toJSONString();
 		}else{
@@ -178,8 +181,7 @@ public abstract class BaseController<T> {
 		}
     }
 	
-	@RequestMapping("/deleteBy")
-    @ResponseBody
+	
     public String deleteBy(HttpServletRequest req) {
 		initService();
 		
@@ -209,8 +211,7 @@ public abstract class BaseController<T> {
 		}
     }
 	
-	@RequestMapping("/findAll")
-    @ResponseBody
+	
     public String findAll(HttpServletRequest req) {
 		initService();
 		
@@ -231,8 +232,6 @@ public abstract class BaseController<T> {
     }
 	
 	
-	@RequestMapping("/findPage")
-    @ResponseBody
     public String findPage(HttpServletRequest req) {
 		initService();
 		
@@ -268,9 +267,8 @@ public abstract class BaseController<T> {
         return ResultTools.custom(Tips.ERROR1).put(ResultKey.TOTAL, total).put(ResultKey.DATA, list).toJSONString();
     }
 	
-	@RequestMapping("/findObject")
-    @ResponseBody
-    public String findObject(HttpServletRequest req) {
+	
+    public String findOne(HttpServletRequest req) {
 		initService();
 		
 		Map<String, Object> vMap = null;
@@ -287,12 +285,14 @@ public abstract class BaseController<T> {
 		
 		//参数
 		Map<String, Object> condition = Tools.getReqParamsToMap(req, getObejctClass());
+		if(condition == null || condition.isEmpty()){
+			return ResultTools.custom(Tips.ERROR211, "查询条件").toJSONString();
+		}
 		T res = service.findOne(condition);
         return ResultTools.custom(Tips.ERROR1).put(ResultKey.DATA, res).toJSONString();
     }
 	
-	@RequestMapping("/findList")
-    @ResponseBody
+	
     public String findList(HttpServletRequest req) {
 		initService();
 		
@@ -305,21 +305,15 @@ public abstract class BaseController<T> {
 		
 		//参数
 		Map<String, Object> condition = Tools.getReqParamsToMap(req, getObejctClass());
+		if(condition == null || condition.isEmpty()){
+			return ResultTools.custom(Tips.ERROR211, "查询条件").toJSONString();
+		}
 		List<T> list = service.findList(condition);
         return ResultTools.custom(Tips.ERROR1).put(ResultKey.DATA, list).toJSONString();
     }
 	
-	@SuppressWarnings("unchecked")
 	private Class<T> getObejctClass(){
-		Type type = getClass().getGenericSuperclass();
-		Class<T> clss = null;
-		try {
-			Class<?>[] clsses = Tools.getGenericClass((ParameterizedType) type);
-			clss = (Class<T>) clsses[0];
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		return clss;
+		return Utils.getObejctClass(getClass());
 	}
 	
 }

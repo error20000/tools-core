@@ -13,5 +13,7 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface ParamsInfo {
 	public String name() default "";
+	public String type() default "";
+	public int isNull() default 0;  //是否必填	0--否，1--是
 	public String info() default "";
 }

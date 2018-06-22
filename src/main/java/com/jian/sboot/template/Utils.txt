@@ -3,13 +3,70 @@ package PK;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import com.jian.annotation.PrimaryKey;
+import com.jian.annotation.PrimaryKeyCondition;
 import com.jian.tools.core.DateTools;
+import com.jian.tools.core.Tools;
 
 public class Utils {
+
+	private static Map<String, List<PrimaryKeyCondition>> pkArrays = new HashMap<String ,List<PrimaryKeyCondition>>();
+	
+	/**
+	 * 获取Entity类注解的PrimaryKey。
+	 * @param clss
+	 * @return
+	 */
+	public static List<String> getPrimaryKeys(Class<?> clss){
+		String mark = clss.getCanonicalName();
+		List<PrimaryKeyCondition> list = null;
+		if(pkArrays.containsKey(mark)){
+			list = pkArrays.get(mark);
+		}else {
+			list = new ArrayList<PrimaryKeyCondition>();
+			Field[] fields = Tools.getFields(clss);
+			for (Field f : fields) {
+				if(f.isAnnotationPresent(PrimaryKey.class)){
+					PrimaryKeyCondition node = new PrimaryKeyCondition();
+					node.setField(f.getName());
+					node.setType(f.getType().getSimpleName());
+					node.setKeyType(f.getAnnotation(PrimaryKey.class).type());
+					list.add(node);
+				}
+			}
+			pkArrays.put(mark, list);
+		}
+		List<String> keys = new ArrayList<>();
+		for (PrimaryKeyCondition pkc : list) {
+			String pkn = pkc.getField();
+			keys.add(pkn);
+		}
+		return keys;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> Class<T> getObejctClass(Class<?> clzz){
+		Type type = clzz.getGenericSuperclass();
+		Class<T> clss = null;
+		try {
+			Class<?>[] clsses = Tools.getGenericClass((ParameterizedType) type);
+			clss = (Class<T>) clsses[0];
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return clss;
+	}
 
 	public static String newId() {
 		int random = new Random().nextInt(10000);

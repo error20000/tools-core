@@ -7,13 +7,17 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jian.annotation.ParamsInfo;
 import com.jian.auto.db.Structure;
 import com.jian.auto.db.Table;
 import com.jian.auto.db.TableManager;
 import com.jian.tools.core.DateTools;
+import com.jian.tools.core.ResultKey;
+import com.jian.tools.core.Tips;
 import com.jian.tools.core.Tools;
 
 /**
@@ -270,6 +274,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 			if(table != null){
 				boolean priFlag = true; //判断PrimaryKey是否已添加
 				boolean priTypeFlag = true; //判断PrimaryKeyType是否已添加
+				int priCount = 0;
 				List<Structure> sList = table.getTableInfo();
 				for (int m = sList.size() - 1; m >= 0; m--) {
 					Structure structure = sList.get(m);
@@ -287,8 +292,13 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 										priTypeFlag = false;
 									}
 								}else if("//field".equals(content.get(i).trim())){
+									priCount++;
 									content.add(i+1, "	@PrimaryKey(type=PrimaryKeyType.AUTO_INCREMENT)");
-									content.add(i+2, "	@Excel(name=\""+structure.getComment().replace("\"", "")+"\", sort="+m+ (Tools.isNullOrEmpty(structure.getDefaultValue()) ? "" : ", value=\""+structure.getDefaultValue()+"\"") +" )");
+									content.add(i+2, "	@Excel(name=\""+structure.getComment().replace("\"", "")
+											+"\", sort="+m
+											+ (Tools.isNullOrEmpty(structure.getDefaultValue()) ? "" : ", value=\""+structure.getDefaultValue()+"\"")
+											+ ", length=\""+ structure.getLength()+ "\""
+											+ ", isNull="+ ("YES".equalsIgnoreCase(structure.getIsNull()) ? 1 : 0) +" )");
 									content.add(i+3, "	private "+structure.getType()+" "+structure.getField()+";");
 								}
 							}
@@ -304,12 +314,20 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 										priTypeFlag = false;
 									}
 								}else if("//field".equals(content.get(i).trim())){
-									if("String".equals(structure.getType())){
+									priCount++;
+								    //判断主键类型
+									if(structure.getComment().toLowerCase().contains("uuid")){
 										content.add(i+1, "	@PrimaryKey(type=PrimaryKeyType.UUID)");
+									}else if(priCount > 1){
+										content.add(i+1, "	@PrimaryKey(type=PrimaryKeyType.GROUP)");
 									}else{
 										content.add(i+1, "	@PrimaryKey(type=PrimaryKeyType.NORMAL)");
 									}
-									content.add(i+2, "	@Excel(name=\""+structure.getComment().replace("\"", "")+"\", sort="+m+ (Tools.isNullOrEmpty(structure.getDefaultValue()) ? "" : ", value=\""+structure.getDefaultValue()+"\"") +" )");
+									content.add(i+2, "	@Excel(name=\""+structure.getComment().replace("\"", "")
+											+"\", sort="+m
+											+ (Tools.isNullOrEmpty(structure.getDefaultValue()) ? "" : ", value=\""+structure.getDefaultValue()+"\"")
+											+ ", length=\""+ structure.getLength()+ "\""
+											+ ", isNull="+ ("YES".equalsIgnoreCase(structure.getIsNull()) ? 1 : 0) +" )");
 									content.add(i+3, "	private "+structure.getType()+" "+structure.getField()+";");
 								}
 							}
@@ -317,7 +335,11 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 					}else{
 						for (int i = 0; i < content.size(); i++) {
 							if("//field".equals(content.get(i).trim())){
-								content.add(i+1, "	@Excel(name=\""+structure.getComment().replace("\"", "")+"\", sort="+m+ (Tools.isNullOrEmpty(structure.getDefaultValue()) ? "" : ", value=\""+structure.getDefaultValue()+"\"") +" )");
+								content.add(i+1, "	@Excel(name=\""+structure.getComment().replace("\"", "")
+										+"\", sort="+m
+										+ (Tools.isNullOrEmpty(structure.getDefaultValue()) ? "" : ", value=\""+structure.getDefaultValue()+"\"")
+										+ ", length=\""+ structure.getLength()+ "\""
+										+ ", isNull="+ ("YES".equalsIgnoreCase(structure.getIsNull()) ? 1 : 0) +" )");
 								content.add(i+2, "	private "+structure.getType()+" "+structure.getField()+";");
 							}
 						}
@@ -333,6 +355,13 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 							content.add(i+5, "		this."+structure.getField()+" = "+structure.getField()+";");
 							content.add(i+6, "	}");
 						}
+					}
+				}
+				//修正主键类型
+				if(priCount > 1){
+					for (int i = 0; i < content.size(); i++) {
+						String temp = content.get(i).replace("PrimaryKeyType.NORMAL", "PrimaryKeyType.GROUP");
+						content.set(i, temp);
 					}
 				}
 			}
@@ -527,6 +556,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 		try {
 			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), chartset)); 
 			br = new BufferedReader(new InputStreamReader(in, chartset)); 
+			List<String> content = new ArrayList<String>();
 			String line; 
 			while((line = br.readLine()) != null){ 
 				//packge
@@ -560,9 +590,143 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 				if(line.indexOf("{comment}") != -1){
 					line = line.replace("{comment}", table.getComment());
 				}
-				
-				bw.write(line); 
-				bw.newLine(); 
+				content.add(line);
+			}
+			//api
+			String autoFillPrimaryKey = "";
+			String autoFillDateForAdd = "";
+			String autoFillDateForModify = "";
+			//config
+			Class<?> clzz = Class.forName(packName.replace("controller", "config.Config"));
+			Field[] f =  Tools.getFields(clzz);
+		     for (int i = 0; i < f.length; i++)  {
+		    	 	if(f[i].getName().equals("autoFillPrimaryKey")){
+		    	 		autoFillPrimaryKey = (String) f[i].get(null);
+		    	  }else if(f[i].getName().equals("autoFillDateForAdd")){
+		    		  autoFillDateForAdd = (String) f[i].get(null);
+		    	  }else if(f[i].getName().equals("autoFillDateForModify")){
+		    		  autoFillDateForModify = (String) f[i].get(null);
+		    	  }
+		     }
+		   //request
+			for (int i = 0; i < content.size(); i++) {
+				if("//add request".equals(content.get(i).trim())){
+					List<Structure> sList = table.getTableInfo();
+					int count = 0;
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						String str = structure.getComment().replace("：", " ").replace(":", " ").replace("\t", " ").replace("\n", " ").split(" ")[0];
+						if(autoFillPrimaryKey.toLowerCase().contains(str.toLowerCase())){
+							continue;
+						}else if(autoFillDateForAdd.toLowerCase().contains(str.toLowerCase())){
+							continue;
+						}else if(autoFillDateForModify.toLowerCase().contains(str.toLowerCase())){
+							continue;
+						}
+						//@PrimaryKey
+						if("PRI".equals(structure.getKey())){
+							if("auto_increment".equals(structure.getExtra())){
+								continue;
+							}else{
+								count++;
+								content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=1,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+							}
+						}else{
+							count++;
+							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull="+("YES".equalsIgnoreCase(structure.getIsNull()) ? 0 : 1)+",  info=\""+structure.getComment().replace("\"", "")+"\"),");
+						}
+					}
+					
+				}else if("//modify request".equals(content.get(i).trim())){
+					//主键必填，其他选填
+					List<Structure> sList = table.getTableInfo();
+					int count = 0;
+					count++;
+					content.add(i+count, "				@ParamsInfo(info=\"修改条件：\"),");
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						String str = structure.getComment().replace("：", " ").replace(":", " ").replace("\t", " ").replace("\n", " ").split(" ")[0];
+						if(autoFillDateForAdd.toLowerCase().contains(str.toLowerCase())){
+							continue;
+						}else if(autoFillDateForModify.toLowerCase().contains(str.toLowerCase())){
+							continue;
+						}
+						//@PrimaryKey
+						if("PRI".equals(structure.getKey())){
+							count++;
+							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=1,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+						}
+					}
+					count++;
+					content.add(i+count, "				@ParamsInfo(info=\"可修改字段：\"),");
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						String str = structure.getComment().replace("：", " ").replace(":", " ").replace("\t", " ").replace("\n", " ").split(" ")[0];
+						if(autoFillDateForAdd.toLowerCase().contains(str.toLowerCase())){
+							continue;
+						}else if(autoFillDateForModify.toLowerCase().contains(str.toLowerCase())){
+							continue;
+						}
+						//@PrimaryKey
+						if("PRI".equals(structure.getKey())){
+							//do nothing
+						}else{
+							count++;
+							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=0,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+						}
+					}
+				}else if("//delete request".equals(content.get(i).trim())){
+					//主键必填
+					List<Structure> sList = table.getTableInfo();
+					int count = 0;
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						//@PrimaryKey
+						if("PRI".equals(structure.getKey())){
+							count++;
+							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=1,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+						}
+					}
+				}else if("//deleteBy request".equals(content.get(i).trim())){
+					//主键必填
+					List<Structure> sList = table.getTableInfo();
+					int count = 0;
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						count++;
+						content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=0,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+					}
+					count++;
+					content.add(i+count, "				@ParamsInfo(info=\"注意：以上条件不可同时为空。\"),");
+				}else if("//findPage request".equals(content.get(i).trim()) ){
+					//主键必填
+					List<Structure> sList = table.getTableInfo();
+					int count = 0;
+					count++;
+					content.add(i+count, "				@ParamsInfo(info=\"可选条件：\"),");
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						count++;
+						content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=0,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+					}
+				}else if("//findOne request".equals(content.get(i).trim()) || "//findList request".equals(content.get(i).trim()) ){
+					//主键必填
+					List<Structure> sList = table.getTableInfo();
+					int count = 0;
+					count++;
+					content.add(i+count, "				@ParamsInfo(info=\"可选条件：\"),");
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						count++;
+						content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=0,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+					}
+					count++;
+					content.add(i+count, "				@ParamsInfo(info=\"注意：以上条件不可同时为空。\"),");
+				}
+			}
+			for (String str : content) {
+				bw.write(str);
+				bw.newLine();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -825,6 +989,8 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 				//packge
 				if(line.indexOf("package PK;") != -1){
 					line = "package " + packName + ";";
+				}else if(line.indexOf("import App;") != -1){
+					line = "import " + packName.replace("controller", "App") + ";"; //xxxx.App
 				}
 				//mapping
 				if(line.indexOf("{reqPrefix}") != -1){
