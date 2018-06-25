@@ -11,13 +11,10 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jian.annotation.ParamsInfo;
 import com.jian.auto.db.Structure;
 import com.jian.auto.db.Table;
 import com.jian.auto.db.TableManager;
 import com.jian.tools.core.DateTools;
-import com.jian.tools.core.ResultKey;
-import com.jian.tools.core.Tips;
 import com.jian.tools.core.Tools;
 
 /**
@@ -502,6 +499,10 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 					line = "import " + packName.replace(".service", "").replace(".impl", "")+".dao."+ dn + ";";  //import xxxx.dao.xxxDao
 				}else if(line.indexOf("import Service;") != -1){
 					line = "import " + packName.replace("impl", sn) + ";"; //import xxxx.service.xxxService
+				}else if(line.indexOf("import Config;") != -1){
+					line = "import " + packName.replace(".service", "").replace(".impl", "")+".config.Config" + ";"; //import xxxx.config.Config
+				}else if(line.indexOf("import Utils;") != -1){
+					line = "import " + packName.replace(".service", "").replace(".impl", "")+".util.Utils" + ";"; //import xxxx.util.Utils
 				}else if(line.indexOf("import T;") != -1){
 					isBean = true;
 					line = "import " + packName.replace(".service", "").replace(".impl", "")+".entity."+en + ";";  //import xxxx.entity.xxx
