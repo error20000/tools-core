@@ -15,6 +15,7 @@ import com.jian.auto.db.Structure;
 import com.jian.auto.db.Table;
 import com.jian.auto.db.TableManager;
 import com.jian.tools.core.DateTools;
+import com.jian.tools.core.JavaCompilerTools;
 import com.jian.tools.core.Tools;
 
 /**
@@ -598,7 +599,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 			String autoFillDateForAdd = "";
 			String autoFillDateForModify = "";
 			//config
-			Class<?> clzz = Class.forName(packName.replace("controller", "config.Config"));
+			Class<?> clzz = JavaCompilerTools.compiler(packName.replace("controller", "config.Config"));
 			Field[] f =  Tools.getFields(clzz);
 		     for (int i = 0; i < f.length; i++)  {
 		    	 	if(f[i].getName().equals("autoFillPrimaryKey")){

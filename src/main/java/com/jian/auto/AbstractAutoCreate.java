@@ -71,6 +71,11 @@ public abstract class AbstractAutoCreate implements AutoCreate {
 	 */
 	public void createBase(){
 		System.out.println(DateTools.formatDate()+":	start create base file...");
+		createConfig();
+		createUtils();
+		createResources();
+		createStart();
+		
 		createEntity(null);
 		createDao(null);
 		createDaoImpl(null);
@@ -79,11 +84,6 @@ public abstract class AbstractAutoCreate implements AutoCreate {
 		createServiceImpl(null);
 		createServlet(null);
 		createController(null);
-		
-		createConfig();
-		createUtils();
-		createResources();
-		createStart();
 		
 		createApi();
 		System.out.println(DateTools.formatDate()+":	end create base file.");
