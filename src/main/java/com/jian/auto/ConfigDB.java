@@ -67,7 +67,6 @@ public class ConfigDB {
 	
 	private String createPropertes(String jdbcUrl, String user, String password, String driverClass, String fileName){
 		System.out.println("start db properties... " + jdbcUrl);
-		InputStream in = this.getClass().getResourceAsStream(Config.getTempPath()+"/TempDB.properties"); //模版
 		String outPath = Tools.getBaseResPath() + fileName; //输出路径
 		System.out.println("output file... " +outPath);
 		BufferedWriter bw = null;
@@ -78,6 +77,8 @@ public class ConfigDB {
 			System.out.println(fileName+" 已存在！！！");
 			return outPath;
 		}
+		System.out.println("start template... " + Config.getTempPath()+"TempDB.properties");
+		InputStream in = this.getClass().getResourceAsStream(Config.getTempPath()+"TempDB.properties"); //模版
 		File pfile = outFile.getParentFile();
 		if(!pfile.exists()){
 			pfile.mkdirs();

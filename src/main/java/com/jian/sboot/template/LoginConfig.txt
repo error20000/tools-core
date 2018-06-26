@@ -12,7 +12,7 @@ import com.jian.tools.core.Tips;
 
 public class LoginConfig {
 	
-	public static String loginUserKey = "login_user";
+	public static String loginUserKey = Config.login_session_key;
 	
 	public static Map<String, Object> verifyLogin(HttpServletRequest req){
 		HttpSession session = req.getSession();

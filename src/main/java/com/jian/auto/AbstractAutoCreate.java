@@ -65,9 +65,7 @@ public abstract class AbstractAutoCreate implements AutoCreate {
 	
 	
 	/**
-	 * 创建基本信息。包括：Base、BaseDao、BaseDaoImpl、JdbcOperateManager、BaseService、BaseServiceImpl、BaseServlet、BaseController、Config
-	 * @param tempName 模版名
-	 * @param fileName 生成文件名
+	 * 创建基本信息
 	 */
 	public void createBase(){
 		System.out.println(DateTools.formatDate()+":	start create base file...");
@@ -88,7 +86,10 @@ public abstract class AbstractAutoCreate implements AutoCreate {
 		createApi();
 		System.out.println(DateTools.formatDate()+":	end create base file.");
 	}
-
+	
+	/**
+	 * 创建entity基本信息
+	 */
 	public void createTable(){
 		if(manager == null){
 			return;

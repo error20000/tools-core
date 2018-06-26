@@ -26,6 +26,13 @@ public class Config {
 	private String chartset = "utf-8";//文件字符集
 	private static String tempPath = "/com/jian/auto/template/";//模版路径
 	
+	//自动填充
+	//主键
+	private String autoFillPrimaryKey = ",自增主键,UUID主键,"; //自动填充主键
+	//日期
+	private String autoFillDateForAdd = ",日期,创建时间,创建日期,"; //新增日期类型自动填充
+	private String autoFillDateForModify = ",修改时间,修改日期,"; //修改日期类型自动填充
+	
 	
 	public Config(){
 		
@@ -178,6 +185,30 @@ public class Config {
 		if(!Tools.isNullOrEmpty(tempPath)){
 			Config.tempPath = tempPath;
 		}
+	}
+
+	public String getAutoFillPrimaryKey() {
+		return autoFillPrimaryKey;
+	}
+
+	public void setAutoFillPrimaryKey(String autoFillPrimaryKey) {
+		this.autoFillPrimaryKey = autoFillPrimaryKey;
+	}
+
+	public String getAutoFillDateForAdd() {
+		return autoFillDateForAdd;
+	}
+
+	public void setAutoFillDateForAdd(String autoFillDateForAdd) {
+		this.autoFillDateForAdd = autoFillDateForAdd;
+	}
+
+	public String getAutoFillDateForModify() {
+		return autoFillDateForModify;
+	}
+
+	public void setAutoFillDateForModify(String autoFillDateForModify) {
+		this.autoFillDateForModify = autoFillDateForModify;
 	}
 	
 

@@ -3,6 +3,7 @@ package com.jian.tools.core;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -628,13 +629,7 @@ public class Tools {
 	 * @return
 	 */
 	public static Properties getProperties(String filename){
-		Properties properties = new Properties();
-		try {
-			properties.load(Tools.class.getResourceAsStream("/"+filename));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return properties;
+		return getProperties(Tools.class.getResourceAsStream("/"+filename));
 	}
 	
 	/**
@@ -643,13 +638,12 @@ public class Tools {
 	 * @return
 	 */
 	public static Properties getProperties(File file){
-		Properties properties = new Properties();
 		try {
-			properties.load(new FileInputStream(file));
-		} catch (Exception e) {
+			return getProperties(new FileInputStream(file));
+		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		return properties;
+		return null;
 	}
 	
 	/**
@@ -663,6 +657,16 @@ public class Tools {
 			properties.load(in);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}finally {
+			if(in != null){
+				try {
+					in.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}finally{
+					in = null;
+				}
+			}
 		}
 		return properties;
 	}
@@ -1245,6 +1249,14 @@ public class Tools {
 		return base;
     }
 	
+	/**
+	 * 获取项目class地址
+	 */
+	public static String getBaseClsPath() {
+		String base = Tools.class.getResource("/").getPath();
+		return base;
+    }
+	
 	//TODO 文件
 	/**
 	 * 写文件。在原文件基础上新增内容。
@@ -1280,7 +1292,7 @@ public class Tools {
 			public void run() {
 				lock.lock();
 				String charset = initCharsetName;
-				OutputStream out;
+				OutputStream out = null;
 				try {
 					//file.getParentFile().mkdirs();
 					File pfile = file.getParentFile();
@@ -1297,6 +1309,15 @@ public class Tools {
 					e.printStackTrace();
 				} finally {
 					lock.unlock();
+					if(out != null){
+						try {
+							out.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}finally{
+							out = null;
+						}
+					}
 				}
 			}
 		});
@@ -1310,8 +1331,9 @@ public class Tools {
 	public static List<String> fileReader(File file) {
 		List<String> content = new ArrayList<String>();
 		if(file.exists()){
+			BufferedReader reader = null;
 			try {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), initCharsetName));
+				reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), initCharsetName));
 				String line;
 				while ((line = reader.readLine()) != null) {
 					content.add(line);
@@ -1319,6 +1341,16 @@ public class Tools {
 				reader.close();
 			} catch (Exception e) {
 				e.printStackTrace();
+			}finally {
+				if(reader != null){
+					try {
+						reader.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}finally{
+						reader = null;
+					}
+				}
 			}
 		}
 		return content;
@@ -1419,6 +1451,48 @@ public class Tools {
 	    }
 	    return Base64.getEncoder().encodeToString(data);
 	}
+	
+	/**
+	 * 中文转unicode。小于255原样输出
+	 * @param string
+	 * @return
+	 */
+	public static String string2Unicode(String string) {
+        StringBuffer unicode = new StringBuffer();
+        for (int i = 0; i < string.length(); i++) {
+            // 取出每一个字符
+            char c = string.charAt(i);
+            // 转换为unicode
+            if(c > 255){
+            	unicode.append("\\u" + Integer.toHexString(c));
+            }else{
+            	unicode.append(c);
+            }
+        }
+        return unicode.toString();
+    }
+	
+	/**
+	 * unicode转中文。4位unicode
+	 * @param unicode
+	 * @return
+	 */
+	public static String unicode2String(String unicode) {
+        StringBuffer string = new StringBuffer();
+        String[] hex = unicode.split("\\\\u");
+        for (int i = 0; i < hex.length; i++) {
+            // 转换出每一个代码点
+        	if(hex[i].length() < 4){
+        		string.append(hex[i]);
+        	}else{
+        		int data = Integer.parseInt(hex[i].substring(0, 4), 16);
+        		// 追加成string
+        		string.append((char) data);
+        		string.append(hex[i].substring(4));
+        	}
+        }
+        return string.toString();
+    }
 	
 	/**
 	 * 获取正则匹配值

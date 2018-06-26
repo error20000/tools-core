@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +14,6 @@ import com.jian.auto.db.Structure;
 import com.jian.auto.db.Table;
 import com.jian.auto.db.TableManager;
 import com.jian.tools.core.DateTools;
-import com.jian.tools.core.JavaCompilerTools;
 import com.jian.tools.core.Tools;
 
 /**
@@ -60,6 +58,19 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 	}
 
 	
+	
+	@Override
+	public void createTable() {
+		super.createTable();
+		//删除数据库配置
+		String path = Tools.getBaseResPath() + "autodb.properties"; //主库
+		File file = new File(path);
+		System.out.println(path + " delete: "+file.delete());
+		path = Tools.getBaseResPath() + "autodb2.properties"; //从库
+		file = new File(path);
+		System.out.println(path + " delete: "+file.delete());
+	}
+
 	@Override
 	public void createEntity(Table table) {
 		String packName = config.getEntityPath(); //包路径
@@ -418,8 +429,8 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 					line = "package " + packName + ";";
 				}
 				//import
-				String dn = fileName.replace("Impl", ""); //dao name
-				String en = fileName.replace("Impl", "").replace("Dao", ""); //entity name
+				String dn = fileName.replaceAll("Impl$", ""); //dao name
+				String en = fileName.replaceAll("Impl$", "").replaceAll("Dao$", ""); //entity name
 				if(line.indexOf("import JdbcOperateManager;") != -1){
 					line = "import " + packName.replace("impl", "util.JdbcOperateManager") + ";"; //import xxxx.dao.util.JdbcOperateManager
 				}else if(line.indexOf("import Dao;") != -1){
@@ -493,9 +504,9 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 					line = "package " + packName + ";";
 				}
 				//import
-				String dn = fileName.replace("Impl", "").replace("Service", "Dao"); //dao name
-				String sn = fileName.replace("Impl", ""); //service name
-				String en = fileName.replace("Impl", "").replace("Service", ""); //entity name
+				String dn = fileName.replaceAll("Impl$", "").replaceAll("Service$", "Dao"); //dao name
+				String sn = fileName.replaceAll("Impl$", ""); //service name
+				String en = fileName.replaceAll("Impl$", "").replaceAll("Service$", ""); //entity name
 				if(line.indexOf("import Dao;") != -1){
 					line = "import " + packName.replace(".service", "").replace(".impl", "")+".dao."+ dn + ";";  //import xxxx.dao.xxxDao
 				}else if(line.indexOf("import Service;") != -1){
@@ -566,7 +577,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 					line = "package " + packName + ";";
 				}
 				//import
-				String en = fileName.replace("Controller", ""); //entity name
+				String en = fileName.replaceAll("Controller$", ""); //entity name
 				if(line.indexOf("import T;") != -1){
 					line = "import " + packName.replace("controller", "entity."+en) + ";"; //import xxxx.entity.xxx
 				}else if(line.indexOf("import Service;") != -1){
@@ -595,11 +606,10 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 				content.add(line);
 			}
 			//api
-			String autoFillPrimaryKey = "";
-			String autoFillDateForAdd = "";
-			String autoFillDateForModify = "";
-			//config
-			Class<?> clzz = JavaCompilerTools.compiler(packName.replace("controller", "config.Config"));
+			String autoFillPrimaryKey = config.getAutoFillPrimaryKey();
+			String autoFillDateForAdd = config.getAutoFillDateForAdd();
+			String autoFillDateForModify = config.getAutoFillDateForModify();
+			/*Class<?> clzz = JavaCompilerTools.compiler(packName.replace("controller", "config.Config"));
 			Field[] f =  Tools.getFields(clzz);
 		     for (int i = 0; i < f.length; i++)  {
 		    	 	if(f[i].getName().equals("autoFillPrimaryKey")){
@@ -609,7 +619,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 		    	  }else if(f[i].getName().equals("autoFillDateForModify")){
 		    		  autoFillDateForModify = (String) f[i].get(null);
 		    	  }
-		     }
+		     }*/
 		   //request
 			for (int i = 0; i < content.size(); i++) {
 				if("//add request".equals(content.get(i).trim())){
@@ -941,6 +951,16 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 				}
 				if(line.indexOf("{driverClass}") != -1){
 					line = line.replace("{driverClass}", dbConfig.getDriverClass());
+				}
+				//自主填充
+				if(line.indexOf("{auto_fill_primary_key}") != -1){
+					line = line.replace("{auto_fill_primary_key}", Tools.string2Unicode(config.getAutoFillPrimaryKey()));
+				}
+				if(line.indexOf("{auto_fill_date_for_add}") != -1){
+					line = line.replace("{auto_fill_date_for_add}", Tools.string2Unicode(config.getAutoFillDateForAdd()));
+				}
+				if(line.indexOf("{auto_fill_date_for_modify}") != -1){
+					line = line.replace("{auto_fill_date_for_modify}", Tools.string2Unicode(config.getAutoFillDateForModify()));
 				}
 				bw.write(line); 
 				bw.newLine(); 
