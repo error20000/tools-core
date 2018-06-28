@@ -180,6 +180,9 @@ public class HttpTools {
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
+			} finally {
+				response = null;
+				httpClient = null;
 			}
 		}
 		return responseContent;
@@ -245,6 +248,9 @@ public class HttpTools {
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
+			} finally {
+				response = null;
+				httpClient = null;
 			}
 		}
 		return responseContent;
@@ -292,6 +298,9 @@ public class HttpTools {
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
+			} finally {
+				response = null;
+				httpClient = null;
 			}
 		}
 		return responseContent;

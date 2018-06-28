@@ -2,19 +2,23 @@ package com.jian.tools.core;
 
 
 public class Tips  {
-	
+
+	/**成功*/
+	public static final Tips ERROR1 = new Tips(1, "成功 ");
+	/**失败*/
+	public static final Tips ERROR0 = new Tips(0, "失败 ");
 	
 	//失败类型
 	/**系统错误*/
 	public static final Tips ERROR100 = new Tips(-100, "系统错误");
-	/**{param}保存失败*/
-	public static final Tips ERROR101 = new Tips(-101, "{param}保存失败");
-	/**{param}修改失败*/
-	public static final Tips ERROR102 = new Tips(-102, "{param}修改失败");
-	/**{param}查询失败*/
-	public static final Tips ERROR103 = new Tips(-103, "{param}查询失败");
-	/**{param}删除失败*/
-	public static final Tips ERROR104 = new Tips(-104, "{param}删除失败");
+	/**保存失败，{param}*/
+	public static final Tips ERROR101 = new Tips(-101, "保存失败，{param}");
+	/**修改失败，{param}*/
+	public static final Tips ERROR102 = new Tips(-102, "修改失败，{param}");
+	/**查询失败，{param}*/
+	public static final Tips ERROR103 = new Tips(-103, "查询失败，{param}");
+	/**删除失败，{param}*/
+	public static final Tips ERROR104 = new Tips(-104, "删除失败，{param}");
 	/**{param}已存在*/
 	public static final Tips ERROR105 = new Tips(-105, "{param}已存在");
 	/**{param}不存在*/
@@ -101,11 +105,6 @@ public class Tips  {
 	public static final Tips ERROR314 = new Tips(-314, "短信验证码没有配置,或没启用");
 	
 	
-
-	/**成功*/
-	public static final Tips ERROR1 = new Tips(1, "成功 ");
-	/**失败*/
-	public static final Tips ERROR0 = new Tips(0, "失败 ");
 	
 	
 	private int code;

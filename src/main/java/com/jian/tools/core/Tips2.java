@@ -6,9 +6,9 @@ public class Tips2 extends Tips  {
 	//-3000 以后自定义
 	
 	/**成功*/
-//	public static final Tips2 ERROR1 = new Tips2(1, "成功 ");
+	public static final Tips2 ERROR1 = new Tips2(1, "成功 ");
 	/**失败*/
-//	public static final Tips2 ERROR0 = new Tips2(0, "失败 ");
+	public static final Tips2 ERROR0 = new Tips2(0, "失败 ");
 	
 	//不建议直接展示
 	/**系统错误*/
@@ -39,14 +39,14 @@ public class Tips2 extends Tips  {
 	/**不支持该格式*/
 	public static final Tips2 ERROR2003 = new Tips2(-2003, "不支持该格式");
 	
-	/**{param}保存失败*/
-	public static final Tips2 ERROR2100 = new Tips2(-2100, "{param}保存失败");
-	/**{param}修改失败*/
-	public static final Tips2 ERROR2101 = new Tips2(-2101, "{param}修改失败");
-	/**{param}查询失败*/
-	public static final Tips2 ERROR2102 = new Tips2(-2102, "{param}查询失败");
-	/**{param}删除失败*/
-	public static final Tips2 ERROR2103 = new Tips2(-2103, "{param}删除失败");
+	/**保存失败。{param}*/
+	public static final Tips2 ERROR2100 = new Tips2(-2100, "保存失败。{param}");
+	/**修改失败。{param}*/
+	public static final Tips2 ERROR2101 = new Tips2(-2101, "修改失败。{param}");
+	/**查询失败。{param}*/
+	public static final Tips2 ERROR2102 = new Tips2(-2102, "查询失败。{param}");
+	/**删除失败。{param}*/
+	public static final Tips2 ERROR2103 = new Tips2(-2103, "删除失败。{param}");
 	/**{param}已存在*/
 	public static final Tips2 ERROR2104 = new Tips2(-2104, "{param}已存在");
 	/**{param}不存在*/
