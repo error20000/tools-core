@@ -11,6 +11,9 @@ public class Config {
 	//日期自动填充配置
 	public static String autoFillDateForAdd; //新增日期类型自动填充
 	public static String autoFillDateForModify; //修改日期类型自动填充
+	//静态资源
+	public static String upload_path; //文件上传地址
+	public static String logs_path; //日志地址
 	
 	//登录session
 	public static String login_session_key="login_user";
@@ -18,6 +21,16 @@ public class Config {
 	@Value("${login_session_key}")
 	public void setLogin_session_key(String login_session_key) {
 		Config.login_session_key = login_session_key;
+	}
+	
+	@Value("${upload_path}")
+	public void setUpload_path(String upload_path) {
+		Config.upload_path = upload_path;
+	}
+	
+	@Value("${logs_path}")
+	public void setLogs_path(String logs_path) {
+		Config.logs_path = logs_path;
 	}
 	
 	@Value("${auto_fill_primary_key}")

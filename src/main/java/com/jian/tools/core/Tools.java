@@ -330,11 +330,11 @@ public class Tools {
 	}
 	
 	/**
-	 * 格式化字符串为数字
+	 * 提取字符串中的数字
 	 * @param str  null转""
 	 * @return
 	 */
-	public static String formatNumber(String str){
+	public static String takenNumber(String str){
 		if(isNullOrEmpty(str)){
 			return "";
 		}else{

@@ -110,6 +110,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	
 	
 	public BaseDao<T> getDao(){
+		init();
 		return baseDao;
 	}
 	

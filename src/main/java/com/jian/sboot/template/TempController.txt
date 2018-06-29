@@ -46,22 +46,6 @@ public class TempController extends BaseController<Temp> {
 		return super.add(req);
 	}
 
-	@Override
-	@RequestMapping("/add2")
-    @ResponseBody
-	@API(name="新增", 
-		info="该新增返回新增数据", 
-		request={
-				//add request
-		}, 
-		response={
-				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
-				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
-				@ParamsInfo(name=ResultKey.DATA, type="", info="数据集"),
-		})
-	public String add2(HttpServletRequest req) {
-		return super.add2(req);
-	}
 
 	@Override
 	@RequestMapping("/update")
@@ -95,40 +79,6 @@ public class TempController extends BaseController<Temp> {
 		})
 	public String delete(HttpServletRequest req) {
 		return super.delete(req);
-	}
-
-	@Override
-	@RequestMapping("/deleteBy")
-    @ResponseBody
-	@API(name="删除", 
-		info="条件删除", 
-		request={
-				//deleteBy request
-		}, 
-		response={
-				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
-				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
-				@ParamsInfo(name=ResultKey.DATA, type="", info="数据集"),
-		})
-	public String deleteBy(HttpServletRequest req) {
-		return super.deleteBy(req);
-	}
-
-	@Override
-	@RequestMapping("/findAll")
-    @ResponseBody
-	@API(name="查询所有", 
-		info="", 
-		request={
-				//findAll request
-		}, 
-		response={
-				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
-				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
-				@ParamsInfo(name=ResultKey.DATA, type="Array", info="数据集"),
-		})
-	public String findAll(HttpServletRequest req) {
-		return super.findAll(req);
 	}
 
 	@Override

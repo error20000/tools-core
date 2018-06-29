@@ -1567,6 +1567,43 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
         });
 	}
 	
+	public List<Map<String, Object>> baseQuery(String sql, Map<String, Object> params){
+
+		try {
+			//验证SQL
+			if(!sql.trim().toLowerCase().startsWith("select ")){
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Query excution SQL Error! \n SQL is (select ): \n\t" + sql + "\n");
+		}
+		
+		List<String> sqlParams = getSqlParams(sql);
+		String pSql = preparedSql(sql);
+		
+		return jdbcTemplate.query(new PreparedStatementCreator() {
+			
+			@Override
+			public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+				PreparedStatement preState = con.prepareStatement(pSql);
+				setPreparedParams(preState, sqlParams, params);
+				return preState;
+			}
+			
+		}, new RowMapper<Map<String, Object>>(){
+			@Override
+            public Map<String, Object> mapRow(ResultSet rs, int rowNum) throws SQLException {
+            	try {
+            		return getOneRowWithMap(rs);
+            	} catch (ReflectiveOperationException e) {
+            		e.printStackTrace();
+            	}
+				return null;
+            }
+
+        });
+	}
+	
 	public <E> List<E> basePage(String sql, Map<String, Object> params, Class<E> clzz, int start, int rows){
 
 		try {
@@ -1599,6 +1636,44 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
             	} catch (ReflectiveOperationException e) {
             		e.printStackTrace();
             	} catch (ParseException e) {
+            		e.printStackTrace();
+            	}
+				return null;
+            }
+
+        });
+	}
+	
+	public List<Map<String, Object>> basePage(String sql, Map<String, Object> params, int start, int rows){
+
+		try {
+			//验证SQL
+			if(!sql.trim().toLowerCase().startsWith("select ")){
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			System.out.println("Query excution SQL Error! \n SQL is (select ): \n\t" + sql + "\n");
+		}
+		
+		sql = sql + " limit " + start + ", " + rows;
+		List<String> sqlParams = getSqlParams(sql);
+		String pSql = preparedSql(sql);
+		
+		return jdbcTemplate.query(new PreparedStatementCreator() {
+			
+			@Override
+			public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+				PreparedStatement preState = con.prepareStatement(pSql);
+				setPreparedParams(preState, sqlParams, params);
+				return preState;
+			}
+			
+		}, new RowMapper<Map<String, Object>>(){
+			@Override
+            public Map<String, Object> mapRow(ResultSet rs, int rowNum) throws SQLException {
+            	try {
+            		return getOneRowWithMap(rs);
+            	} catch (ReflectiveOperationException e) {
             		e.printStackTrace();
             	}
 				return null;
