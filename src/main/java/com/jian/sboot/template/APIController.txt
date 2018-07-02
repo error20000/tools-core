@@ -135,8 +135,18 @@ public class APIController{
 				if(this.getClass().getName().equals(clzz.getName())){
 					continue;
 				}
-				if(clzz.getName().startsWith(packageName)){
-					clsses.add(clzz);
+				//扫描范围
+				if(App.scanBasePackages.length == 0){
+					if(clzz.getName().startsWith(packageName)){
+						clsses.add(clzz);
+					}
+				}else{
+					for (String str : App.scanBasePackages) {
+						if(clzz.getName().startsWith(str)){
+							clsses.add(clzz);
+							break;
+						}
+					}
 				}
 			}
 			

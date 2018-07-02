@@ -11,10 +11,16 @@ public class App {
 	
 	public static String rootPath = "";
 	public static ApplicationContext applicationContext = null;
+	public static String[] scanBasePackages = {};
 	
 	public static void main(String[] args) throws Exception {
 		rootPath = App.class.getResource("/").getPath().replace("/target/classes/", "/");
     	System.out.println(rootPath);
+    	if(App.class.isAnnotationPresent(SpringBootApplication.class)){
+    		SpringBootApplication sba = App.class.getAnnotation(SpringBootApplication.class);
+    		scanBasePackages = sba.scanBasePackages();
+    	}
+    	System.out.println(scanBasePackages);
         applicationContext = SpringApplication.run(App.class, args);
     }
 	
