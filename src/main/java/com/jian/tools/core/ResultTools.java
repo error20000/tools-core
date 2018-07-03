@@ -51,8 +51,17 @@ public class ResultTools {
         }
         
         public Builder put(Tips tips){
+            return this.put(tips, "");
+        }
+        
+        public Builder put(Tips tips, String param){
             this.map.put(ResultKey.CODE, tips.getCode());
-            this.map.put(ResultKey.MSG, tips.getDesc());
+            this.map.put(ResultKey.MSG, tips.getDesc(param));
+            return this;
+        }
+        
+        public Builder put(Object data){
+            this.map.put(ResultKey.DATA, data);
             return this;
         }
         

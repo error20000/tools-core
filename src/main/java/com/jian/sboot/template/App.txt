@@ -14,13 +14,16 @@ public class App {
 	public static String[] scanBasePackages = {};
 	
 	public static void main(String[] args) throws Exception {
+		//项目目录
 		rootPath = App.class.getResource("/").getPath().replace("/target/classes/", "/");
     	System.out.println(rootPath);
+		//扫描范围
     	if(App.class.isAnnotationPresent(SpringBootApplication.class)){
     		SpringBootApplication sba = App.class.getAnnotation(SpringBootApplication.class);
     		scanBasePackages = sba.scanBasePackages();
     	}
     	System.out.println(scanBasePackages);
+		//启动
         applicationContext = SpringApplication.run(App.class, args);
     }
 	
