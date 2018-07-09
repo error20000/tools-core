@@ -1,225 +1,165 @@
 package com.jian.tools.core;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
+
+import com.jian.annotation.Controller;
 
 public class CacheTools {
-	
-	private static Map<String, CacheObject> objMap = new ConcurrentHashMap<String, CacheObject>();
-	private static ReentrantLock lock = new ReentrantLock(); 
-	private static boolean timerStart = false; 
-	private static AtomicInteger count = new AtomicInteger(1);
-	private static Timer timer = null;
-	private static int runTime = 2 * 3600; //定时清理时间。单位（秒）
-	private static long outTime = 2 * 3600 * 1000; //资源超时时间。单位（毫秒）
-	
-	private static List<Map<String, String>> sortMap = new ArrayList<Map<String, String>>();
-	
-	static{
-		autoClear();
-	}
-	
-	public static void initSetCacheObj(CacheObject obj) {
-		objMap.put(obj.getKey(), obj);
+
+	private static Cache cache = null;
+
+	public static Cache getInstance() {
+		return getInstance(null);
 	}
 
-	public static CacheObject initGetCacheObj(String key) {
-		return objMap.get(key);
+	public static Cache getInstance(Cache impl) {
+		if (impl == null) {
+			impl = new CacheImpl();
+		}
+		if (cache == null) {
+			cache = impl;
+		}
+		return cache;
 	}
 
-	public static void initClearCacheObj(String key) {
-		objMap.remove(key);
-	}
-
-	
-	public static void initAutoClear() {
-		System.out.println("clear ing ...");
-		long cur = System.currentTimeMillis();
-		String toKey = cur + "" + 1000;
-		//待清理数据
-		List<Map<String, String>> clearList = sortMap.stream()
-			.filter(e -> e.get("sortKey").compareTo(toKey) < 0)
-			.collect(Collectors.toList());
-		//剩余数据
-		synchronized (sortMap) {
-			sortMap = sortMap.stream()
-					.filter(e -> e.get("sortKey").compareTo(toKey) >= 0)
-					.collect(Collectors.toList());
-		}
-		//清理
-		for (Map<String, String> map : clearList) {
-			String key = map.get("key");
-			initClearCacheObj(key);
-		}
-		clearList = null;
-		System.out.println("clear end ...");
-	}
-	
-	public static final void autoClear() {
-		if(!timerStart){
-			System.out.println("start cache clear...");
-			runTime = runTime <= 0 ? 2 * 3600 * 1000 : runTime * 1000;
-			timer = new Timer(true); 
-			timer.schedule(new TimerTask() {
-				
-				@Override
-				public void run() {
-					lock.lock();
-					initAutoClear();
-					lock.unlock();
-				}
-			}, 0, runTime);
-			timerStart = true;
-		}
-	}
-	
-	
-	
 	/**
 	 * 设置缓存数据。默认超时时间2小时。其中回收程序默认2小时运行一次。
+	 * 
 	 * @param key
 	 * @param value
 	 */
-	public static final void setCacheObj(String key, Object value){
-		setCacheObj(key, value, outTime);
+	public static void setCacheObj(String key, Object value) {
+		cache.setCacheObj(key, value);
 	}
-	
+
 	/**
 	 * 设置缓存数据。自定义超时时间。其中回收程序默认2小时运行一次。
+	 * 
 	 * @param key
 	 * @param value
 	 * @param timeOut
 	 */
-	public static final void setCacheObj(String key, Object value, long timeOut){
-		CacheObject obj = new CacheObject(key, value);
-		long cur = System.currentTimeMillis();
-		obj.setMillis(cur); //设置缓存时间
-		obj.setTimeOut(cur + timeOut); //设置超时时间
-		initSetCacheObj(obj);
-		//清理：排序key
-		int index = count.getAndAdd(1);
-		count.compareAndSet(1000, 1);
-		cur += timeOut; //加上超时时间
-		String sortKey = cur +""+(index < 10 ? "000"+index : index < 100 ? "00"+index : index < 1000 ? "0"+index : index);
-		Map<String, String> node = new HashMap<String, String>();
-		node.put("sortKey", sortKey);
-		node.put("key", key);
-		sortMap.add(node);
+	public static final void setCacheObj(String key, Object value, long timeOut) {
+		cache.setCacheObj(key, value, timeOut);
 	}
-	
-	/**
-	 * 获取缓存数据。只要还没有回收，即使超时了也可以获取到。
-	 * @param key
-	 * @return
-	 */
-	public static final CacheObject getCacheObjOrigin(String key){
-		return initGetCacheObj(key);
-	}
-	
+
 	/**
 	 * 获取缓存数据。超时了返回null。
+	 * 
 	 * @param key
 	 * @return
 	 */
-	public static final CacheObject getCacheObj(String key){
-		CacheObject tmp = getCacheObjOrigin(key);
-		if(tmp == null){ 
-			return tmp;
-		}
-		long cur = System.currentTimeMillis();
-		if(tmp.getTimeOut() < cur){
-			//超时移除
-			clearCacheObj(key);
-			return null;
-		}
-		return tmp;
+	public static final CacheObject getCacheObj(String key) {
+		return cache.getCacheObj(key);
 	}
-	
+
 	/**
 	 * 获取缓存数据。先判断自身是否超时，再判断给定的超时时间。
+	 * 
 	 * @param key
 	 * @param outTime
 	 * @return
 	 */
-	public static final CacheObject getCacheObj(String key, long outTime){
-		CacheObject tmp = getCacheObj(key);
-		if(tmp == null){ 
-			return tmp;
-		}
-		long cur = System.currentTimeMillis();
-		if((tmp.getMillis() + outTime) < cur){
-			//超时移除
-			clearCacheObj(key);
-			return null;
-		}
-		return tmp;
+	public static final CacheObject getCacheObj(String key, long outTime) {
+		return cache.getCacheObj(key, outTime);
 	}
-	
+
 	/**
 	 * 检测是否超时。true表示超时。默认超时时间2小时
+	 * 
 	 * @param key
 	 * @return
 	 */
-	public static final boolean checkTimeout(String key){
-		return checkTimeout(key, outTime);
+	public static final boolean isTimeout(String key) {
+		return cache.isTimeout(key);
 	}
-	
+
 	/**
 	 * 检测是否超时。true表示超时。自定义超时时间
+	 * 
 	 * @param key
 	 * @param outTime
 	 * @return
 	 */
-	public static final boolean checkTimeout(String key, long outTime){
-		CacheObject tmp = getCacheObj(key);
-		if(tmp == null){ 
-			return true;
-		}
-		long cur = System.currentTimeMillis();
-		if((tmp.getMillis() + outTime) < cur){
-			//超时移除
-			clearCacheObj(key);
-			return true;
-		}
-		return false;
+	public static final boolean isTimeout(String key, long outTime) {
+
+		return cache.isTimeout(key, outTime);
 	}
-	
+
 	/**
 	 * 清楚缓存
+	 * 
 	 * @param key
 	 */
-	public static final void clearCacheObj(String key){
-		initClearCacheObj(key);
+	public static final void clearCacheObj(String key) {
+		cache.clearCacheObj(key);
 	}
-	
-	
-	public static void main(String[] args) {
-		/*CacheTools.setCacheObj("1", "2");
-		try {
-			Thread.sleep(10 * 3600 * 1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		
-		for (int i = 0; i < 2000; i++) {
-			int count = i;
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					setCacheObj("key_"+count, "value_"+count);
-				}
-			}).start();
+
+	public static List<Class> getClasses(String packageName) throws ClassNotFoundException, IOException {
+
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		String path = packageName.replace(".", "/");
+		Enumeration<URL> resources = classLoader.getResources(path);
+		List<File> dirs = new ArrayList<File>();
+		while (resources.hasMoreElements()) {
+
+			URL resource = resources.nextElement();
+			dirs.add(new File(resource.getFile()));
 		}
-		
+		ArrayList<Class> classes = new ArrayList<Class>();
+		for (File directory : dirs) {
+			classes.addAll((Collection<? extends Class>) findClass(directory, packageName));
+		}
+		return classes;
 	}
+
+	public static List<Class> findClass(File directory, String packageName) throws ClassNotFoundException {
+		List<Class> classes = new ArrayList<Class>();
+		if (!directory.exists()) {
+			return classes;
+		}
+		if(packageName != null && !"".equals(packageName)){
+			packageName = packageName + ".";
+		}
+
+		File[] files = directory.listFiles();
+
+		for (File file : files) {
+			if (file.isDirectory()) {
+				assert !file.getName().contains(".");
+				classes.addAll(findClass(file, packageName + file.getName()));
+			} else if (file.getName().endsWith(".class")) {
+				Class temp = Class.forName(packageName + file.getName().substring(0, file.getName().length() - 6));
+				if(!temp.isInterface() && !Modifier.isAbstract(temp.getModifiers()) &&
+						temp.getInterfaces().length != 0 && temp.getInterfaces()[0].getName().equals(Cache.class.getName())){
+					System.out.println("-----"+temp.getInterfaces()[0].getName());
+					classes.add(temp);
+				}
+			}
+		}
+		return classes;
+	}
+
+	public static void main(String[] args) {
+		List<Class> list;
+		try {
+			list = CacheTools.getClasses("");
+			for (Class clzz : list) {
+				System.out.println(clzz.getName());
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 }
