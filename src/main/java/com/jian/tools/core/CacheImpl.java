@@ -3,7 +3,7 @@ package com.jian.tools.core;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CacheImpl extends CacheAbstract implements Cache {
+public class CacheImpl extends CacheAbstract {
 	
 	private static Map<String, CacheObject> objMap = new ConcurrentHashMap<String, CacheObject>();
 	

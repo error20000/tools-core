@@ -1,31 +1,37 @@
 package com.jian.tools.core;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
 import java.util.List;
-
-import com.jian.annotation.Controller;
 
 public class CacheTools {
 
 	private static Cache cache = null;
 
-	public static Cache getInstance() {
-		return getInstance(null);
+	static{
+		List<Class<?>> classes = findClass();
+		if(classes == null || classes.size() == 0){
+			cache = new CacheImpl();
+		}else{
+			try {
+				cache = (Cache) classes.get(0).newInstance();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		if(cache == null){
+			cache = new CacheImpl();
+		}
 	}
+	
 
-	public static Cache getInstance(Cache impl) {
-		if (impl == null) {
-			impl = new CacheImpl();
-		}
-		if (cache == null) {
-			cache = impl;
-		}
+	/**
+	 * 获取接口。返回工具类注册的实现。
+	 * @return  Cache 的实现
+	 */
+	public static Cache getIfs(){
 		return cache;
 	}
 
@@ -46,7 +52,7 @@ public class CacheTools {
 	 * @param value
 	 * @param timeOut
 	 */
-	public static final void setCacheObj(String key, Object value, long timeOut) {
+	public static void setCacheObj(String key, Object value, long timeOut) {
 		cache.setCacheObj(key, value, timeOut);
 	}
 
@@ -56,7 +62,7 @@ public class CacheTools {
 	 * @param key
 	 * @return
 	 */
-	public static final CacheObject getCacheObj(String key) {
+	public static CacheObject getCacheObj(String key) {
 		return cache.getCacheObj(key);
 	}
 
@@ -67,7 +73,7 @@ public class CacheTools {
 	 * @param outTime
 	 * @return
 	 */
-	public static final CacheObject getCacheObj(String key, long outTime) {
+	public static CacheObject getCacheObj(String key, long outTime) {
 		return cache.getCacheObj(key, outTime);
 	}
 
@@ -77,7 +83,7 @@ public class CacheTools {
 	 * @param key
 	 * @return
 	 */
-	public static final boolean isTimeout(String key) {
+	public static boolean isTimeout(String key) {
 		return cache.isTimeout(key);
 	}
 
@@ -88,7 +94,7 @@ public class CacheTools {
 	 * @param outTime
 	 * @return
 	 */
-	public static final boolean isTimeout(String key, long outTime) {
+	public static boolean isTimeout(String key, long outTime) {
 
 		return cache.isTimeout(key, outTime);
 	}
@@ -98,68 +104,33 @@ public class CacheTools {
 	 * 
 	 * @param key
 	 */
-	public static final void clearCacheObj(String key) {
+	public static void clearCacheObj(String key) {
 		cache.clearCacheObj(key);
 	}
 
-	public static List<Class> getClasses(String packageName) throws ClassNotFoundException, IOException {
 
-		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		String path = packageName.replace(".", "/");
-		Enumeration<URL> resources = classLoader.getResources(path);
-		List<File> dirs = new ArrayList<File>();
-		while (resources.hasMoreElements()) {
-
-			URL resource = resources.nextElement();
-			dirs.add(new File(resource.getFile()));
-		}
-		ArrayList<Class> classes = new ArrayList<Class>();
-		for (File directory : dirs) {
-			classes.addAll((Collection<? extends Class>) findClass(directory, packageName));
-		}
-		return classes;
-	}
-
-	public static List<Class> findClass(File directory, String packageName) throws ClassNotFoundException {
-		List<Class> classes = new ArrayList<Class>();
-		if (!directory.exists()) {
-			return classes;
-		}
-		if(packageName != null && !"".equals(packageName)){
-			packageName = packageName + ".";
-		}
-
-		File[] files = directory.listFiles();
-
-		for (File file : files) {
-			if (file.isDirectory()) {
-				assert !file.getName().contains(".");
-				classes.addAll(findClass(file, packageName + file.getName()));
-			} else if (file.getName().endsWith(".class")) {
-				Class temp = Class.forName(packageName + file.getName().substring(0, file.getName().length() - 6));
+	private static List<Class<?>> findClass(){
+		List<Class<?>> classes = new ArrayList<>();
+		try {
+			//查找Cache接口的所有实现
+			List<Class<?>> total = Tools.findClass("");
+			for (Class<?> temp : total) {
+				
 				if(!temp.isInterface() && !Modifier.isAbstract(temp.getModifiers()) &&
-						temp.getInterfaces().length != 0 && temp.getInterfaces()[0].getName().equals(Cache.class.getName())){
-					System.out.println("-----"+temp.getInterfaces()[0].getName());
+						(temp.getInterfaces().length != 0 && temp.getInterfaces()[0].getName().equals(Cache.class.getName()) 
+						|| CacheAbstract.class.isAssignableFrom(temp)) ){
 					classes.add(temp);
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return classes;
 	}
 
 	public static void main(String[] args) {
-		List<Class> list;
-		try {
-			list = CacheTools.getClasses("");
-			for (Class clzz : list) {
-				System.out.println(clzz.getName());
-			}
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
+		CacheTools.setCacheObj("", "");
+		System.out.println(((CacheImpl) CacheTools.getIfs()).getClass().getName());
 	}
 
 }

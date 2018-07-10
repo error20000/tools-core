@@ -1,5 +1,10 @@
 package com.jian.tools.core;
 
+/**
+ * 缓存工具类接口
+ * @author liujian
+ *
+ */
 public interface Cache {
 	
 	/**

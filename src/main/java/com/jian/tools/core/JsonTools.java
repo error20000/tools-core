@@ -1,193 +1,114 @@
 package com.jian.tools.core;
 
-import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-
 public class JsonTools {
 	
-	private final static ObjectMapper objectMapper = new ObjectMapper();
+	private static JsonInterface ifs = null;
+
+	static{
+		List<Class<?>> classes = findClass();
+		if(classes == null || classes.size() == 0){
+			ifs = new JsonImpl();
+		}else{
+			try {
+				ifs = (JsonInterface) classes.get(0).newInstance();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		if(ifs == null){
+			ifs = new JsonImpl();
+		}
+	}
 	
-	static {
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
+
+	/**
+	 * 获取接口。返回工具类注册的实现。
+	 * @return  JsonInterface 的实现
+	 */
+	public static JsonInterface getIfs(){
+		return ifs;
+	}
 	
 	public static String toJsonString(Object obj) {
-        try {
-        	if(obj instanceof String){
-        		return obj.toString();
-        	}else{
-        		return objectMapper.writeValueAsString(obj);
-        	}
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-        return null;
+        return ifs.toJsonString(obj);
     }
 	
 	public static String toXmlString(Object obj) {
-        try {
-			return new XmlMapper().writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-        return null;
+        return ifs.toXmlString(obj);
     }
 
 	public static <T> T jsonToObj(String json, Class<T> clss) {
-        try {
-			return objectMapper.readValue(json, clss);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-        return null;
-    }
-	
-	@SuppressWarnings("unchecked")
-	public static <T> T jsonToObj(String json, TypeReference<T> typeReference) {
-        try {
-			return (T) objectMapper.readValue(json, typeReference);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-        return null;
+        return ifs.jsonToObj(json, clss);
     }
 	
 	public static <T> T xmlToObj(String xml, Class<T> clss) {
-		try {
-			XmlMapper mapper = new XmlMapper();
-			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-			return mapper.readValue(xml, clss);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}  
-        return null;
+        return ifs.xmlToObj(xml, clss);
     }
 	
 
-	@SuppressWarnings("unchecked")
-	public static <T> T xmlToObj(String xml, TypeReference<T> typeReference) {
-        try {
-			XmlMapper mapper = new XmlMapper();
-			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-			return (T) mapper.readValue(xml, typeReference);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-        return null;
-    }
-	
 	//TODO jsonToObj 实现
 
 	public static Map<String, Object> jsonToMap(String json) {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			JavaType javaType = mapper
-					.getTypeFactory()
-					.constructParametricType(HashMap.class, String.class, Object.class); 
-			return mapper.readValue(json, javaType);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}  
-        return null;
+        return ifs.jsonToMap(json);
     }
 	
 	public static <K, V> Map<K, V> jsonToMap(String json, Class<K> key, Class<V> value) {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			JavaType javaType = mapper
-					.getTypeFactory()
-					.constructParametricType(HashMap.class, key, value); 
-			return mapper.readValue(json, javaType);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}  
-        return null;
+        return ifs.jsonToMap(json, key, value);
     }
 	
 	public static List<Map<String, Object>> jsonToList(String json) {
-		try {
-			return new ObjectMapper().readValue(json, new TypeReference<List<Map<String, Object>>>(){});
-		} catch (IOException e) {
-			e.printStackTrace();
-		}  
-        return null;
+        return ifs.jsonToList(json);
     }
 	
 	public static <T> List<T> jsonToList(String json, Class<T> clss) {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			JavaType javaType = mapper
-					.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-					.getTypeFactory()
-					.constructParametricType(List.class, clss);  
-			return mapper.readValue(json, javaType);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}  
-        return null;
+        return ifs.jsonToList(json, clss);
     }
 	
 	
 	//TODO xmlToObj 实现
 
 	public static Map<String, Object> xmlToMap(String xml) {
-		try {
-			XmlMapper mapper = new XmlMapper();
-			JavaType javaType = mapper
-					.getTypeFactory()
-					.constructParametricType(HashMap.class, String.class, Object.class); 
-			return mapper.readValue(xml, javaType);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}  
-        return null;
+        return ifs.xmlToMap(xml);
     }
 	
 	public static <K, V> Map<K, V> xmlToMap(String xml, Class<K> key, Class<V> value) {
-		try {
-			XmlMapper mapper = new XmlMapper();
-			JavaType javaType = mapper
-					.getTypeFactory()
-					.constructParametricType(HashMap.class, key, value); 
-			return mapper.readValue(xml, javaType);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}  
-        return null;
+        return ifs.xmlToMap(xml, key, value); 
     }
 	
 	public static List<Map<String, Object>> xmlToList(String xml) {
-		try {
-			return new XmlMapper().readValue(xml, new TypeReference<List<Map<String, Object>>>(){});
-		} catch (IOException e) {
-			e.printStackTrace();
-		}  
-        return null;
+        return ifs.xmlToList(xml);
     }
 	
 	public static <T> List<T> xmlToList(String xml, Class<T> clss) {
-		try {
-			XmlMapper mapper = new XmlMapper();
-			JavaType javaType = mapper
-					.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-					.getTypeFactory()
-					.constructParametricType(List.class, clss);  
-			return mapper.readValue(xml, javaType);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}  
-        return null;
+        return ifs.xmlToList(xml, clss); 
     }
 
+	
+	private static List<Class<?>> findClass(){
+		List<Class<?>> classes = new ArrayList<>();
+		try {
+			//查找Cache接口的所有实现
+			List<Class<?>> total = Tools.findClass("");
+			for (Class<?> temp : total) {
+				
+				if(!temp.isInterface() && !Modifier.isAbstract(temp.getModifiers()) &&
+						temp.getInterfaces().length != 0 && temp.getInterfaces()[0].getName().equals(JsonInterface.class.getName()) ){
+					classes.add(temp);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return classes;
+	}
 	
 	
 	public static void main(String[] args) {
@@ -269,41 +190,3 @@ public class JsonTools {
 	}
 }
 
-/*class User{
-	private String returnstatus;
-	private String message;
-	private String remainpoint;
-	private String taskID;
-	private String sex;
-	public String getReturnstatus() {
-		return returnstatus;
-	}
-	public void setReturnstatus(String returnstatus) {
-		this.returnstatus = returnstatus;
-	}
-	public String getMessage() {
-		return message;
-	}
-	public void setMessage(String message) {
-		this.message = message;
-	}
-	public String getRemainpoint() {
-		return remainpoint;
-	}
-	public void setRemainpoint(String remainpoint) {
-		this.remainpoint = remainpoint;
-	}
-	public String getTaskID() {
-		return taskID;
-	}
-	public void setTaskID(String taskID) {
-		this.taskID = taskID;
-	}
-	public String getSex() {
-		return sex;
-	}
-	public void setSex(String sex) {
-		this.sex = sex;
-	}
-	
-}*/

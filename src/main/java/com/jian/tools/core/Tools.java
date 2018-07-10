@@ -17,6 +17,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
@@ -77,6 +78,7 @@ public class Tools {
 	private static Map<String, Method> methods = new HashMap<String ,Method>();
 	private static Map<String, Field[]> fieldArrays = new HashMap<String ,Field[]>();
 	private static Map<String, Method[]> methodArrays = new HashMap<String ,Method[]>();
+	private static Map<String, List<Class<?>>> classLists = new HashMap<String , List<Class<?>>>();
 
 	//写文件线程池
 	private static ExecutorService service = Executors.newFixedThreadPool(10);
@@ -1828,6 +1830,60 @@ public class Tools {
 		return null;
 	}
 	
+	/**
+	 * 获取指定包下面的所有 Class文件
+	 * @param packageName  包名。“com.jian.test”
+	 * @return 返回Class对象
+	 * @throws ClassNotFoundException 类找不到异常
+	 * @throws IOException io异常
+	 */
+	public static List<Class<?>> findClass(String packageName) throws IOException, ClassNotFoundException {
+
+		List<Class<?>> classes = new ArrayList<Class<?>>();
+		String mark = "packageName#" + packageName;
+		//查询包下的所有class
+		if(classLists.containsKey(mark)){
+			classes = classLists.get(mark);
+		}else{
+			ClassLoader classLoader = Tools.class.getClassLoader();
+			String path = packageName.replace(".", "/");
+			Enumeration<URL> resources = classLoader.getResources(path);
+			List<File> dirs = new ArrayList<File>();
+			while (resources.hasMoreElements()) {
+				URL resource = resources.nextElement();
+				dirs.add(new File(resource.getFile()));
+			}
+			for (File directory : dirs) {
+				classes.addAll(findClass(directory, packageName));
+			}
+			classLists.put(mark, classes);
+		}
+		return classes;
+	}
+	
+	private static List<Class<?>> findClass(File directory, String packageName) throws ClassNotFoundException {
+		List<Class<?>> classes = new ArrayList<Class<?>>();
+		if (!directory.exists()) {
+			return classes;
+		}
+		if(!isNullOrEmpty(packageName)){
+			packageName = packageName + ".";
+		}
+
+		File[] files = directory.listFiles();
+
+		for (File file : files) {
+			if (file.isDirectory()) {
+				assert !file.getName().contains(".");
+				classes.addAll(findClass(file, packageName + file.getName()));
+			} else if (file.getName().endsWith(".class")) {
+				String name = packageName + file.getName().substring(0, file.getName().length() - 6);
+				Class<?> temp = Tools.class.getClassLoader().loadClass(name);
+				classes.add(temp);
+			}
+		}
+		return classes;
+	}
 
 	public static void main(String[] args) {
 //		String imgstr = getImageStr("C:\\Users\\Administrator\\Desktop\\65.png");
