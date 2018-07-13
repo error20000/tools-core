@@ -17,6 +17,20 @@ public class Config {
 	
 	//登录session
 	public static String login_session_key="login_user";
+
+	//登录sso
+	public static String sso_url;
+	public static String sso_module;
+	
+
+	@Value("${sso_url}")
+	public void setSso_url(String sso_url) {
+		Config.sso_url = sso_url;
+	}
+	@Value("${sso_module}")
+	public void setSso_module(String sso_module) {
+		Config.sso_module = sso_module;
+	}
 	
 	@Value("${login_session_key}")
 	public void setLogin_session_key(String login_session_key) {

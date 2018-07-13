@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
@@ -57,22 +56,6 @@ import javax.servlet.http.HttpServletResponse;
 public class Tools {
 	
 	
-	private static final String AUTH_USER_SESSION = "auth_user";
-	
-	public static final String TCODE_SESSION = "tcode"; //图形验证码的session
-	public static final String TCODE_NUM_SESSION = "tcode_num";//图形验证码的效验次数
-	public static final String VCODE_SESSION = "vcode"; //短信验证码的session
-	public static final String VCODE_NUM_SESSION = "vcode_num";//短信验证码的效验次数
-	public static final int VCODE_IP_LIMIT = 3;//短信验证码的IP次数限制
-	public static final int VCODE_TIME_LIMIT = 2;//短信验证码的时间限制（分钟）
-	
-	public static Map<String, Long> pvMap = null; //PV value
-	public static Map<String, Long> pvType = null; //PV  type
-	
-	public static Map<String, String> activeTcode = new ConcurrentHashMap<>(); //tcode
-	public static Map<String, String> phoneVcode = new ConcurrentHashMap<>(); //vcode
-	public static Map<String, Integer> phoneVcodeLimit = new ConcurrentHashMap<>(); //vcode
-	
 	//反射
 	private static Map<String, Field> fields = new HashMap<String ,Field>();
 	private static Map<String, Method> methods = new HashMap<String ,Method>();
@@ -85,24 +68,15 @@ public class Tools {
 	private static Lock lock = new ReentrantLock();
 	
 	//可配置信息
-	public static String initOutputCode = ResultKey.CODE;//输出的code字段名，默认值：ResultKey.CODE
-	public static String initOutputMsg = ResultKey.MSG; //输出的message字段名，默认值：ResultKey.MSG
-	public static String initOutputData = ResultKey.DATA;//输出的data字段名，默认值：ResultKey.DATA
+	private static String initOutputCode = ResultKey.CODE;//输出的code字段名，默认值：ResultKey.CODE
+	private static String initOutputMsg = ResultKey.MSG; //输出的message字段名，默认值：ResultKey.MSG
+	private static String initOutputData = ResultKey.DATA;//输出的data字段名，默认值：ResultKey.DATA
 	
-	public static String initDateFormatStr = "yyyy-MM-dd HH:mm:ss";	//格式化时间的格式，默认值："yyyy-MM-dd HH:mm:ss"
-	public static String initCharsetName = "utf-8";	//统一字符编码，默认值："utf-8"
-	public static String initAttackLogPath = "attacks/request/";	//记录SQL注入日志文件路径，默认值："attacks/request/"
-	
-	//可配置信息
-	public static void initTips() {
-		
-	}
+	private static String initDateFormatStr = "yyyy-MM-dd HH:mm:ss";	//格式化时间的格式，默认值："yyyy-MM-dd HH:mm:ss"
+	private static String initCharsetName = "utf-8";	//统一字符编码，默认值："utf-8"
+	private static String initAttackLogPath = "attacks/request/";	//记录SQL注入日志文件路径，默认值："attacks/request/"
 	
 	
-	
-	public static String getAuthUser() {
-		return AUTH_USER_SESSION;
-	}
 
 	//TODO 基本的
 	/**
