@@ -131,15 +131,15 @@ public class Demo {
 }
 ```
 * 生成目录结构：
-		com.testAuto
-		com.testAuto.config
-		com.testAuto.controller
-		com.testAuto.dao
-		com.testAuto.dao.impl
-		com.testAuto.entity
-		com.testAuto.service
-		com.testAuto.service.impl
-		com.testAuto.util
+> com.testAuto
+> com.testAuto.config
+> com.testAuto.controller
+> com.testAuto.dao
+> com.testAuto.dao.impl
+> com.testAuto.entity
+> com.testAuto.service
+> com.testAuto.service.impl
+> com.testAuto.util
 
 * 介绍：
 	* Config: 包配置。
