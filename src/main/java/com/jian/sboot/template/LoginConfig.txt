@@ -13,8 +13,20 @@ import com.jian.tools.core.Tips;
 public class LoginConfig {
 	
 	public static String loginUserKey = Config.login_session_key;
+	public static String ssoUrl = Config.sso_url;
 	
 	public static Map<String, Object> verifyLogin(HttpServletRequest req){
+		if(Tools.isNullOrEmpty(ssoUrl)){
+			//单点登录验证.
+			return verifyLoginSSO(req);
+		}else{
+			//本地session验证.
+			return verifyLoginNormal(req);
+		}
+//		return null; 
+	}
+	
+	public static Map<String, Object> verifyLoginNormal(HttpServletRequest req){
 		HttpSession session = req.getSession();
 		Object temp = session.getAttribute(loginUserKey);
 		if(temp == null){
@@ -23,13 +35,70 @@ public class LoginConfig {
 		return null;
 	}
 	
+	public static Map<String, Object> verifyLoginSSO(HttpServletRequest req){
+		//缓存在session
+		HttpSession session = req.getSession();
+		Object temp = session.getAttribute(loginUserKey);
+		if(temp != null){
+			return null;
+		}
+		//sso
+		String token = getToken(req);
+		String host = req.getHeader("host");
+		
+		if(Tools.isNullOrEmpty(token)){
+			return ResultTools.custom(Tips.ERROR111).build();
+		}
+		String res = HttpTools.getInstance().sendHttpGet(ssoUrl + "/api/user/userAuth?token="+token+"&host="+host);
+		
+		Map<String, Object> map = new HashMap<>();
+		try {
+			map = JsonTools.jsonToMap(res);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		if(map.get("code") == null || Tools.parseInt(map.get("code") + "") != 1){
+			return map;
+		}else{
+			//保存用户
+			Map<String, Object> data = JsonTools.jsonToMap(JsonTools.toJsonString(map.get("data")));
+			if(data != null){
+				Map<String, Object> user =JsonTools.jsonToMap(JsonTools.toJsonString(data.get("user")));
+				if(user != null){
+					session.setAttribute(loginUserKey, user);
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	public static String getToken(HttpServletRequest req){
+//		String tokenStr = Tools.isNullOrEmpty(req.getHeader("token")) ? Tools.getReqParamSafe(req, "token") : req.getHeader("token"); 
+		//读取cookie
+		String tokenStr = "";
+		Cookie[] cookies = req.getCookies();
+		if(cookies != null){
+			for (int i = 0; i < cookies.length; i++) {
+				Cookie tmp = cookies[i];
+				if("token".equals(tmp.getName())){
+					tokenStr = tmp.getValue();
+					break;
+				}
+			}
+		}
+		return tokenStr;
+	}
+	
 	public static String getUserInfo(HttpServletRequest req){
-		//获取用户信息
+		//获取sso用户信息，注意这里是sso用户，可能需要转换成自己项目的用户
 		HttpSession session = req.getSession();
 		Object user = session.getAttribute(loginUserKey);
 		if(user == null){
 			return null;
 		}
+		//TODO 如果需要这里做转换
 		return JsonTools.toJsonString(user);
 	}
 	
