@@ -131,15 +131,15 @@ public class Demo {
 }
 ```
 * 生成目录结构：
-> com.testAuto
-> com.testAuto.config
-> com.testAuto.controller
-> com.testAuto.dao
-> com.testAuto.dao.impl
-> com.testAuto.entity
-> com.testAuto.service
-> com.testAuto.service.impl
-> com.testAuto.util
+		com.testAuto
+		com.testAuto.config
+		com.testAuto.controller
+		com.testAuto.dao
+		com.testAuto.dao.impl
+		com.testAuto.entity
+		com.testAuto.service
+		com.testAuto.service.impl
+		com.testAuto.util
 
 * 介绍：
 	* Config: 包配置。
@@ -149,6 +149,7 @@ public class Demo {
 	* AbstractAutoCreate: 自动生成工具抽象。
 	* AutoCreateNormal: 自动生成工具的实现。
 	* AutoCreateSpringBoot: 自动生成工具的实现。
+	
 * 自定义生成工具：继承AbstractAutoCreate或者实现AutoCreate接口。再new AutoCreateManager时注入你的实现即可。
 * 注解：
 	* API：可以生成接口文档。
@@ -157,7 +158,8 @@ public class Demo {
 #### 工具包定义的项目
 通过META-INF/services/javax.servlet.ServletContainerInitializer方式启动，从而实现自己的注解机制。仿spring。
 
-**注意：**由于怕不同类型项目之间有影响，所以没添加META-INF/services/javax.servlet.ServletContainerInitializer文件，如要使用该方式请自行添加。内容：com.tools.web.ServletContainerInitializerImpl
+**注意:**由于怕不同类型项目之间有影响，所以没添加META-INF/services/javax.servlet.ServletContainerInitializer文件，如要使用该方式请自行添加。
+内容：com.tools.web.ServletContainerInitializerImpl
 
 #### spring boot项目
 spring boot项目
