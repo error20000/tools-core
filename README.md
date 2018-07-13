@@ -49,7 +49,7 @@ FileTools.fileWatch(); //检查更新
 #### Json工具类 JsonTools
 JsonTools 基于接口设计，可以实现自己的json实现。
 * 接口：JsonInterface。
-* 实现：JsonImpl 默认基于jackson实现。
+* 实现：JsonImpl 默认实现，基于jackson。
 * 用法：
 ```java
 JsonTools.toJsonString(); //Object转json字符串
@@ -58,4 +58,23 @@ JsonTools.xmlToObj(); //xml字符串转Object
 JsonTools.getIfs(); //返回工具类注册的实现。
 ```
 * **自定义实现** 请实现 JsonInterface 接口。
-JsonTools类会自动扫描，当前classes包里的类。如果没有类实现JsonInterface，会使用默认实现。如果有取第一个实现。以后可能会支持扫描jar。
+
+工具包自动扫描，当前classes包里的类。如果没有类实现JsonInterface，会使用默认实现。如果有取第一个实现。以后可能会支持扫描jar。
+
+#### 缓存工具类 CacheTools
+CacheTools 基于接口设计，可以实现自己的缓存实现。比如：redis。
+* 对象：CacheObject 缓存对象。
+* 接口：Cache。
+* 抽象类：CacheAbstract。默认实现了缓存的自动回收，2小时一次，默认过期时间2小时。
+* 实现：CacheImpl 默认实现，基于内存，map结构。
+* 用法：
+```java
+CacheTools.setCacheObj(); //设置缓存。
+CacheTools.getCacheObj(); //获取缓存
+CacheTools.isTimeout(); //是否超时
+CacheTools.clearCacheObj(); //清除缓存
+CacheTools.getIfs(); //返回工具类注册的实现。
+```
+* **自定义实现** 你可以继承 CacheAbstract，这样比较简单。也可以实现 Cache 接口，这样更自由。
+
+工具包自动扫描，当前classes包里的类。如果没有类继承 CacheAbstract或者实现Cache接口，会使用默认实现。如果有取第一个实现。以后可能会支持扫描jar。
