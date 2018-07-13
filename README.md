@@ -102,8 +102,7 @@ AccessTokenTools.getIfs(); //返回工具类注册的实现。
 ### 自动生成代码
 com.jian.auto包。通过读取数据库信息自动生成基础java类。可以生成如下项目：
 * [工具包定义的项目](#工具包定义的项目)。
-* [spring boot项目](#springboot项目)。
-
+* [spring boot项目](#spring-boot项目)。
 **注意：**这里使用c3p0做连接，需要引入其相关包。如果最后不想使用c3p0可以生成代码后，删除相关包。
 
 * 示例：
@@ -159,7 +158,6 @@ com.testAuto.util
 
 #### 工具包定义的项目
 通过META-INF/services/javax.servlet.ServletContainerInitializer方式启动，从而实现自己的注解机制。仿spring。
-
 **注意:**由于怕不同类型项目之间有影响，所以没添加META-INF/services/javax.servlet.ServletContainerInitializer文件，如要使用该方式请自行添加。
 内容：com.tools.web.ServletContainerInitializerImpl
 
