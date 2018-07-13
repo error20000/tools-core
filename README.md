@@ -102,7 +102,7 @@ AccessTokenTools.getIfs(); //返回工具类注册的实现。
 ### 自动生成代码
 com.jian.auto包。通过读取数据库信息自动生成基础java类。可以生成如下项目：
 * [工具包定义的项目](#工具包定义的项目)。
-* [spring boot项目](#spring boot项目)。
+* [spring boot项目](#springboot项目)。
 
 **注意：**这里使用c3p0做连接，需要引入其相关包。如果最后不想使用c3p0可以生成代码后，删除相关包。
 
@@ -131,15 +131,17 @@ public class Demo {
 }
 ```
 * 生成目录结构：
-> com.testAuto
-> com.testAuto.config
-> com.testAuto.controller
-> com.testAuto.dao
-> com.testAuto.dao.impl
-> com.testAuto.entity
-> com.testAuto.service
-> com.testAuto.service.impl
-> com.testAuto.util
+```
+com.testAuto
+com.testAuto.config
+com.testAuto.controller
+com.testAuto.dao
+com.testAuto.dao.impl
+com.testAuto.entity
+com.testAuto.service
+com.testAuto.service.impl
+com.testAuto.util
+```
 
 * 介绍：
 	* Config: 包配置。
