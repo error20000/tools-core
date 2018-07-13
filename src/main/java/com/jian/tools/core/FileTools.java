@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.file.FileSystems;
@@ -63,7 +64,7 @@ public class FileTools {
 			public void run() {
 				lock.lock();
 				String charset = initCharsetName;
-				OutputStream out;
+				OutputStream out = null;
 				try {
 					//file.getParentFile().mkdirs();
 					File pfile = file.getParentFile();
@@ -80,6 +81,15 @@ public class FileTools {
 					e.printStackTrace();
 				} finally {
 					lock.unlock();
+					if(out != null){
+						try {
+							out.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}finally{
+							out = null;
+						}
+					}
 				}
 			}
 		});
@@ -93,8 +103,9 @@ public class FileTools {
 	public static List<String> fileReader(File file) {
 		List<String> content = new ArrayList<String>();
 		if(file.exists()){
+			BufferedReader reader = null;
 			try {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), initCharsetName));
+				reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), initCharsetName));
 				String line;
 				while ((line = reader.readLine()) != null) {
 					content.add(line);
@@ -102,6 +113,16 @@ public class FileTools {
 				reader.close();
 			} catch (Exception e) {
 				e.printStackTrace();
+			}finally {
+				if(reader != null){
+					try {
+						reader.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}finally{
+						reader = null;
+					}
+				}
 			}
 		}
 		return content;
@@ -116,8 +137,9 @@ public class FileTools {
 	public static String fileReaderAll(File file) {
 		String content = "";
 		if(file.exists()){
+			BufferedReader reader = null;
 			try {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), initCharsetName));
+				reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), initCharsetName));
 				List<String> list = reader.lines().collect(Collectors.toList());
 				for (String str : list) {
 		    		content += str + "\n";
@@ -125,6 +147,16 @@ public class FileTools {
 				reader.close();
 			} catch (Exception e) {
 				e.printStackTrace();
+			}finally {
+				if(reader != null){
+					try {
+						reader.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}finally{
+						reader = null;
+					}
+				}
 			}
 		}
 		return content;
