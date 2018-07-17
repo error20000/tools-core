@@ -186,8 +186,8 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 	public void createConfig(){
 		String packName = config.getConfigPath(); //包路径
 		String chartset = config.getChartset(); //字符集
-		String tempName = "LoginConfig"; //模版名
-		String fileName = "LoginConfig"; //文件名
+		String tempName = "VerifyConfig"; //模版名
+		String fileName = "VerifyConfig"; //文件名
 		doCreateConfig(packName, tempName, fileName, chartset);
 		tempName = "Config"; //模版名
 		fileName = "Config"; //文件名
@@ -586,8 +586,8 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 					line = "import " + packName.replace("controller", "service.impl."+en+"ServiceImpl") + ";"; //import xxxx.service.impl.xxxServiceImpl
 				}else if(line.indexOf("import Config;") != -1){
 					line = "import " + packName.replace("controller", "config.Config") + ";";//import xxxx.config.Config
-				}else if(line.indexOf("import LoginConfig;") != -1){
-					line = "import " + packName.replace("controller", "config.LoginConfig") + ";";//import xxxx.config.LoginConfig
+				}else if(line.indexOf("import VerifyConfig;") != -1){
+					line = "import " + packName.replace("controller", "config.VerifyConfig") + ";";//import xxxx.config.VerifyConfig
 				}else if(line.indexOf("import Utils;") != -1){
 					line = "import " + packName.replace("controller", "util.Utils") + ";";//import xxxx.util.Utils
 				}else{
