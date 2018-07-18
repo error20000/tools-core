@@ -41,17 +41,6 @@ public class VerifyConfig {
 		
 		return null;
 	}
-	
-	/**
-	 * 权限验证
-	 * @param req
-	 * @return 通过返回null
-	 */
-	public static Map<String, Object> verifyAuth(HttpServletRequest req){
-		//TODO do something
-		
-		return null;
-	}
 
 	/**
 	 * 获取登录用户信息

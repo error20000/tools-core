@@ -31,25 +31,25 @@ public abstract class BaseController<T> {
 	public abstract void initService();
 
 	//登录验证
-	public static Map<String, Object> verifyLogin(HttpServletRequest req){
+	public Map<String, Object> verifyLogin(HttpServletRequest req){
 		
 		return VerifyConfig.verifyLogin(req);
 	}
 	
 	//sign验证
-	public static Map<String, Object> verifySign(HttpServletRequest req){
+	public Map<String, Object> verifySign(HttpServletRequest req){
 		
 		return VerifyConfig.verifySign(req);
 	}
 	
 	//权限验证
-	public static Map<String, Object> verifyAuth(HttpServletRequest req){
+	public Map<String, Object> verifyAuth(HttpServletRequest req){
 		
-		return VerifyConfig.verifyAuth(req);
+		return null;
 	}
 	
 	//获取用户信息
-	public static String getUserInfo(HttpServletRequest req){
+	public String getUserInfo(HttpServletRequest req){
 		return VerifyConfig.getUserInfo(req);
 	}
 	
