@@ -33,7 +33,7 @@ public class TempController extends BaseController<Temp> {
 	@RequestMapping("/add")
     @ResponseBody
 	@API(name="新增", 
-		info="", 
+		info="需登录认证", 
 		request={
 				//add request
 		}, 
@@ -51,7 +51,7 @@ public class TempController extends BaseController<Temp> {
 	@RequestMapping("/update")
     @ResponseBody
 	@API(name="修改", 
-		info="", 
+		info="需登录认证", 
 		request={
 				//modify request
 		}, 
@@ -68,7 +68,7 @@ public class TempController extends BaseController<Temp> {
 	@RequestMapping("/delete")
     @ResponseBody
 	@API(name="删除", 
-		info="", 
+		info="需登录认证", 
 		request={
 				//delete request
 		}, 
@@ -85,7 +85,7 @@ public class TempController extends BaseController<Temp> {
 	@RequestMapping("/findPage")
     @ResponseBody
 	@API(name="分页查询", 
-		info="条件查询", 
+		info="需登录认证", 
 		request={
 				@ParamsInfo(name="page", type="int", isNull=1, info="页码"),
 				@ParamsInfo(name="rows", type="int", isNull=1, info="每页条数"),
@@ -105,7 +105,7 @@ public class TempController extends BaseController<Temp> {
 	@RequestMapping("/findOne")
     @ResponseBody
 	@API(name="查询一个", 
-		info="条件查询", 
+		info="需登录认证", 
 		request={
 				//findOne request
 		}, 
@@ -122,7 +122,7 @@ public class TempController extends BaseController<Temp> {
 	@RequestMapping("/findList")
     @ResponseBody
 	@API(name="查询多个", 
-		info="条件查询", 
+		info="需登录认证", 
 		request={
 				//findList request
 		}, 
