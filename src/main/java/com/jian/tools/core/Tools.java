@@ -983,7 +983,7 @@ public class Tools {
 						break;
 					}
 					for (Method m : methods) {
-						if(m.getName().indexOf("set") != -1 && m.getName().substring(3).equalsIgnoreCase(name)){
+						if(m.getName().startsWith("set") && m.getName().substring(3).equalsIgnoreCase(name)){
 							try {
 								m.invoke(obj, value);
 							} catch (Exception e) {

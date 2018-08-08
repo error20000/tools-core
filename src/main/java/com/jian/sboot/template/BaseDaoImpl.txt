@@ -122,8 +122,8 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 			String pSql = preparedSql(sql);
 			Map<String, Object> params = Tools.parseObjectToMap(object);
 			
-			/*KeyHolder keyHolder = new GeneratedKeyHolder();  
-			jdbcTemplate.update(new PreparedStatementCreator() {
+			KeyHolder keyHolder = new GeneratedKeyHolder();  
+			int temp = jdbcTemplate.update(new PreparedStatementCreator() {
 				
 				@Override
 				public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
@@ -134,9 +134,13 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 				
 			}, keyHolder);
 			
-			autoIncId = keyHolder.getKey().intValue(); */
+			if(keyHolder.getKey() == null){
+				res = temp;
+			}else{
+				res = keyHolder.getKey().intValue(); 
+			}
 			
-			res = jdbcTemplate.update(new PreparedStatementCreator() {
+			/*res = jdbcTemplate.update(new PreparedStatementCreator() {
 				
 				@Override
 				public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
@@ -145,7 +149,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 					return preState;
 				}
 				
-			});
+			});*/
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2039,7 +2043,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
     			String key = f.getName();
     			if(rowMap.get(key) != null){
     				for (Method method : methods) {
-    					if(method.getName().replace("set", "").toLowerCase().equals(f.getName().toLowerCase())){
+    					if(method.getName().startsWith("set") && method.getName().substring(3).equalsIgnoreCase(f.getName())){
     						try {
     							method.invoke(object, rowMap.get(key));
     						} catch (Exception e) {
