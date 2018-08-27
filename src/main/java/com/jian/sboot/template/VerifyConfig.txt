@@ -17,6 +17,7 @@ import com.jian.tools.core.Tools;
 public class VerifyConfig {
 	
 	public static String loginUserKey = Config.login_session_key;
+	public static String loginUserCache = "CACHE_SSO_USER";
 	public static String ssoUrl = Config.sso_url;
 	
 	/**
@@ -62,6 +63,15 @@ public class VerifyConfig {
 		
 		return JsonTools.toJsonString(user);
 	}
+
+	/**
+	 * 写入登录用户信息
+	 * @return
+	 */
+	public static void setUserInfo(){
+		//TODO 建议先判断账号信息是否存在，不存在再写入。
+		
+	}
 	
 	private static Map<String, Object> verifyLoginNormal(HttpServletRequest req){
 		HttpSession session = req.getSession();
@@ -73,19 +83,20 @@ public class VerifyConfig {
 	}
 	
 	private static Map<String, Object> verifyLoginSSO(HttpServletRequest req){
-		//缓存在session
-		HttpSession session = req.getSession();
-		Object temp = session.getAttribute(loginUserKey);
-		if(temp != null){
-			return null;
-		}
 		//sso
-		String token = getToken(req);
+		String token = getTokenSSO(req);
 		String host = req.getHeader("host");
 		
 		if(Tools.isNullOrEmpty(token)){
 			return ResultTools.custom(Tips.ERROR111).build();
 		}
+		//缓存在session，节约sso访问时间次数
+		HttpSession session = req.getSession();
+		Object temp = session.getAttribute(loginUserCache);
+		if(temp != null && token.equals(temp)){
+			return null;
+		}
+		//sso验证
 		String res = HttpTools.getInstance().sendHttpGet(ssoUrl + "/api/user/userAuth?token="+token+"&host="+host);
 		
 		Map<String, Object> map = new HashMap<>();
@@ -104,6 +115,9 @@ public class VerifyConfig {
 				Map<String, Object> user =JsonTools.jsonToMap(JsonTools.toJsonString(data.get("user")));
 				if(user != null){
 					session.setAttribute(loginUserKey, user);
+					session.setAttribute(loginUserCache, token);
+					//写入帐号信息
+					setUserInfo();
 				}
 			}
 		}
@@ -111,7 +125,7 @@ public class VerifyConfig {
 		return null;
 	}
 	
-	private static String getToken(HttpServletRequest req){
+	private static String getTokenSSO(HttpServletRequest req){
 //		String tokenStr = Tools.isNullOrEmpty(req.getHeader("token")) ? Tools.getReqParamSafe(req, "token") : req.getHeader("token"); 
 		//读取cookie
 		String tokenStr = "";

@@ -146,6 +146,9 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	 * @param obj 对象
 	 */
 	private void fillDate(String fillCondition, T obj){
+		if(Tools.isNullOrEmpty(fillCondition)){
+			return;
+		}
 		Field[] fields = Tools.getFields(obj.getClass());
 		for (Field f : fields) {
 			if(f.isAnnotationPresent(Excel.class)){
@@ -181,6 +184,9 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	 * @param obj 对象
 	 */
 	private void fillDate(String fillCondition, Map<String, Object> valus){
+		if(Tools.isNullOrEmpty(fillCondition)){
+			return;
+		}
 		Field[] fields = Tools.getFields(getObejctClass());
 		for (Field f : fields) {
 			if(f.isAnnotationPresent(Excel.class)){
