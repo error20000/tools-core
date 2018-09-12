@@ -595,7 +595,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 				}
 				//mapping
 				if(line.indexOf("{path}") != -1){
-					line = line.replace("{path}", en.toLowerCase());
+					line = line.replace("{path}", en.substring(0, 1).toLowerCase()+en.substring(1));
 				}
 				if(line.indexOf("{reqPrefix}") != -1){
 					line = line.replace("{reqPrefix}", config.getReqPrefix());

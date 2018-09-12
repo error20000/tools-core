@@ -26,7 +26,7 @@ public class VerifyConfig {
 	 * @return 通过返回null
 	 */
 	public static Map<String, Object> verifyLogin(HttpServletRequest req){
-		if(Tools.isNullOrEmpty(ssoUrl)){
+		if(!Tools.isNullOrEmpty(ssoUrl)){
 			//单点登录验证.
 			return verifyLoginSSO(req);
 		}else{

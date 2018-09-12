@@ -265,9 +265,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 				}
 			});
 			
-			for (int i : tmp) {
-				res += i;
-			}
+			res = tmp.length; //jdbc2.0规范 值为-2表示操作成功，但受影响的行数是未知的，
 		} catch (Exception e) {
 			e.printStackTrace();
 			debug(tableName, "BATCH SAVE ERROR", e.getMessage());
@@ -568,9 +566,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 				}
 			});
 			
-			for (int i : tmp) {
-				res += i;
-			}
+			res = tmp.length; //jdbc2.0规范 值为-2表示操作成功，但受影响的行数是未知的，
 		} catch (Exception e) {
 			e.printStackTrace();
 			//DEBUG
@@ -833,9 +829,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 				}
 			});
 			
-			for (int i : tmp) {
-				res += i;
-			}
+			res = tmp.length; //jdbc2.0规范 值为-2表示操作成功，但受影响的行数是未知的，
 		} catch (Exception e) {
 			e.printStackTrace();
 			//DEBUG

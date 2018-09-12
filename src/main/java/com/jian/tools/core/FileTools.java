@@ -132,7 +132,7 @@ public class FileTools {
 	/**
 	 * 读文件
 	 * @param file	待读入文件
-	 * @return String
+	 * @return String 原格式
 	 */
 	public static String fileReaderAll(File file) {
 		String content = "";
@@ -140,10 +140,7 @@ public class FileTools {
 			BufferedReader reader = null;
 			try {
 				reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), initCharsetName));
-				List<String> list = reader.lines().collect(Collectors.toList());
-				for (String str : list) {
-		    		content += str + "\n";
-				}
+				content = reader.lines().collect(Collectors.joining("\n"));
 				reader.close();
 			} catch (Exception e) {
 				e.printStackTrace();

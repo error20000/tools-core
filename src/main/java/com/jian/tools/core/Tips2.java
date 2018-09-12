@@ -90,6 +90,8 @@ public class Tips2 extends Tips  {
 	public static final Tips2 ERROR2203 = new Tips2(-2203, "未登录");
 	/**没有权限*/
 	public static final Tips2 ERROR2204 = new Tips2(-2204, "没有权限");
+	/**访问过于频繁，稍后再试*/
+	public static final Tips2 ERROR2205 = new Tips2(-2205, "访问过于频繁，稍后再试");
 	
 	/**{param}不正确*/
 	public static final Tips2 ERROR2300 = new Tips2(-2300, "{param}不正确");
