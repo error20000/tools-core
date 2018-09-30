@@ -183,7 +183,9 @@ public class FileTools {
 				List<WatchEvent<?>> watchEvents = key.pollEvents();  
 				for(WatchEvent<?> event : watchEvents){ 
 					//根据事件类型采取不同的操作。。。。。。。  
-					callback.execute(event);
+					if(callback != null){
+						callback.execute(event);
+					}
 				}  
 				boolean valid = key.reset();
 				if(!valid){

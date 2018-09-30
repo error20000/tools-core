@@ -44,14 +44,20 @@ public abstract class BaseController<T> {
 	
 	//权限验证
 	public Map<String, Object> verifyAuth(HttpServletRequest req){
-		//TODO 权限验证
 		
-		return null;
+		return VerifyConfig.verifyAuth(req);
 	}
 	
 	//获取用户信息
 	public String getUserInfo(HttpServletRequest req){
+	
 		return VerifyConfig.getUserInfo(req);
+	}
+	
+	//获取用户信息
+	public <E> E getUserInfo(HttpServletRequest req, Class<E> clzz){
+	
+		return VerifyConfig.getUserInfo(req, clzz);
 	}
 	
 	

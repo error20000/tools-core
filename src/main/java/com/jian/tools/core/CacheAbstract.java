@@ -156,9 +156,12 @@ public abstract class CacheAbstract implements Cache {
 	}
 	
 	public void closeClear() {
-		timer.cancel();
-		timer = null;
-		timerStart = false;
+		if(timer != null){
+			timer.cancel();
+			timer = null;
+			timerStart = false;
+		}
+		System.out.println(DateTools.formatDate()+":	stop cache clear...");
 	}
 	
 }

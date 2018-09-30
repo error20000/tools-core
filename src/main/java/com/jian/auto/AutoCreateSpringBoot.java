@@ -641,11 +641,11 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 								continue;
 							}else{
 								count++;
-								content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=1,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+								content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=0,  info=\""+structure.getComment().replace("\"", "")+"\"),");
 							}
 						}else{
 							count++;
-							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull="+("YES".equalsIgnoreCase(structure.getIsNull()) ? 0 : 1)+",  info=\""+structure.getComment().replace("\"", "")+"\"),");
+							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull="+("YES".equalsIgnoreCase(structure.getIsNull()) ? 1 : 0)+",  info=\""+structure.getComment().replace("\"", "")+"\"),");
 						}
 					}
 					
@@ -666,7 +666,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 						//@PrimaryKey
 						if("PRI".equals(structure.getKey())){
 							count++;
-							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=1,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=0,  info=\""+structure.getComment().replace("\"", "")+"\"),");
 						}
 					}
 					count++;
@@ -684,7 +684,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 							//do nothing
 						}else{
 							count++;
-							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=0,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=1,  info=\""+structure.getComment().replace("\"", "")+"\"),");
 						}
 					}
 				}else if("//delete request".equals(content.get(i).trim())){
@@ -696,7 +696,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 						//@PrimaryKey
 						if("PRI".equals(structure.getKey())){
 							count++;
-							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=1,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=0,  info=\""+structure.getComment().replace("\"", "")+"\"),");
 						}
 					}
 				}else if("//deleteBy request".equals(content.get(i).trim())){
@@ -706,7 +706,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 					for (int m = 0; m < sList.size(); m++) {
 						Structure structure = sList.get(m);
 						count++;
-						content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=0,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+						content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=1,  info=\""+structure.getComment().replace("\"", "")+"\"),");
 					}
 					count++;
 					content.add(i+count, "				@ParamsInfo(info=\"注意：以上条件不可同时为空。\"),");
@@ -719,7 +719,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 					for (int m = 0; m < sList.size(); m++) {
 						Structure structure = sList.get(m);
 						count++;
-						content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=0,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+						content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=1,  info=\""+structure.getComment().replace("\"", "")+"\"),");
 					}
 				}else if("//findOne request".equals(content.get(i).trim()) || "//findList request".equals(content.get(i).trim()) ){
 					//主键必填
@@ -730,7 +730,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 					for (int m = 0; m < sList.size(); m++) {
 						Structure structure = sList.get(m);
 						count++;
-						content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=0,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+						content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=1,  info=\""+structure.getComment().replace("\"", "")+"\"),");
 					}
 					count++;
 					content.add(i+count, "				@ParamsInfo(info=\"注意：以上条件不可同时为空。\"),");

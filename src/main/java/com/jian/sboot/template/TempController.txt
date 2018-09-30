@@ -87,8 +87,8 @@ public class TempController extends BaseController<Temp> {
 	@API(name="分页查询", 
 		info="需登录认证", 
 		request={
-				@ParamsInfo(name="page", type="int", isNull=1, info="页码"),
-				@ParamsInfo(name="rows", type="int", isNull=1, info="每页条数"),
+				@ParamsInfo(name="page", type="int", isNull=0, info="页码"),
+				@ParamsInfo(name="rows", type="int", isNull=0, info="每页条数"),
 				//findPage request
 		}, 
 		response={
