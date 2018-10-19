@@ -9,8 +9,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.jian.tools.core.HttpTools;
 import com.jian.tools.core.JsonTools;
+import com.jian.tools.core.ResultKey;
 import com.jian.tools.core.ResultTools;
 import com.jian.tools.core.Tips;
 import com.jian.tools.core.Tools;
@@ -21,10 +24,15 @@ import com.jian.tools.core.Tools;
  */
 public class VerifyConfig {
 	
-	public static String ssoUrl = Config.sso_url;
-	public static String loginUserLocal = Config.login_session_key;
 	public static String loginUserCache = "CACHE_SSO_USER";
 	public static String loginUserToken = "CACHE_SSO_USER_TOKEN";
+
+	public static Config config = null;
+	
+	@Autowired
+	public void setConfig(Config config){
+		VerifyConfig.config = config;
+	}
 
 	/**
 	 * 获取登录用户信息
@@ -95,7 +103,7 @@ public class VerifyConfig {
 	 */
 	public static Map<String, Object> verifyLogin(HttpServletRequest req){
 		//TODO do something
-		if(!Tools.isNullOrEmpty(ssoUrl)){
+		if(!Tools.isNullOrEmpty(config.sso_url)){
 			//单点登录验证.
 			return verifyLoginSSO(req);
 		}else{
@@ -106,9 +114,9 @@ public class VerifyConfig {
 	
 	private static Map<String, Object> verifyLoginNormal(HttpServletRequest req){
 		HttpSession session = req.getSession();
-		Object temp = session.getAttribute(loginUserLocal);
+		Object temp = session.getAttribute(config.login_session_key);
 		if(temp == null){
-			return ResultTools.custom(Tips.ERROR111).build();
+			return ResultTools.custom(Tips.ERROR111).put(ResultKey.DATA, "verifyLoginNormal session is null!").build();
 		}
 		return null;
 	}
@@ -119,7 +127,7 @@ public class VerifyConfig {
 		String host = req.getHeader("host");
 
 		if(Tools.isNullOrEmpty(token)){
-			return ResultTools.custom(Tips.ERROR111).build();
+			return ResultTools.custom(Tips.ERROR111).put(ResultKey.DATA, "verifyLoginSSO token is null!").build();
 		}
 		//缓存在session，节约sso访问时间次数
 		HttpSession session = req.getSession();
@@ -128,7 +136,7 @@ public class VerifyConfig {
 			return null;
 		}
 		//sso验证
-		String res = HttpTools.getInstance().sendHttpGet(ssoUrl + "/api/user/userAuth?token="+token+"&host="+host);
+		String res = HttpTools.getInstance().sendHttpGet(config.sso_url + "/api/user/userAuth?token="+token+"&host="+host);
 		Map<String, Object> map = new HashMap<>();
 		try {
 			map = JsonTools.jsonToMap(res);

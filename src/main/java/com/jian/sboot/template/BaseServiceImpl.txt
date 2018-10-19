@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.jian.annotation.Excel;
 import com.jian.annotation.PrimaryKey;
 import com.jian.tools.core.DateTools;
@@ -25,6 +27,9 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	
 	public abstract void initDao();
 	
+	@Autowired
+	private Config config;
+	
 	
 	public void init() {
 		initDao();
@@ -33,7 +38,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	public int add(T obj){
 		init();
 		fillPrimaryKey(obj);
-		fillDate(Config.autoFillDateForAdd, obj);
+		fillDate(config.autoFillDateForAdd, obj);
 		return baseDao.add(obj);
 	}
 	
@@ -41,7 +46,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 		init();
 		for (T obj : objs) {
 			fillPrimaryKey(obj);
-			fillDate(Config.autoFillDateForAdd, obj);
+			fillDate(config.autoFillDateForAdd, obj);
 		}
 		return baseDao.batchAdd(objs);
 	}
@@ -49,27 +54,27 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	public T add2(T obj){
 		init();
 		fillPrimaryKey(obj);
-		fillDate(Config.autoFillDateForAdd, obj);
+		fillDate(config.autoFillDateForAdd, obj);
 		return baseDao.add2(obj);
 	}
 	
 	public int modify(T obj){
 		init();
-		fillDate(Config.autoFillDateForModify, obj);
+		fillDate(config.autoFillDateForModify, obj);
 		return baseDao.modify(obj);
 	}
 	
 	public int modify(List<T> objs){
 		init();
 		for (T obj : objs) {
-			fillDate(Config.autoFillDateForModify, obj);
+			fillDate(config.autoFillDateForModify, obj);
 		}
 		return baseDao.batchModify(objs);
 	}
 	
 	public int modify(Map<String, Object> values, Map<String, Object> condition){
 		init();
-		fillDate(Config.autoFillDateForModify, values);
+		fillDate(config.autoFillDateForModify, values);
 		return baseDao.modify(values, condition);
 	}
 	

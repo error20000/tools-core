@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 
 import com.jian.jdbc.JdbcOperate;
 import com.jian.jdbc.c3p0.C3P0PropertiesConfig;
+import com.jian.jdbc.sboot.SbootPropertiesConfig;
 import com.jian.tools.core.Attacks;
 import com.jian.tools.core.Tools;
 
@@ -24,21 +25,50 @@ public class TableManager {
 		
 	}
 	public TableManager(String dbpath){
+		//测试是否有c3p0
+		Class<?> test = null;
+		try {
+			test = Class.forName("com.mchange.v2.c3p0.ComboPooledDataSource");
+		} catch (ClassNotFoundException e) {
+			System.out.println("com.mchange.v2.c3p0.ComboPooledDataSource not found, use org.springframework.jdbc.datasource.DriverManagerDataSource!");
+		}
 		File file = new File(dbpath);
 		if(file.exists()){
 			//this(file);  调用当前对象的其它构造函数    构造方法之间进行调用时this语句只能出现在第一行
-			DataSource dataSource = new C3P0PropertiesConfig(file).getDataSource();
+			DataSource dataSource = null;
+			if(test != null){
+				dataSource = new C3P0PropertiesConfig(file).getDataSource();
+			}else{
+				dataSource = new SbootPropertiesConfig(file).getDataSource();
+			}
 			jdbcOperate = new JdbcOperate(dataSource);
 			dbName = getDBName(Tools.getProperties(file).getProperty("jdbcUrl"));
 		}else{
-			DataSource dataSource = new C3P0PropertiesConfig(dbpath).getDataSource();
+			DataSource dataSource = null;
+			if(test != null){
+				dataSource = new C3P0PropertiesConfig(dbpath).getDataSource();
+			}else{
+				dataSource = new SbootPropertiesConfig(dbpath).getDataSource();
+			}
 			jdbcOperate = new JdbcOperate(dataSource);
 			dbName = getDBName(Tools.getProperties(dbpath).getProperty("jdbcUrl"));
 		}
 	}
 	
 	public TableManager(File file){
-		DataSource dataSource = new C3P0PropertiesConfig(file).getDataSource();
+		//测试是否有c3p0
+		Class<?> test = null;
+		try {
+			test = Class.forName("com.mchange.v2.c3p0.ComboPooledDataSource");
+		} catch (ClassNotFoundException e) {
+			System.out.println("com.mchange.v2.c3p0.ComboPooledDataSource not found, use org.springframework.jdbc.datasource.DriverManagerDataSource!");
+		}
+		DataSource dataSource = null;
+		if(test != null){
+			dataSource = new C3P0PropertiesConfig(file).getDataSource();
+		}else{
+			dataSource = new SbootPropertiesConfig(file).getDataSource();
+		}
 		jdbcOperate = new JdbcOperate(dataSource);
 		dbName = getDBName(Tools.getProperties(file).getProperty("jdbcUrl"));
 	}
