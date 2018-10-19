@@ -605,7 +605,7 @@ public class Tools {
 	 * @return
 	 */
 	public static Properties getProperties(String filename){
-		return getProperties(Tools.class.getResourceAsStream("/"+filename));
+		return getProperties(Tools.class.getResourceAsStream(filename.startsWith("/") ? filename : "/"+filename));
 	}
 	
 	/**
