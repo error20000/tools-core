@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.jian.tools.core.HttpTools;
 import com.jian.tools.core.JsonTools;
@@ -22,6 +23,7 @@ import com.jian.tools.core.Tools;
  * 根据情况需要重写接口
  * @author liujian
  */
+@Component
 public class VerifyConfig {
 	
 	public static String loginUserCache = "CACHE_SSO_USER";
