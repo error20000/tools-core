@@ -200,7 +200,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 	@Override
 	public int batchAdd(List<T> objects) {
 		if(objects == null || objects.size() == 0){
-			return 0;
+			return 1;  //空数组算保存成功
 		}
 		String tableName = getTableName();
 		return batchAdd(objects, tableName);
@@ -216,7 +216,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 	@Override
 	public int batchAdd(List<T> objects, String tableName) {
 		if(objects == null || objects.size() == 0){
-			return 0;
+			return 1;  //空数组算保存成功
 		}
 		List<PrimaryKeyCondition> pkeys = getPrimaryKeys(objects.get(0).getClass());
 		return batchAdd(objects, pkeys, tableName);
@@ -233,7 +233,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 	public int batchAdd(List<T> objects, List<PrimaryKeyCondition> pkeys, String tableName) {
 		int res = 0;
 		if(objects == null || objects.size() == 0){
-			return res;
+			return 1;  //空数组算保存成功
 		}
 		if(Tools.isNullOrEmpty(tableName)){
 			return res;
@@ -505,7 +505,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 	@Override
 	public int batchModify(List<T> objects) {
 		if(objects == null || objects.size() == 0){
-			return 0;
+			return 1;  //空数组算修改成功
 		}
 		String tableName = getTableName();
 		return batchModify(objects, tableName);
@@ -520,7 +520,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 	@Override
 	public int batchModify(List<T> objects, String tableName) {
 		if(objects == null || objects.size() == 0){
-			return 0;
+			return 1;  //空数组算修改成功
 		}
 		List<PrimaryKeyCondition> pkeys = getPrimaryKeys(objects.get(0).getClass());
 		return batchModify(objects, pkeys, tableName);
@@ -537,7 +537,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 	public int batchModify(List<T> objects, List<PrimaryKeyCondition> pkeys, String tableName) {
 		int res = 0;
 		if(objects == null || objects.size() == 0){
-			return res;
+			return 1;  //空数组算修改成功
 		}
 		if(Tools.isNullOrEmpty(tableName)){
 			return res;
@@ -800,7 +800,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 			return res;
 		}
 		if(columnValues == null || columnValues.size() == 0){
-			return res;
+			return 1;  //空数组算删除成功
 		}
 		if(Tools.isNullOrEmpty(tableName)){
 			return res;
