@@ -733,22 +733,18 @@ public class Tools {
 			map.put(initOutputData, "");
 			return map;
 		}
-		//minLength 为 0 不参与长度验证
-		if(minLength > 0){
-			if(maxLength > 0){
-				if(!(value.length() >= minLength && value.length() <= maxLength)){
-					map.put(initOutputCode, Tips.ERROR210.getCode());
-					map.put(initOutputMsg, Tips.ERROR210.getDesc(key));
-					map.put(initOutputData, "");
-					return map;
-				}
-			}else{ //maxLength 为 0 不参与最大长度验证
-				if(!(value.length() >= minLength)){
-					map.put(initOutputCode, Tips.ERROR210.getCode());
-					map.put(initOutputMsg, Tips.ERROR210.getDesc(key));
-					map.put(initOutputData, "");
-					return map;
-				}
+		//minLength=0, maxLength=0, 不参与长度验证
+		if(minLength > 0 && maxLength > 0){
+			if(value.length() > maxLength && maxLength != 0){
+				map.put(initOutputCode, Tips.ERROR210.getCode());
+				map.put(initOutputMsg, Tips.ERROR210.getDesc(key+", 长度"));
+				map.put(initOutputData, "");
+				return map;
+			}else if(value.length() < minLength && minLength != 0){
+				map.put(initOutputCode, Tips.ERROR200.getCode());
+				map.put(initOutputMsg, Tips.ERROR200.getDesc(key+", 长度"));
+				map.put(initOutputData, "");
+				return map;
 			}
 		}
 		

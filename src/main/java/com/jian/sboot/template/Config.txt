@@ -15,7 +15,7 @@ public class Config {
 	public String autoFillDateForModify; //修改日期类型自动填充
 	
 	//静态资源
-	public String upload_path; //文件上传地址
+	public String out_static_path; //外部静态资源  如上传
 	public String logs_path; //日志地址
 	
 	//登录session
@@ -41,9 +41,9 @@ public class Config {
 		this.autoFillDateForModify = autoFillDateForModify;
 	}
 
-	@Value("${upload_path}")
-	public void setUpload_path(String upload_path) {
-		this.upload_path = upload_path;
+	@Value("${out_static_path}")
+	public void setOut_static_path(String out_static_path) {
+		this.out_static_path = out_static_path;
 	}
 	
 	@Value("${logs_path}")

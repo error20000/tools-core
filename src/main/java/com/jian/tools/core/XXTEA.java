@@ -4,8 +4,8 @@ public class XXTEA {
 	/**
 	 * Encrypt data with key.
 	 * 
-	 * @param data
-	 * @param key
+	 * @param data	至少5位
+	 * @param key	至少13位
 	 * @return
 	 */
 	public static byte[] encrypt(byte[] data, byte[] key) {
