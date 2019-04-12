@@ -4,16 +4,20 @@ public class XXTEA {
 	/**
 	 * Encrypt data with key.
 	 * 
-	 * @param data	至少5位
-	 * @param key	至少13位
+	 * @param data	
+	 * @param key	16位字符，多余16位只取前16位
 	 * @return
 	 */
 	public static byte[] encrypt(byte[] data, byte[] key) {
 		if (data.length == 0) {
 			return data;
 		}
+		if(key.length < 16){
+			boolean[] copy = new boolean[16];
+			System.arraycopy(key, 0, copy, 0, key.length < 16 ? key.length : 16);
+		}
 		return toByteArray(
-				encrypt(toIntArray(data, false), toIntArray(key, false)), false);
+				encrypt(toIntArray(data, true), toIntArray(key, false)), false);
 	}
 
 	/**
@@ -27,8 +31,12 @@ public class XXTEA {
 		if (data.length == 0) {
 			return data;
 		}
+		if(key.length < 16){
+			boolean[] copy = new boolean[16];
+			System.arraycopy(key, 0, copy, 0, key.length < 16 ? key.length : 16);
+		}
 		return toByteArray(
-				decrypt(toIntArray(data, false), toIntArray(key, false)), false);
+				decrypt(toIntArray(data, false), toIntArray(key, false)), true);
 	}
 
 	/**
