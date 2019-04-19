@@ -18,6 +18,7 @@ public abstract class CacheAbstract implements Cache {
 	private static long outTime = 2 * 3600 * 1000; //资源超时时间。单位（毫秒）
 	
 	private static List<Map<String, String>> sortMap = new ArrayList<Map<String, String>>();
+	private static String lock = new String(); 
 	
 	public CacheAbstract(){
 		this(true);
@@ -44,7 +45,7 @@ public abstract class CacheAbstract implements Cache {
 			.filter(e -> e.get("sortKey").compareTo(toKey) < 0)
 			.collect(Collectors.toList());
 		//剩余数据
-		synchronized (sortMap) {
+		synchronized (lock) {
 			sortMap = sortMap.stream()
 					.filter(e -> e.get("sortKey").compareTo(toKey) >= 0)
 					.collect(Collectors.toList());

@@ -1094,7 +1094,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 	
 	/**
 	 * 查询数量，返回maplist集合。
-	 * @param columns 需要返回的列名，默认*。 如 id、name、count(1)
+	 * @param columns 需要返回的列名，默认*。 如 id、name、count(*)
 	 * @param queryCondition 查询条件.
 	 * @return list maplist集合。
 	 */
@@ -1106,7 +1106,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 	
 	/**
 	 * 查询数量，返回maplist集合。
-	 * @param columns 需要返回的列名，默认*。 如 id、name、count(1)
+	 * @param columns 需要返回的列名，默认*。 如 id、name、count(*)
 	 * @param queryCondition 查询条件.
 	 * @param tableName 表名。
 	 * @return list maplist集合。
@@ -1118,7 +1118,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 	
 	/**
 	 * 查询数量，返回maplist集合。
-	 * @param columns 需要返回的列名，默认*。 如 id、name、count(1)
+	 * @param columns 需要返回的列名，默认*。 如 id、name、count(*)
 	 * @param queryCondition 查询条件.
 	 * @param start 起始条数。
 	 * @param rows 查询条数。
@@ -1132,7 +1132,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 
 	/**
 	 * 查询数量，返回maplist集合。
-	 * @param columns 需要返回的列名，默认*。 如 id、name、count(1)
+	 * @param columns 需要返回的列名，默认*。 如 id、name、count(*)
 	 * @param queryCondition 查询条件.
 	 * @param start 起始条数。
 	 * @param rows 查询条数。
@@ -1150,7 +1150,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 
 	/**
 	 * 查询数量，返回maplist集合。
-	 * @param columns 需要返回的列名，默认*。 如 id、name、count(1)
+	 * @param columns 需要返回的列名，默认*。 如 id、name、count(*)
 	 * @param wsql 查询条件的where语句，不包括where。如 id=:id
 	 * @param queryCondition 查询条件赋值，不参与拼接sql语句，不能为null。如 key：id，value：xxx。
 	 * @return list maplist集合。
@@ -1163,7 +1163,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 
 	/**
 	 * 查询数量，返回maplist集合。
-	 * @param columns 需要返回的列名，默认*。 如 id、name、count(1)
+	 * @param columns 需要返回的列名，默认*。 如 id、name、count(*)
 	 * @param wsql 查询条件的where语句，不包括where。如 id=:id
 	 * @param queryCondition 查询条件赋值，不参与拼接sql语句，不能为null。如 key：id，value：xxx。
 	 * @param tableName 表名。
@@ -1176,7 +1176,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 
 	/**
 	 * 查询数量，返回maplist集合。
-	 * @param columns 需要返回的列名，默认*。 如 id、name、count(1)
+	 * @param columns 需要返回的列名，默认*。 如 id、name、count(*)
 	 * @param wsql 查询条件的where语句，不包括where。如 id=:id
 	 * @param queryCondition 查询条件赋值，不参与拼接sql语句，不能为null。如 key：id，value：xxx。
 	 * @param start 起始条数。
@@ -1191,7 +1191,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 
 	/**
 	 * 查询数量，返回maplist集合。
-	 * @param columns 需要返回的列名，默认*。 如 id、name、count(1)
+	 * @param columns 需要返回的列名，默认*。 如 id、name、count(*)
 	 * @param wsql 查询条件的where语句，不包括where。如 id=:id
 	 * @param queryCondition 查询条件赋值，不参与拼接sql语句，不能为null。如 key：id，value：xxx。
 	 * @param start 起始条数。
@@ -1266,7 +1266,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 	
 	/**
 	 * 查询对象，返回map。
-	 * @param columns 需要返回的列名，默认*。 如 id、name、count(1)
+	 * @param columns 需要返回的列名，默认*。 如 id、name、count(*)
 	 * @param queryCondition 查询条件。
 	 * @return map map对象。
 	 */
@@ -1278,7 +1278,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 
 	/**
 	 * 查询对象，返回map。
-	 * @param columns 需要返回的列名，默认*。 如 id、name、count(1)
+	 * @param columns 需要返回的列名，默认*。 如 id、name、count(*)
 	 * @param queryCondition 查询条件。
 	 * @param tableName 表名。
 	 * @return map map对象。
@@ -1294,7 +1294,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 	
 	/**
 	 * 查询对象，返回map。
-	 * @param columns 需要返回的列名，默认*。 如 id、name、count(1)
+	 * @param columns 需要返回的列名，默认*。 如 id、name、count(*)
 	 * @param wsql 查询条件的where语句，不包括where。如 id=:id
 	 * @param queryCondition 查询条件赋值，不参与拼接sql语句，不能为null。如 key：id，value：xxx。
 	 * @return map map对象。
@@ -1307,7 +1307,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 
 	/**
 	 * 查询对象，返回map。
-	 * @param columns 需要返回的列名，默认*。 如 id、name、count(1)
+	 * @param columns 需要返回的列名，默认*。 如 id、name、count(*)
 	 * @param wsql 查询条件的where语句，不包括where。如 id=:id
 	 * @param queryCondition 查询条件赋值，不参与拼接sql语句，不能为null。如 key：id，value：xxx。
 	 * @param tableName 表名。
@@ -1456,7 +1456,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 		if(Tools.isNullOrEmpty(wsql)){
 			return res;
 		}
-		String sql = "SELECT count(1) FROM `"+tableName+"` WHERE " + wsql;
+		String sql = "SELECT count(*) FROM `"+tableName+"` WHERE " + wsql;
 		//DEBUG
 		debug(tableName, "SIZE SQL", sql);
 		try {

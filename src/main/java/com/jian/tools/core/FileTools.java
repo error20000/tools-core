@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -26,7 +29,7 @@ import java.util.stream.Collectors;
 public class FileTools {
 
 	//写文件线程池
-	private static ExecutorService service = Executors.newFixedThreadPool(20);
+	private static ExecutorService service = new ThreadPoolExecutor(20, 20, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1000));
 	private static Lock lock = new ReentrantLock();
 	public static String initCharsetName = "utf-8";	//统一字符编码，默认值："utf-8"
 	

@@ -93,7 +93,9 @@ public class Tools {
 	}
 	
 	public static int parseInt(Object str){
-		if(str instanceof String){
+		if(isNullOrEmpty(str)){
+			return 0;
+		}else if(str instanceof String){
 			return parseNumber((String) str).intValue();
 		}else if(str instanceof Integer){
 			return ((Integer) str).intValue();
@@ -119,7 +121,9 @@ public class Tools {
 	}
 	
 	public static long parseLong(Object str){
-		if(str instanceof String){
+		if(isNullOrEmpty(str)){
+			return 0L;
+		}else if(str instanceof String){
 			return parseNumber((String) str).longValue();
 		}else if(str instanceof Integer){
 			return ((Integer) str).longValue();
@@ -143,7 +147,9 @@ public class Tools {
 	}
 	
 	public static float parseFloat(Object str){
-		if(str instanceof String){
+		if(isNullOrEmpty(str)){
+			return 0F;
+		}else if(str instanceof String){
 			return parseNumber((String) str).floatValue();
 		}else if(str instanceof Integer){
 			return ((Integer) str).floatValue();
@@ -167,7 +173,9 @@ public class Tools {
 	}
 	
 	public static double parseDouble(Object str){
-		if(str instanceof String){
+		if(isNullOrEmpty(str)){
+			return 0D;
+		}else if(str instanceof String){
 			return parseNumber((String) str).doubleValue();
 		}else if(str instanceof Integer){
 			return ((Integer) str).doubleValue();
@@ -191,7 +199,9 @@ public class Tools {
 	}
 
 	public static short parseShort(Object str){
-		if(str instanceof String){
+		if(isNullOrEmpty(str)){
+			return 0;
+		}else if(str instanceof String){
 			return parseNumber((String) str).shortValue();
 		}else if(str instanceof Integer){
 			return ((Integer) str).shortValue();
@@ -215,7 +225,9 @@ public class Tools {
 	}
 
 	public static byte parseByte(Object str){
-		if(str instanceof String){
+		if(isNullOrEmpty(str)){
+			return 0;
+		}else if(str instanceof String){
 			return parseNumber((String) str).byteValue();
 		}else if(str instanceof Integer){
 			return ((Integer) str).byteValue();
@@ -239,7 +251,9 @@ public class Tools {
 	}
 
 	public static BigInteger parseBigInteger(Object str){
-		if(str instanceof String){
+		if(isNullOrEmpty(str)){
+			return new BigInteger("0");
+		}else if(str instanceof String){
 			return new BigInteger((String) str);
 		}else if(str instanceof Integer){
 			return new BigInteger(((Integer) str).toString());
@@ -259,7 +273,9 @@ public class Tools {
 	}
 	
 	public static boolean parseBoolean(Object str){
-		if(str instanceof String){
+		if(isNullOrEmpty(str)){
+			return false;
+		}else if(str instanceof String){
 			return Boolean.parseBoolean((String) str);
 		}else if(str instanceof Integer){
 			return ((Integer) str) == 0 ? false : true;
@@ -717,22 +733,18 @@ public class Tools {
 			map.put(initOutputData, "");
 			return map;
 		}
-		//minLength 为 0 不参与长度验证
-		if(minLength > 0){
-			if(maxLength > 0){
-				if(!(value.length() >= minLength && value.length() <= maxLength)){
-					map.put(initOutputCode, Tips.ERROR210.getCode());
-					map.put(initOutputMsg, Tips.ERROR210.getDesc(key));
-					map.put(initOutputData, "");
-					return map;
-				}
-			}else{ //maxLength 为 0 不参与最大长度验证
-				if(!(value.length() >= minLength)){
-					map.put(initOutputCode, Tips.ERROR210.getCode());
-					map.put(initOutputMsg, Tips.ERROR210.getDesc(key));
-					map.put(initOutputData, "");
-					return map;
-				}
+		//minLength=0, maxLength=0, 不参与长度验证
+		if(minLength > 0 && maxLength > 0){
+			if(value.length() > maxLength && maxLength != 0){
+				map.put(initOutputCode, Tips.ERROR210.getCode());
+				map.put(initOutputMsg, Tips.ERROR210.getDesc(key+", 长度"));
+				map.put(initOutputData, "");
+				return map;
+			}else if(value.length() < minLength && minLength != 0){
+				map.put(initOutputCode, Tips.ERROR200.getCode());
+				map.put(initOutputMsg, Tips.ERROR200.getDesc(key+", 长度"));
+				map.put(initOutputData, "");
+				return map;
 			}
 		}
 		
