@@ -4,6 +4,11 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jian.tools.core.cache.Cache;
+import com.jian.tools.core.cache.CacheAbstract;
+import com.jian.tools.core.cache.CacheImpl;
+import com.jian.tools.core.cache.CacheObject;
+
 public class CacheTools {
 
 	private static Cache cache = null;

@@ -1,4 +1,4 @@
-package com.jian.tools.core;
+package com.jian.tools.core.cache;
 
 /**
  * 缓存工具类接口

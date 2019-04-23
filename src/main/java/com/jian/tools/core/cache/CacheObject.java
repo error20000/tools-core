@@ -1,4 +1,4 @@
-package com.jian.tools.core;
+package com.jian.tools.core.cache;
 
 public class CacheObject {
 

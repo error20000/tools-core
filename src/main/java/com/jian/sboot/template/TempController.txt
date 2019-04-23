@@ -8,15 +8,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.jian.annotation.API;
-import com.jian.annotation.ParamsInfo;
-import com.jian.tools.core.ResultKey;
 
 import T;
 import Service;
 
 @Controller
 @RequestMapping("{reqPrefix}/{path}")
-@API(info="{comment}", entity={Temp.class})
+@API(name="{comment}")
 public class TempController extends BaseController<Temp> {
 
 	@Autowired
@@ -29,108 +27,56 @@ public class TempController extends BaseController<Temp> {
 	
 	//TODO 基本方法
 	
+	//add request
 	@Override
 	@RequestMapping("/add")
     @ResponseBody
-	@API(name="新增", 
-		info="需登录认证", 
-		request={
-				//add request
-		}, 
-		response={
-				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
-				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
-				@ParamsInfo(name=ResultKey.DATA, type="", info="数据集"),
-		})
+	@API(name="新增", info="需登录认证")
 	public String add(HttpServletRequest req) {
 		return super.add(req);
 	}
 
-
+	//modify request
 	@Override
 	@RequestMapping("/update")
     @ResponseBody
-	@API(name="修改", 
-		info="需登录认证", 
-		request={
-				//modify request
-		}, 
-		response={
-				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
-				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
-				@ParamsInfo(name=ResultKey.DATA, type="", info="数据集"),
-		})
+	@API(name="修改", info="需登录认证")
 	public String update(HttpServletRequest req) {
 		return super.update(req);
 	}
 
+	//delete request
 	@Override
 	@RequestMapping("/delete")
     @ResponseBody
-	@API(name="删除", 
-		info="需登录认证", 
-		request={
-				//delete request
-		}, 
-		response={
-				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
-				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
-				@ParamsInfo(name=ResultKey.DATA, type="", info="数据集"),
-		})
+	@API(name="删除", info="需登录认证")
 	public String delete(HttpServletRequest req) {
 		return super.delete(req);
 	}
 
+	//findPage request
 	@Override
 	@RequestMapping("/findPage")
     @ResponseBody
-	@API(name="分页查询", 
-		info="需登录认证", 
-		request={
-				@ParamsInfo(name="page", type="int", isNull=0, info="页码"),
-				@ParamsInfo(name="rows", type="int", isNull=0, info="每页条数"),
-				//findPage request
-		}, 
-		response={
-				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
-				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
-				@ParamsInfo(name=ResultKey.DATA, type="Array", info="数据集"),
-				@ParamsInfo(name=ResultKey.TOTAL, type="int", info="总数"),
-		})
+	@API(name="分页查询", info="需登录认证")
 	public String findPage(HttpServletRequest req) {
 		return super.findPage(req);
 	}
 
+	//findOne request
 	@Override
 	@RequestMapping("/findOne")
     @ResponseBody
-	@API(name="查询一个", 
-		info="需登录认证", 
-		request={
-				//findOne request
-		}, 
-		response={
-				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
-				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
-				@ParamsInfo(name=ResultKey.DATA, type="Object", info="数据集"),
-		})
+	@API(name="查询一个", info="需登录认证")
 	public String findOne(HttpServletRequest req) {
 		return super.findOne(req);
 	}
 
+	//findList request
 	@Override
 	@RequestMapping("/findList")
     @ResponseBody
-	@API(name="查询多个", 
-		info="需登录认证", 
-		request={
-				//findList request
-		}, 
-		response={
-				@ParamsInfo(name=ResultKey.CODE, type="int", info="返回码"),
-				@ParamsInfo(name=ResultKey.MSG, type="String", info="状态描述"),
-				@ParamsInfo(name=ResultKey.DATA, type="Array", info="数据集"),
-		})
+	@API(name="查询多个", info="需登录认证")
 	public String findList(HttpServletRequest req) {
 		return super.findList(req);
 	}

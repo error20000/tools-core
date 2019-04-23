@@ -14,6 +14,7 @@ import com.jian.auto.db.Structure;
 import com.jian.auto.db.Table;
 import com.jian.auto.db.TableManager;
 import com.jian.tools.core.DateTools;
+import com.jian.tools.core.ResultKey;
 import com.jian.tools.core.Tools;
 
 /**
@@ -200,6 +201,14 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 		String chartset = config.getChartset(); //字符集
 		String tempName = "Utils"; //模版名
 		String fileName = "Utils"; //文件名
+		doCreateUtils(packName, tempName, fileName, chartset);
+		tempName = "UploadUtils"; //模版名
+		fileName = "UploadUtils"; //文件名
+		doCreateUtils(packName, tempName, fileName, chartset);
+		packName = config.getBasePackge(); //包路径
+		chartset = config.getChartset(); //字符集
+		tempName = "Doc"; //模版名
+		fileName = "Doc"; //文件名
 		doCreateUtils(packName, tempName, fileName, chartset);
 	}
 
@@ -620,9 +629,34 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 		    		  autoFillDateForModify = (String) f[i].get(null);
 		    	  }
 		     }*/
-		   //request
+			String codeDesc = "错误码，大于0表示成功，小于 0 表示失败。[错误码说明](#错误码说明)";
+			String msgDesc = "错误消息 ，code 小于 0 时的具体错误信息。";
+			/**
+			 * 
+			 * @param req
+			 * <p>请求参数说明：参数	必选	类型	描述
+			 * <pre>
+			 * </pre>
+			 * @return resp 
+			 * <p>响应示例：
+			 * <pre type="template">
+			 * {
+			 	"code": 1,
+			    "msg": "成功",
+			    "data": 1
+			   }
+			 * </pre>
+			 * <p>参数说明：参数	描述
+			 * <pre>
+			 * </pre>
+			 */
 			for (int i = 0; i < content.size(); i++) {
 				if("//add request".equals(content.get(i).trim())){
+					content.set(i, "	/**");
+					content.add(i+1, "	 * ");
+					content.add(i+2, "	 * @param req");
+					content.add(i+3, "	 * <p>请求参数说明：参数	必选	类型	描述");
+					content.add(i+4, "	 * <pre>");
 					List<Structure> sList = table.getTableInfo();
 					int count = 0;
 					for (int m = 0; m < sList.size(); m++) {
@@ -641,20 +675,40 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 								continue;
 							}else{
 								count++;
-								content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=0,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+								content.add(i+4+count, "	 * "+structure.getField()+"	"+"是"+"	"+structure.getType()+"	"+structure.getComment());
 							}
 						}else{
 							count++;
-							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull="+("YES".equalsIgnoreCase(structure.getIsNull()) ? 1 : 0)+",  info=\""+structure.getComment().replace("\"", "")+"\"),");
+							content.add(i+4+count, "	 * "+structure.getField()+"	"+("YES".equalsIgnoreCase(structure.getIsNull()) ? "否" : "是")+"	"+structure.getType()+"	"+structure.getComment());
 						}
 					}
+					content.add(i+4+count+1, "	 * </pre>");
+					content.add(i+4+count+2, "	 * @return resp");
+					content.add(i+4+count+3, "	 * <p>响应示例：");
+					content.add(i+4+count+4, "	 * <pre type=\"template\">");
+					content.add(i+4+count+5, "	 * {");
+					content.add(i+4+count+6, "	 * 	\""+ResultKey.CODE+"\": 1,");
+					content.add(i+4+count+7, "	 * 	\""+ResultKey.MSG+"\": \"成功\",");
+					content.add(i+4+count+8, "	 * 	\""+ResultKey.DATA+"\": 1");
+					content.add(i+4+count+9, "	 * }");
+					content.add(i+4+count+10, "	 * </pre>");
+					content.add(i+4+count+11, "	 * <p>参数说明：参数	描述");
+					content.add(i+4+count+12, "	 * <pre>");
+					content.add(i+4+count+13, "	 * "+ResultKey.CODE+"	"+codeDesc);
+					content.add(i+4+count+14, "	 * "+ResultKey.MSG+"	"+msgDesc);
+					content.add(i+4+count+15, "	 * "+ResultKey.DATA+"	"+"自增id或受影响条数。");
+					content.add(i+4+count+16, "	 * </pre>");
+					content.add(i+4+count+17, "	 */");
 					
 				}else if("//modify request".equals(content.get(i).trim())){
 					//主键必填，其他选填
+					content.set(i, "	/**");
+					content.add(i+1, "	 * ");
+					content.add(i+2, "	 * @param req");
+					content.add(i+3, "	 * <p>请求参数说明：参数	必选	类型	描述");
+					content.add(i+4, "	 * <pre>");
 					List<Structure> sList = table.getTableInfo();
 					int count = 0;
-					count++;
-					content.add(i+count, "				@ParamsInfo(info=\"修改条件：\"),");
 					for (int m = 0; m < sList.size(); m++) {
 						Structure structure = sList.get(m);
 						String str = structure.getComment().replace("：", " ").replace(":", " ").replace("\t", " ").replace("\n", " ").split(" ")[0];
@@ -666,29 +720,36 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 						//@PrimaryKey
 						if("PRI".equals(structure.getKey())){
 							count++;
-							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=0,  info=\""+structure.getComment().replace("\"", "")+"\"),");
-						}
-					}
-					count++;
-					content.add(i+count, "				@ParamsInfo(info=\"可修改字段：\"),");
-					for (int m = 0; m < sList.size(); m++) {
-						Structure structure = sList.get(m);
-						String str = structure.getComment().replace("：", " ").replace(":", " ").replace("\t", " ").replace("\n", " ").split(" ")[0];
-						if(autoFillDateForAdd.toLowerCase().contains(str.toLowerCase())){
-							continue;
-						}else if(autoFillDateForModify.toLowerCase().contains(str.toLowerCase())){
-							continue;
-						}
-						//@PrimaryKey
-						if("PRI".equals(structure.getKey())){
-							//do nothing
+							content.add(i+4+count, "	 * "+structure.getField()+"	"+"是"+"	"+structure.getType()+"	"+structure.getComment());
 						}else{
 							count++;
-							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=1,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+							content.add(i+4+count, "	 * "+structure.getField()+"	"+"否"+"	"+structure.getType()+"	"+structure.getComment());
 						}
 					}
+					content.add(i+4+count+1, "	 * </pre>");
+					content.add(i+4+count+2, "	 * @return resp");
+					content.add(i+4+count+3, "	 * <p>响应示例：");
+					content.add(i+4+count+4, "	 * <pre type=\"template\">");
+					content.add(i+4+count+5, "	 * {");
+					content.add(i+4+count+6, "	 * 	\""+ResultKey.CODE+"\": 1,");
+					content.add(i+4+count+7, "	 * 	\""+ResultKey.MSG+"\": \"成功\",");
+					content.add(i+4+count+8, "	 * 	\""+ResultKey.DATA+"\": 1");
+					content.add(i+4+count+9, "	 * }");
+					content.add(i+4+count+10, "	 * </pre>");
+					content.add(i+4+count+11, "	 * <p>参数说明：参数	描述");
+					content.add(i+4+count+12, "	 * <pre>");
+					content.add(i+4+count+13, "	 * "+ResultKey.CODE+"	"+codeDesc);
+					content.add(i+4+count+14, "	 * "+ResultKey.MSG+"	"+msgDesc);
+					content.add(i+4+count+15, "	 * "+ResultKey.DATA+"	"+"受影响条数。");
+					content.add(i+4+count+16, "	 * </pre>");
+					content.add(i+4+count+17, "	 */");
 				}else if("//delete request".equals(content.get(i).trim())){
 					//主键必填
+					content.set(i, "	/**");
+					content.add(i+1, "	 * ");
+					content.add(i+2, "	 * @param req");
+					content.add(i+3, "	 * <p>请求参数说明：参数	必选	类型	描述");
+					content.add(i+4, "	 * <pre>");
 					List<Structure> sList = table.getTableInfo();
 					int count = 0;
 					for (int m = 0; m < sList.size(); m++) {
@@ -696,44 +757,250 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 						//@PrimaryKey
 						if("PRI".equals(structure.getKey())){
 							count++;
-							content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=0,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+							content.add(i+4+count, "	 * "+structure.getField()+"	"+"是"+"	"+structure.getType()+"	"+structure.getComment());
 						}
 					}
+					content.add(i+4+count+1, "	 * </pre>");
+					content.add(i+4+count+2, "	 * @return resp");
+					content.add(i+4+count+3, "	 * <p>响应示例：");
+					content.add(i+4+count+4, "	 * <pre type=\"template\">");
+					content.add(i+4+count+5, "	 * {");
+					content.add(i+4+count+6, "	 * 	\""+ResultKey.CODE+"\": 1,");
+					content.add(i+4+count+7, "	 * 	\""+ResultKey.MSG+"\": \"成功\",");
+					content.add(i+4+count+8, "	 * 	\""+ResultKey.DATA+"\": 1");
+					content.add(i+4+count+9, "	 * }");
+					content.add(i+4+count+10, "	 * </pre>");
+					content.add(i+4+count+11, "	 * <p>参数说明：参数	描述");
+					content.add(i+4+count+12, "	 * <pre>");
+					content.add(i+4+count+13, "	 * "+ResultKey.CODE+"	"+codeDesc);
+					content.add(i+4+count+14, "	 * "+ResultKey.MSG+"	"+msgDesc);
+					content.add(i+4+count+15, "	 * "+ResultKey.DATA+"	"+"受影响条数。");
+					content.add(i+4+count+16, "	 * </pre>");
+					content.add(i+4+count+17, "	 */");
+					
 				}else if("//deleteBy request".equals(content.get(i).trim())){
-					//主键必填
+					//条件不可同时为空
+					content.set(i, "	/**");
+					content.add(i+1, "	 * ");
+					content.add(i+2, "	 * @param req");
+					content.add(i+3, "	 * <p>请求参数说明：参数	必选	类型	描述");
+					content.add(i+4, "	 * <pre>");
 					List<Structure> sList = table.getTableInfo();
 					int count = 0;
 					for (int m = 0; m < sList.size(); m++) {
 						Structure structure = sList.get(m);
 						count++;
-						content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=1,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+						content.add(i+4+count, "	 * "+structure.getField()+"	"+"否"+"	"+structure.getType()+"	"+structure.getComment());
 					}
+					content.add(i+4+count+1, "	 * </pre>");
 					count++;
-					content.add(i+count, "				@ParamsInfo(info=\"注意：以上条件不可同时为空。\"),");
+					content.add(i+4+count+1, "	 * <b style=\"color:#004b91;\">注意：</b>以上参数不可同时为空。");
+					content.add(i+4+count+2, "	 * @return resp");
+					content.add(i+4+count+3, "	 * <p>响应示例：");
+					content.add(i+4+count+4, "	 * <pre type=\"template\">");
+					content.add(i+4+count+5, "	 * {");
+					content.add(i+4+count+6, "	 * 	\""+ResultKey.CODE+"\": 1,");
+					content.add(i+4+count+7, "	 * 	\""+ResultKey.MSG+"\": \"成功\",");
+					content.add(i+4+count+8, "	 * 	\""+ResultKey.DATA+"\": 1");
+					content.add(i+4+count+9, "	 * }");
+					content.add(i+4+count+10, "	 * </pre>");
+					content.add(i+4+count+11, "	 * <p>参数说明：参数	描述");
+					content.add(i+4+count+12, "	 * <pre>");
+					content.add(i+4+count+13, "	 * "+ResultKey.CODE+"	"+codeDesc);
+					content.add(i+4+count+14, "	 * "+ResultKey.MSG+"	"+msgDesc);
+					content.add(i+4+count+15, "	 * "+ResultKey.DATA+"	"+"受影响条数。");
+					content.add(i+4+count+16, "	 * </pre>");
+					content.add(i+4+count+17, "	 */");
+					
 				}else if("//findPage request".equals(content.get(i).trim()) ){
-					//主键必填
+					content.set(i, "	/**");
+					content.add(i+1, "	 * ");
+					content.add(i+2, "	 * @param req");
+					content.add(i+3, "	 * <p>请求参数说明：参数	必选	类型	描述");
+					content.add(i+4, "	 * <pre>");
+					content.add(i+5, "	 * page	是	int	页码，从1开始。");
+					content.add(i+6, "	 * rows	是	int	每页条数。");
 					List<Structure> sList = table.getTableInfo();
 					int count = 0;
-					count++;
-					content.add(i+count, "				@ParamsInfo(info=\"可选条件：\"),");
 					for (int m = 0; m < sList.size(); m++) {
 						Structure structure = sList.get(m);
 						count++;
-						content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=1,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+						content.add(i+6+count, "	 * "+structure.getField()+"	"+"否"+"	"+structure.getType()+"	"+structure.getComment());
 					}
-				}else if("//findOne request".equals(content.get(i).trim()) || "//findList request".equals(content.get(i).trim()) ){
-					//主键必填
-					List<Structure> sList = table.getTableInfo();
-					int count = 0;
-					count++;
-					content.add(i+count, "				@ParamsInfo(info=\"可选条件：\"),");
+					content.add(i+6+count+1, "	 * </pre>");
+					content.add(i+6+count+2, "	 * @return resp");
+					content.add(i+6+count+3, "	 * <p>响应示例：");
+					content.add(i+6+count+4, "	 * <pre type=\"template\">");
+					content.add(i+6+count+5, "	 * {");
+					content.add(i+6+count+6, "	 * 	\""+ResultKey.CODE+"\": 1,");
+					content.add(i+6+count+7, "	 * 	\""+ResultKey.MSG+"\": \"成功\",");
+					content.add(i+6+count+8, "	 * 	\""+ResultKey.TOTAL+"\": 0,");
+					content.add(i+6+count+9, "	 * 	\""+ResultKey.DATA+"\": [{");
+					
 					for (int m = 0; m < sList.size(); m++) {
 						Structure structure = sList.get(m);
 						count++;
-						content.add(i+count, "				@ParamsInfo(name=\""+structure.getField()+"\", type=\""+structure.getType()+"\", isNull=1,  info=\""+structure.getComment().replace("\"", "")+"\"),");
+						content.add(i+6+count+9, "	 * 		\""+structure.getField()+"\":\"\",");
 					}
-					count++;
-					content.add(i+count, "				@ParamsInfo(info=\"注意：以上条件不可同时为空。\"),");
+					
+					content.add(i+6+count+10, "	 * 	},...]");
+					content.add(i+6+count+11, "	 * }");
+					content.add(i+6+count+12, "	 * </pre>");
+					content.add(i+6+count+13, "	 * <p>参数说明：参数	描述");
+					content.add(i+6+count+14, "	 * <pre>");
+					content.add(i+6+count+15, "	 * "+ResultKey.CODE+"	"+codeDesc);
+					content.add(i+6+count+16, "	 * "+ResultKey.MSG+"	"+msgDesc);
+					content.add(i+6+count+17, "	 * "+ResultKey.TOTAL+"	"+"总条数");
+					content.add(i+6+count+18, "	 * "+ResultKey.DATA+"	"+"数据集。");
+					content.add(i+6+count+19, "	 * 数据字段");
+
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						count++;
+						content.add(i+6+count+19, "	 * "+structure.getField()+"	"+structure.getComment());
+					}
+					
+					content.add(i+6+count+20, "	 * </pre>");
+					content.add(i+6+count+21, "	 */");
+					
+				}else if("//findAll request".equals(content.get(i).trim()) ){
+					content.set(i, "	/**");
+					content.add(i+1, "	 * ");
+					content.add(i+2, "	 * @param req");
+					content.add(i+3, "	 * <p>请求参数说明：参数	必选	类型	描述");
+					content.add(i+4, "	 * <pre>");
+					content.add(i+5, "	 * </pre>");
+					content.add(i+6, "	 * @return resp");
+					content.add(i+7, "	 * <p>响应示例：");
+					content.add(i+8, "	 * <pre type=\"template\">");
+					content.add(i+9, "	 * {");
+					content.add(i+10, "	 * 	\""+ResultKey.CODE+"\": 1,");
+					content.add(i+11, "	 * 	\""+ResultKey.MSG+"\": \"成功\",");
+					content.add(i+12, "	 * 	\""+ResultKey.DATA+"\": [{");
+
+					List<Structure> sList = table.getTableInfo();
+					int count = 0;
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						count++;
+						content.add(i+12+count, "	 * 		\""+structure.getField()+"\":\"\",");
+					}
+					
+					content.add(i+12+count+1, "	 * 	},...]");
+					content.add(i+12+count+2, "	 * }");
+					content.add(i+12+count+3, "	 * </pre>");
+					content.add(i+12+count+4, "	 * <p>参数说明：参数	描述");
+					content.add(i+12+count+5, "	 * <pre>");
+					content.add(i+12+count+6, "	 * "+ResultKey.CODE+"	"+codeDesc);
+					content.add(i+12+count+7, "	 * "+ResultKey.MSG+"	"+msgDesc);
+					content.add(i+12+count+8, "	 * "+ResultKey.DATA+"	"+"数据集。");
+					content.add(i+12+count+9, "	 * 数据字段");
+
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						count++;
+						content.add(i+12+count+9, "	 * "+structure.getField()+"	"+structure.getComment());
+					}
+					
+					content.add(i+12+count+10, "	 * </pre>");
+					content.add(i+12+count+11, "	 */");
+					
+				}else if("//findOne request".equals(content.get(i).trim()) ){
+					content.set(i, "	/**");
+					content.add(i+1, "	 * ");
+					content.add(i+2, "	 * @param req");
+					content.add(i+3, "	 * <p>请求参数说明：参数	必选	类型	描述");
+					content.add(i+4, "	 * <pre>");
+					List<Structure> sList = table.getTableInfo();
+					int count = 0;
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						count++;
+						content.add(i+4+count, "	 * "+structure.getField()+"	"+"否"+"	"+structure.getType()+"	"+structure.getComment());
+					}
+					content.add(i+4+count+1, "	 * </pre>");
+					content.add(i+4+count+2, "	 * <b style=\"color:#004b91;\">注意：</b>以上参数不可同时为空。");
+					content.add(i+4+count+3, "	 * @return resp");
+					content.add(i+4+count+4, "	 * <p>响应示例：");
+					content.add(i+4+count+5, "	 * <pre type=\"template\">");
+					content.add(i+4+count+6, "	 * {");
+					content.add(i+4+count+7, "	 * 	\""+ResultKey.CODE+"\": 1,");
+					content.add(i+4+count+8, "	 * 	\""+ResultKey.MSG+"\": \"成功\",");
+					content.add(i+4+count+9, "	 * 	\""+ResultKey.DATA+"\": {");
+					
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						count++;
+						content.add(i+4+count+9, "	 * 		\""+structure.getField()+"\":\"\",");
+					}
+					
+					content.add(i+4+count+10, "	 * 	}");
+					content.add(i+4+count+11, "	 * }");
+					content.add(i+4+count+12, "	 * </pre>");
+					content.add(i+4+count+13, "	 * <p>参数说明：参数	描述");
+					content.add(i+4+count+14, "	 * <pre>");
+					content.add(i+4+count+15, "	 * "+ResultKey.CODE+"	"+codeDesc);
+					content.add(i+4+count+16, "	 * "+ResultKey.MSG+"	"+msgDesc);
+					content.add(i+4+count+17, "	 * "+ResultKey.DATA+"	"+"数据。");
+					content.add(i+4+count+18, "	 * 数据字段");
+
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						count++;
+						content.add(i+4+count+18, "	 * "+structure.getField()+"	"+structure.getComment());
+					}
+					
+					content.add(i+4+count+19, "	 * </pre>");
+					content.add(i+4+count+20, "	 */");
+					
+				}else if("//findList request".equals(content.get(i).trim()) ){
+
+					content.set(i, "	/**");
+					content.add(i+1, "	 * ");
+					content.add(i+2, "	 * @param req");
+					content.add(i+3, "	 * <p>请求参数说明：参数	必选	类型	描述");
+					content.add(i+4, "	 * <pre>");
+					List<Structure> sList = table.getTableInfo();
+					int count = 0;
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						count++;
+						content.add(i+4+count, "	 * "+structure.getField()+"	"+"否"+"	"+structure.getType()+"	"+structure.getComment());
+					}
+					content.add(i+4+count+1, "	 * </pre>");
+					content.add(i+4+count+2, "	 * <b style=\"color:#004b91;\">注意：</b>以上参数不可同时为空。");
+					content.add(i+4+count+3, "	 * @return resp");
+					content.add(i+4+count+4, "	 * <p>响应示例：");
+					content.add(i+4+count+5, "	 * <pre type=\"template\">");
+					content.add(i+4+count+6, "	 * {");
+					content.add(i+4+count+7, "	 * 	\""+ResultKey.CODE+"\": 1,");
+					content.add(i+4+count+8, "	 * 	\""+ResultKey.MSG+"\": \"成功\",");
+					content.add(i+4+count+9, "	 * 	\""+ResultKey.DATA+"\": [{");
+					
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						count++;
+						content.add(i+4+count+9, "	 * 		\""+structure.getField()+"\":\"\",");
+					}
+					
+					content.add(i+4+count+10, "	 * 	},...]");
+					content.add(i+4+count+11, "	 * }");
+					content.add(i+4+count+12, "	 * </pre>");
+					content.add(i+4+count+13, "	 * <p>参数说明：参数	描述");
+					content.add(i+4+count+14, "	 * <pre>");
+					content.add(i+4+count+15, "	 * "+ResultKey.CODE+"	"+codeDesc);
+					content.add(i+4+count+16, "	 * "+ResultKey.MSG+"	"+msgDesc);
+					content.add(i+4+count+17, "	 * "+ResultKey.DATA+"	"+"数据集。");
+					content.add(i+4+count+18, "	 * 数据字段");
+
+					for (int m = 0; m < sList.size(); m++) {
+						Structure structure = sList.get(m);
+						count++;
+						content.add(i+4+count+18, "	 * "+structure.getField()+"	"+structure.getComment());
+					}
+					
+					content.add(i+4+count+19, "	 * </pre>");
+					content.add(i+4+count+20, "	 */");
 				}
 			}
 			for (String str : content) {
@@ -839,6 +1106,10 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 				//packge
 				if(line.indexOf("package PK;") != -1){
 					line = "package " + packName + ";";
+				}else if(line.indexOf("import App;") != -1){
+					line = "import " + config.getBasePackge()+ ".App" + ";"; //xxxx.App
+				}else if(line.indexOf("import Config;") != -1){
+					line = "import " + config.getBasePackge()+ ".config.Config" + ";"; //import xxxx.config.Config
 				}
 				bw.write(line); 
 				bw.newLine(); 

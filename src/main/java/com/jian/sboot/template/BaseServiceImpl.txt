@@ -238,7 +238,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 							Object value =  getm.invoke(obj);
 							//如果主键为空,自动创建一个md5的uuid
 							if(value == null){
-								setm.invoke(obj, Utils.newId());
+								setm.invoke(obj, Utils.newId(""));
 							}
 						} catch (Exception e) {
 							e.printStackTrace();

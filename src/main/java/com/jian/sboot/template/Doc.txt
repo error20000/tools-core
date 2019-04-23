@@ -1,0 +1,546 @@
+package PK;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.jian.annotation.API;
+import com.jian.annotation.APIType;
+import com.jian.tools.core.Tips;
+import com.jian.tools.core.Tools;
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.RootDoc;
+import App;
+
+/**
+ * API文档生成工具
+ * 
+ * @author Administrator
+ * @see javadoc
+ *
+ */
+public class Doc {
+	
+	private static RootDoc root;
+    
+    public static class Doclet {
+
+        public Doclet() {
+        	
+        }
+        
+        public static boolean start(RootDoc root) {
+        	Doc.root = root;
+            return true;
+        }
+    }
+
+    public Doc() {
+
+    }
+
+    public static RootDoc getRoot() {
+        return root;
+    }
+
+    public static List<Map<String, Object>> mapping = new ArrayList<>();
+    
+
+    
+    public static void api() throws Exception{
+        
+        //获取Controller
+	    Set<Class<?>> clsses = new HashSet<>();
+		String packageName = App.class.getPackage().getName();
+		Map<String, Object> map = App.applicationContext.getBeansWithAnnotation(Controller.class);
+		
+		Set<String> set = map.keySet();
+		Iterator<String> it = set.iterator();
+		while (it.hasNext()) {
+			String key = it.next();
+			Class<?> clzz = map.get(key).getClass(); 
+			//排除APIController
+			if("APIController".equals(clzz.getSimpleName())){
+				continue;
+			}
+			//扫描范围
+			if(App.scanBasePackages.length == 0){
+				if(clzz.getName().startsWith(packageName)){
+					clsses.add(clzz);
+				}
+			}else{
+				for (String str : App.scanBasePackages) {
+					if(clzz.getName().startsWith(str)){
+						clsses.add(clzz);
+						break;
+					}
+				}
+			}
+		}
+		
+		//提取api注解类
+		List<Class<?>> apis = new ArrayList<>();
+		if(clsses != null){
+			//解析path
+			for (Class<?> clss : clsses) {
+				//注解为Api的类，才加入API。
+				if (!clss.isInterface() && !Modifier.isAbstract(clss.getModifiers()) &&
+						clss.isAnnotationPresent(API.class)) {
+					apis.add(clss);
+				}
+			}
+			
+		}
+		
+		//构建doclet命令（源码）
+		List<String> args = new ArrayList<>();
+		args.add("-doclet");
+		args.add(Doclet.class.getName());
+		args.add("-encoding");
+		args.add("utf-8");
+		for (Class<?> clss : apis) {
+			args.add(App.rootPath+"src/main/java/"+clss.getName().replace(".", "/")+".java");
+		}
+		if(args.size() < 4){
+	        System.out.println("no doc to create.");
+			return; //如果没有API，直接返回
+		}
+		File test = new File(args.get(args.size() - 1));
+		if(!test.exists()){
+	        System.out.println("no doc to create.");
+			return; //如果测试找不到文件，直接返回
+		}
+		
+		//执行构建doc
+        System.out.println("create docs ...");
+		com.sun.tools.javadoc.Main.execute(args.toArray(new String[args.size()]));
+		exe();
+        System.out.println("docs is complete.");
+    }
+    
+    public static void exe(){
+    	//提取api
+        ClassDoc[] classes = root.classes();
+        for (int i = 0; i < classes.length; ++i) {
+        	System.out.println(classes[i].position().file().getAbsolutePath());
+            try {
+            	Class<?> clss = Class.forName(classes[i].toString());
+            	//注解为Api的类，才加入API。
+				if (!clss.isInterface() && !Modifier.isAbstract(clss.getModifiers()) &&
+						clss.isAnnotationPresent(API.class)) {
+					Map<String, Object> node = new HashMap<>();
+					node.put("name", classes[i].name());
+					node.put("class", clss);
+					node.put("classDoc", classes[i]);
+					mapping.add(node);
+				}
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+        }
+        //排序
+		Collections.sort(mapping, (Map<String, Object> a, Map<String, Object> b) -> {
+		    return String.valueOf(a.get("name")).compareTo(String.valueOf(b.get("name")));
+		});
+		//生成文档
+		String docM = "";
+		docM += "后端接口文档";
+		docM += "\r\n";
+		docM += "================================";
+		docM += "\r\n";
+		docM += createDoc(mapping, APIType.MI);
+		String docU = "";
+		docU += "前端接口文档";
+		docU += "\r\n";
+		docU += "================================";
+		docU += "\r\n";
+		docU += createDoc(mapping, APIType.UI);
+		//输出文档
+		outputDocM(docM);
+		outputDocU(docU);
+		
+    }
+    
+    public static void outputDocM(String doc){
+    	String basePath = App.rootPath + "docs/";
+		basePath = basePath.endsWith("/") ? basePath : basePath + "/";
+		File outFile = new File(basePath + "mi.md");
+		File pfile = outFile.getParentFile();
+		if(!pfile.exists()){
+			pfile.mkdirs();
+		}
+		try {
+			OutputStream out = new FileOutputStream(outFile);
+			out.write(doc.getBytes());
+			out.close();
+			out.flush();
+			System.out.println("输出文档："+outFile.getAbsolutePath());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
+    
+    public static void outputDocU(String doc){
+    	String basePath = App.rootPath + "docs/";
+		basePath = basePath.endsWith("/") ? basePath : basePath + "/";
+		File outFile = new File(basePath + "ui.md");
+		File pfile = outFile.getParentFile();
+		if(!pfile.exists()){
+			pfile.mkdirs();
+		}
+		try {
+			OutputStream out = new FileOutputStream(outFile);
+			out.write(doc.getBytes());
+			out.close();
+			out.flush();
+			System.out.println("输出文档："+outFile.getAbsolutePath());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
+    
+    public static String createDoc(List<Map<String, Object>> mapping, APIType apiType){
+		String doc = "";
+		doc += "\r\n";
+		doc += "[TOC]\r\n";
+		doc += "\r\n";
+		doc += "\r\n";
+		int ccount = 0;
+		for (int i = 0; i < mapping.size(); i++) {
+			Map<String, Object> temp = mapping.get(i);
+			//## 查询指定项目属性
+			//String clssName = (String) temp.get("name");
+			Class<?> clzz = (Class<?>) temp.get("class");
+			ClassDoc clzzDoc = (ClassDoc) temp.get("classDoc");
+			//类名称
+			String docc = "";
+			API api = clzz.getAnnotation(API.class);
+			RequestMapping reqMap = clzz.getAnnotation(RequestMapping.class);
+			APIType aType = api.type();
+			ccount++;
+
+			String name = "";
+			if(!"".equals(api.name())){
+				name = api.name();
+			}else if(reqMap != null && !"".equals(reqMap.name())){
+				name = reqMap.name();
+			}else{
+				name = clzz.getSimpleName();
+			}
+			docc += "## "+(ccount+"、"+name)+"\r\n";
+			docc += "\r\n";
+			if(!"".equals(api.info())){
+				docc += "> "+api.info()+"\r\n";
+			}
+			docc += "\r\n";
+			//类方法
+			String docm = "";
+			Method[] methods = clzz.getMethods();
+			Arrays.sort(methods, (Method a, Method b) -> {
+			    return a.getName().compareTo(b.getName());
+			});
+			int mcount = 0;
+			for(int j = 0; j < methods.length; j++){
+				Method m = methods[j];
+				if(m.isAnnotationPresent(API.class)){
+					API mapi = m.getAnnotation(API.class);
+					RequestMapping mreqMap = m.getAnnotation(RequestMapping.class);
+					if(aType == APIType.UI){
+						if( apiType != null && APIType.UI != apiType){
+							continue;
+						}
+					}else{
+						if(apiType != null && mapi.type() != apiType){
+							continue;
+						}
+					} 
+					mcount++;
+
+					//MethodDoc
+					String reqParamStr = ""; //请求参数
+					String reqParamStrOther = ""; //请求参数说明
+					String respParamStr = ""; //响应参数
+					String respParamStrOther = ""; //响应参数说明
+					String templateStr = ""; //响应示例
+					String commentStr = ""; //方法说明
+					for(MethodDoc mdoc: clzzDoc.methods()){
+						if(m.getName().equals(mdoc.name())){
+							commentStr = mdoc.commentText();
+							for (int k = 0; k < mdoc.tags().length; k++) {
+								String tagName = mdoc.tags()[k].name();
+								String tagText = mdoc.tags()[k].text();
+								//解析request
+			            		if("@param".equals(tagName)){
+			            			String params = "";
+			            			int start = tagText.indexOf("<pre>");
+			            			if(start != -1){
+			            				start  += "<pre>".length();
+			            				int end = tagText.indexOf("</pre>", start);
+			            				params = tagText.substring(start, end);
+			            				reqParamStrOther = tagText.substring(end + "</pre>".length());
+			            			}
+			            			reqParamStr = createTable(params, "|参数|必选|类型|描述|", "|:------|:------|:------|:------|");
+			            		}
+			            		//解析response
+			            		if("@return".equals(tagName)){
+
+			            			String template = "";
+			            			int start = tagText.indexOf("<pre type=\"template\">");
+			            			if(start != -1){
+			            				start  += "<pre type=\"template\">".length();
+			            				int end = tagText.indexOf("</pre>", start);
+			            				template = tagText.substring(start, end);
+			            			}
+			        				templateStr = createTemplate(template);
+			        				
+			            			String params = "";
+			            			int start2 = tagText.indexOf("<pre>");
+			            			if(start2 != -1){
+			            				start2  += "<pre>".length();
+			            				int end = tagText.indexOf("</pre>", start2);
+			            				params = tagText.substring(start2, end);
+			            				respParamStrOther = tagText.substring(end + "</pre>".length());
+			            			}
+			            			respParamStr = createTable(params, "|参数|描述|", "|:------|:------|");
+			            		}
+							}
+						}
+					}
+					
+					String mname = "";
+			   		if(!"".equals(mapi.name())){
+			   			mname = mapi.name();
+			   		}else if(mreqMap != null && !"".equals(mreqMap.name())){
+			   			mname = mreqMap.name();
+			   		}else if(!"".equals(commentStr)){
+			   			String ctemp = commentStr.replace("。", ".");
+			   			mname = ctemp.substring(0, ctemp.indexOf(".", 0));
+			   			mname = mname.replace("\n", " "); //名称中的换行替换成空格
+			   		}else{
+			   			mname = m.getName();
+			   		}
+			   		String info = mapi.info();
+			   		if("".equals(info) && !"".equals(commentStr)){
+			   			String ctemp = commentStr.replace("。", ".");
+			   			info = ctemp.substring(ctemp.indexOf(".", 0) + 1);
+			   		}
+
+					docm += "### "+(ccount+"."+mcount+"、"+mname)+"\r\n";
+					docm += "\r\n";
+					if(!"".equals(info)){
+						//以换行分隔，每个前面加入 > 表示文字引用
+			   			String[] test = info.split("\\n");
+						for (int k = 0; k < test.length; k++) {
+							if(k == 0 && Tools.isNullOrEmpty(test[k])) 
+								continue;
+							docm += "> "+test[k]+"\r\n";
+						}
+					}
+					docm += "\r\n";
+					//path
+					docm += "* **请求地址**\r\n";
+					docm += "\r\n";
+					//	api	path
+			   		String[] path = {}; //api.path();
+			   		if(path.length == 0 && reqMap != null){
+			   			if(reqMap.path().length > 0){
+			   				path = reqMap.path();
+			   			}else {
+			   				path = reqMap.value();
+			   			}
+			   		}
+					//	method	path
+					String[] mpath = {}; //mapi.path();
+					if(mpath.length == 0 && mreqMap != null){
+						if(mreqMap.path().length > 0){
+							mpath = mreqMap.path();
+						}else {
+							mpath = mreqMap.value();
+						}
+					}
+			   		for(String purl : path){
+			   			for(String curl : mpath){
+			   				docm += "> "+(purl+curl)+"\r\n";
+			   			}
+			   		}
+					docm += "\r\n";
+					//request Content Type
+					if(mreqMap != null && mreqMap.consumes().length > 0){
+						docm += "* **请求格式**\r\n";
+						docm += "\r\n";
+						for (String string : mreqMap.consumes()) {
+							docm += "> "+string+"\r\n";
+						}
+						docm += "\r\n";
+					}
+					//response Content Type
+					if(mreqMap != null && mreqMap.produces().length > 0){
+						docm += "* **响应格式**\r\n";
+						docm += "\r\n";
+						for (String string : mreqMap.produces()) {
+							docm += "> "+string+"\r\n";
+						}
+						docm += "\r\n";
+					}
+					//request Method
+					RequestMethod[] types = reqMap.method();
+			   		if(types.length != 0){ //类
+						if(mreqMap.method().length != 0){ //方法
+							List<RequestMethod> methodTmp = new ArrayList<RequestMethod>();
+							for (int x = 0; x < types.length; x++) {
+								boolean flag = false;
+								for (int y = 0; y < mreqMap.method().length; y++) {
+									if(types[x] == mreqMap.method()[y]){
+										flag = true;
+										break;
+									}
+								}
+								if(flag){
+									methodTmp.add(types[x]);
+								}
+							}
+							if(methodTmp.size() == 0) methodTmp.add(null);
+							types = methodTmp.toArray(new RequestMethod[methodTmp.size()]);
+						}
+					}else{
+						types = mreqMap.method();
+					}
+					docm += "* **请求方式**\r\n";
+					docm += "\r\n";
+			   		if(types.length == 0){
+			   			docm += "> ALL\r\n";
+			   		}else{
+			   			for(RequestMethod rm : types){
+				   			docm += "> "+rm+"\r\n";
+			   			}
+			   		}
+					docm += "\r\n";
+					//request param
+					if(!"".equals(reqParamStr)){
+						docm += "* **请求参数**\r\n";
+						docm += "\r\n";
+						docm += reqParamStr;
+						docm += "\r\n";
+						docm += "\r\n";
+						//以换行分隔，每个前面加入 > 表示文字引用
+			   			String[] test = reqParamStrOther.split("\\n");
+						for (int k = 0; k < test.length; k++) {
+							if(k == 0 && Tools.isNullOrEmpty(test[k])) 
+								continue;
+							docm += "> "+test[k]+"\r\n";
+						}
+						docm += "\r\n";
+					}
+					//response param
+					if(!"".equals(respParamStr)){
+						
+						docm += "* **返回字段**\r\n";
+						docm += "\r\n";
+						docm += respParamStr;
+						docm += "\r\n";
+						docm += "\r\n";
+						//以换行分隔，每个前面加入 > 表示文字引用
+			   			String[] test = respParamStrOther.split("\\n");
+						for (int k = 0; k < test.length; k++) {
+							if(k == 0 && Tools.isNullOrEmpty(test[k])) 
+								continue;
+							docm += "> "+test[k]+"\r\n";
+						}
+						docm += "\r\n";
+					}
+					docm += "* **接口示例**\r\n";
+					docm += "\r\n";
+					for(String purl : path){
+			   			for(String curl : mpath){
+			   				docm += "> [http://127.0.0.1:8080"+(purl+curl)+"]()\r\n";
+			   			}
+			   		}
+					if(!"".equals(templateStr)){
+						docm += "\r\n";
+						docm += templateStr;
+						docm += "\r\n";
+					}
+				}
+			}
+			if("".equals(docm)){
+				docc = "";
+			}
+			doc += docc;
+			doc += docm;
+		}
+		doc += createErrorCode();
+		return doc;
+    }
+
+    public static String createTemplate(String template){
+    	String res = "```javascript\r\n";
+    	res += template;
+    	res += "\r\n";
+    	res += "```";
+    	return res;
+    }
+    
+    public static String createTable(String params, String head, String format){
+    	String res = head + "\r\n";
+    	res += format + "\r\n";
+    	String[] array = params.split("\\n");
+    	for (int i = 0; i < array.length; i++) {
+    		String str = array[i].trim();
+    		if(Tools.isNullOrEmpty(str)){
+    			continue;
+    		}
+    		String[] barr = str.split("	");
+    		String rstr = "|";
+    		//|:-----|:------|:--------|
+			for (int j = 1; j < head.split("\\|", -1).length - 1; j++) {
+				String v = j - 1 > barr.length - 1 ? "" : Tools.isNullOrEmpty(barr[j-1]) ? "" : barr[j-1];
+				rstr += v + "|";
+			}
+			res += rstr + "\r\n";
+		}
+    	return res;
+    }
+    
+    public static String createErrorCode(){
+    	String doc ="\r\n";
+		doc += "## 错误码说明\r\n";
+		doc += "\r\n";
+		doc += "\r\n";
+		doc += "|错误码|描述|\r\n"; 
+		doc += "|:------|:------|\r\n";
+    	 Field[] test = Tools.getFields(Tips.class);
+         for (Field field : test) {
+         	field.setAccessible(true);
+         	if("Tips".equals(field.getType().getSimpleName())){
+				try {
+					Tips t = (Tips) field.get(Tips.class);
+					doc += "|"+t.getCode()+"|"+t.getDescOriginal()+"|\r\n";
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+         	}
+ 		}
+ 		doc += "\r\n";
+ 		return doc;
+    }
+    
+}

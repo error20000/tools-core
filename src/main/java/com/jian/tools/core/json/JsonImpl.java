@@ -1,4 +1,4 @@
-package com.jian.tools.core;
+package com.jian.tools.core.json;
 
 import java.io.IOException;
 import java.util.HashMap;

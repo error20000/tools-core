@@ -25,6 +25,8 @@ public class App {
     	System.out.println(scanBasePackages);
 		//启动
         applicationContext = SpringApplication.run(App.class, args);
+        //API
+        Doc.api();
     }
 	
 	
