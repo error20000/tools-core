@@ -1,5 +1,5 @@
-target/
-logs/
-docs/
-static/
+/target/
+/logs/
+/docs/
+/static/
 src/main/java/com/testAuto/
