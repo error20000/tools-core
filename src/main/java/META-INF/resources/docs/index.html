@@ -10,6 +10,10 @@
             
             #layout > header, .btns {
                 width: auto;
+			    position: fixed;
+			    background-color: #fff;
+			    top: 0;
+			    padding-top: 10px;
             }
             
             #sidebar {
@@ -25,6 +29,7 @@
                 border: 1px solid #ddd;
                 border-top: none;
                 border-bottom: none;
+			    padding-top: 64px;
             }
             
             #sidebar:hover {
@@ -44,15 +49,18 @@
                 padding-right: 430px;
                 margin: 0;
             }
+            .markdown-toc ul{
+            	list-style: none;
+            }
         </style>
     </head>
     <body>
         <div id="layout">
-            <div class="btns">
-                <button onclick="mi()">后端接口文档</button>
-                <button onclick="ui()">前端接口文档</button>
-            </div>
             <div id="sidebar">
+	            <div class="btns">
+	                <button onclick="mi()">后台管理接口文档</button>
+	                <button onclick="ui()">前端接口文档</button>
+	            </div>
                 <h1>目录</h1>
                 <div class="markdown-body editormd-preview-container" id="custom-toc-container"></div>
             </div>

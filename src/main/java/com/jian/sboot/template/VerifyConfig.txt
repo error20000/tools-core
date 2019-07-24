@@ -63,9 +63,10 @@ public class VerifyConfig {
 	 * 写入登录用户信息
 	 * @return
 	 */
-	public static synchronized void setUserInfo(HttpServletRequest req, Map<String, Object> ssoUser){
+	public static synchronized Map<String, Object> setUserInfo(HttpServletRequest req, Map<String, Object> ssoUser){
 		//TODO do something
 		
+		return null;
 	}
 
 	/**
@@ -157,7 +158,7 @@ public class VerifyConfig {
 					session.setAttribute(loginUserToken, token); //缓存sso的token。
 					session.setAttribute(loginUserCache, user); //缓存sso的用户信息。
 					//写入帐号信息
-					setUserInfo(req, user);
+					return setUserInfo(req, user);
 				}
 			}
 		}
@@ -190,7 +191,7 @@ public class VerifyConfig {
 		return tokenStr;
 	}
 	
-	private static String getSSOUid(HttpServletRequest req){
+	public static String getSSOUid(HttpServletRequest req){
 		String uid = "";
 		//token
 		String token = getTokenSSO(req);
