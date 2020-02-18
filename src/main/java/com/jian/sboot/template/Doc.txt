@@ -61,11 +61,14 @@ public class Doc {
     }
 
     public static List<Map<String, Object>> mapping = new ArrayList<>();
-    
-
+    public static String testUrl = "";
     
     public static void api() throws Exception{
-        
+    	api("");
+    }
+    
+    public static void api(String testUrl) throws Exception{
+    	Doc.testUrl = testUrl == null ? "" : testUrl;
         //获取Controller
 	    Set<Class<?>> clsses = new HashSet<>();
 		String packageName = App.class.getPackage().getName();
@@ -119,12 +122,12 @@ public class Doc {
 			args.add(App.rootPath+"src/main/java/"+clss.getName().replace(".", "/")+".java");
 		}
 		if(args.size() < 4){
-	        System.out.println("no doc to create.");
+	        System.out.println("docs is complete.(no api annotation)");
 			return; //如果没有API，直接返回
 		}
 		File test = new File(args.get(args.size() - 1));
 		if(!test.exists()){
-	        System.out.println("no doc to create.");
+	        System.out.println("docs is complete.(no source file)");
 			return; //如果测试找不到文件，直接返回
 		}
 		
@@ -161,7 +164,7 @@ public class Doc {
 		});
 		//生成文档
 		String docM = "";
-		docM += "后端接口文档";
+		docM += "后台管理接口文档";
 		docM += "\r\n";
 		docM += "================================";
 		docM += "\r\n";
@@ -262,12 +265,12 @@ public class Doc {
 				if(m.isAnnotationPresent(API.class)){
 					API mapi = m.getAnnotation(API.class);
 					RequestMapping mreqMap = m.getAnnotation(RequestMapping.class);
-					if(aType == APIType.UI){
+					if(aType == APIType.UI){ //当类是UI，那么所有方法都是UI。
 						if( apiType != null && APIType.UI != apiType){
 							continue;
 						}
-					}else{
-						if(apiType != null && mapi.type() != apiType){
+					}else{ //当类是MI，那么方法是什么就是什么。
+						if(apiType != null && mapi.type() != APIType.Both && mapi.type() != apiType){
 							continue;
 						}
 					} 
@@ -469,7 +472,7 @@ public class Doc {
 					docm += "\r\n";
 					for(String purl : path){
 			   			for(String curl : mpath){
-			   				docm += "> [http://127.0.0.1:8080"+(purl+curl)+"]()\r\n";
+			   				docm += "> "+(testUrl+purl+curl)+"\r\n";
 			   			}
 			   		}
 					if(!"".equals(templateStr)){

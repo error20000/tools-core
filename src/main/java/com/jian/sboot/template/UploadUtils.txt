@@ -119,7 +119,7 @@ public class UploadUtils {
 		}
 		//上传
 		Map<String, Object> res = upload(fileName, in, outDir, isOriginName);
-		if(res == null){
+		if(res == null || res.isEmpty()){
 			return  ResultTools.custom(Tips.ERROR0).toJSONString();
 		}
 		return ResultTools.custom(Tips.ERROR1).put(ResultKey.DATA, res).toJSONString();
@@ -162,7 +162,6 @@ public class UploadUtils {
 		//上传
 		Map<String, Object> res = null;
 		try {
-			res = new HashMap<>();
 			File outFile = new File(basePath + outFilePath);
 			File pfile = outFile.getParentFile();
 			if(!pfile.exists()){
@@ -180,6 +179,7 @@ public class UploadUtils {
 			out.close();
 			out.flush();
 			//返回结果
+			res = new HashMap<>();
 			res.put("type", suffix);
 			res.put("size", size);
 			res.put("name", outFileName);
