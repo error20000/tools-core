@@ -119,7 +119,9 @@ public class Doc {
 		args.add("-encoding");
 		args.add("utf-8");
 		for (Class<?> clss : apis) {
-			args.add(App.rootPath+"src/main/java/"+clss.getName().replace(".", "/")+".java");
+			//如果有动态代理
+			String clssName = clss.getName().split("[$$]")[0];
+			args.add(App.rootPath+"src/main/java/"+clssName.replace(".", "/")+".java");
 		}
 		if(args.size() < 4){
 	        System.out.println("docs is complete.(no api annotation)");

@@ -221,7 +221,18 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 		String fileName = "APIController"; //文件名
 		doCreateApi(packName, tempName, fileName, chartset);
 	}
-	
+
+
+	@Override
+	public void createAspect(){
+		return;
+	}
+
+
+	@Override
+	public void createException(){
+		return;
+	}
 	
 	private void doCreateEntity(String packName, String tempName, String fileName, String chartset, Table table){
 		

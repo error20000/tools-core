@@ -17,6 +17,9 @@ public class Config {
 	private static final String CONTROLLER_PATH = "controller";
 	private static final String CONFIG_PATH = "config";
 	private static final String UTIL_PATH = "util";
+	private static final String ASPECT_PATH = "aspect";
+	private static final String ASPECT_ANNOTATION_PATH = "aspect.annotation";
+	private static final String EXCEPTION_PATH = "exception";
 	
 	//配置
 	private String dbPropertiesName = "autodb.properties"; //数据库配置文件名
@@ -85,6 +88,18 @@ public class Config {
 
 	public String getUtilPath(){
 		return basePackge+"."+UTIL_PATH;
+	}
+
+	public String getAspectPath(){
+		return basePackge+"."+ASPECT_PATH;
+	}
+
+	public String getAspectAnnotationPath(){
+		return basePackge+"."+ASPECT_ANNOTATION_PATH;
+	}
+
+	public String getExceptionPath(){
+		return basePackge+"."+EXCEPTION_PATH;
 	}
 	
 	

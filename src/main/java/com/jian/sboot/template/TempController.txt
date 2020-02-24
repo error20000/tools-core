@@ -2,12 +2,16 @@ package PK;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.jian.annotation.API;
+import VerifySign;
+import VerifyLogin;
+import VerifyAuth;
+import SysLog;
+import SysLogType;
 
 import T;
 import Service;
@@ -15,23 +19,21 @@ import Service;
 @Controller
 @RequestMapping("{reqPrefix}/{path}")
 @API(name="{comment}")
-public class TempController extends BaseController<Temp> {
+public class TempController extends BaseController<Temp, TempService> {
 
-	@Autowired
-	private TempService service;
 	
-	@Override
-	public void initService() {
-		super.service = service;
-	}
 	
-	//TODO 基本方法
+	//TODO -------------------------------------------------------------------------------- 后台管理
 	
 	//add request
 	@Override
 	@RequestMapping("/add")
     @ResponseBody
 	@API(name="新增", info="需登录认证")
+	@VerifySign
+	@VerifyLogin
+	@VerifyAuth
+	@SysLog(type=SysLogType.Add, describe="新增")
 	public String add(HttpServletRequest req) {
 		return super.add(req);
 	}
@@ -81,6 +83,6 @@ public class TempController extends BaseController<Temp> {
 		return super.findList(req);
 	}
 	
-	//TODO 自定义方法
+	//TODO -------------------------------------------------------------------------------- 自定义方法
 	
 }

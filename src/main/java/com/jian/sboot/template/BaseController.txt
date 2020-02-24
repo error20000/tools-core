@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jian.annotation.Excel;
 import com.jian.tools.core.JsonTools;
@@ -21,66 +22,16 @@ import com.jian.tools.core.Tips;
 import com.jian.tools.core.Tools;
 
 import Service;
-import VerifyConfig;
 import Utils;
 
-public abstract class BaseController<T> {
+public abstract class BaseController<T, S extends BaseService<T>> {
 	
-	protected BaseService<T> service;
 	
-	public abstract void initService();
-
-	//登录验证
-	public Map<String, Object> verifyLogin(HttpServletRequest req){
-		
-		return VerifyConfig.verifyLogin(req);
-	}
-	
-	//sign验证
-	public Map<String, Object> verifySign(HttpServletRequest req){
-		
-		return VerifyConfig.verifySign(req);
-	}
-	
-	//权限验证
-	public Map<String, Object> verifyAuth(HttpServletRequest req){
-		
-		return VerifyConfig.verifyAuth(req);
-	}
-	
-	//获取用户信息
-	public String getUserInfo(HttpServletRequest req){
-	
-		return VerifyConfig.getUserInfo(req);
-	}
-	
-	//获取用户信息
-	public <E> E getUserInfo(HttpServletRequest req, Class<E> clzz){
-	
-		return VerifyConfig.getUserInfo(req, clzz);
-	}
-	
+	@Autowired
+	protected S service;
 	
 	
     public String add(HttpServletRequest req) {
-		initService();
-		
-		Map<String, Object> vMap = null;
-		//登录
-		vMap = verifyLogin(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//sign
-		vMap = verifySign(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//权限
-		vMap = verifyAuth(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
 		
 		//保存
 		try {
@@ -99,25 +50,7 @@ public abstract class BaseController<T> {
 	
 	
     public String add2(HttpServletRequest req) {
-		initService();
-		
-		Map<String, Object> vMap = null;
-		//登录
-		vMap = verifyLogin(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//sign
-		vMap = verifySign(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//权限
-		vMap = verifyAuth(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		
+    
 		//保存
 		try {
 			T obj = Tools.getReqParamsToObject(req, getObejctClass().newInstance());
@@ -135,24 +68,8 @@ public abstract class BaseController<T> {
 	
 	
     public String update(HttpServletRequest req) {
-		initService();
 		
 		Map<String, Object> vMap = null;
-		//登录
-		vMap = verifyLogin(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//sign
-		vMap = verifySign(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//权限
-		vMap = verifyAuth(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
 		
 		//参数
 		List<String> pkeys = Utils.getPrimaryKeys(getObejctClass());//获取主键
@@ -181,24 +98,8 @@ public abstract class BaseController<T> {
 	
 	
     public String delete(HttpServletRequest req) {
-		initService();
 		
 		Map<String, Object> vMap = null;
-		//登录
-		vMap = verifyLogin(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//sign
-		vMap = verifySign(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//权限
-		vMap = verifyAuth(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
 		
 		//参数
 		List<String> pkeys = Utils.getPrimaryKeys(getObejctClass());//获取主键
@@ -225,24 +126,6 @@ public abstract class BaseController<T> {
 	
 	
     public String deleteBy(HttpServletRequest req) {
-		initService();
-		
-		Map<String, Object> vMap = null;
-		//登录
-		vMap = verifyLogin(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//sign
-		vMap = verifySign(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//权限
-		vMap = verifyAuth(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
 		
 		//参数
 		Map<String, Object> condition = Tools.getReqParamsToMap(req, getObejctClass());
@@ -260,49 +143,14 @@ public abstract class BaseController<T> {
 	
 	
     public String findAll(HttpServletRequest req) {
-		initService();
-		
-		Map<String, Object> vMap = null;
-		//登录
-		vMap = verifyLogin(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//sign
-		vMap = verifySign(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//权限
-		vMap = verifyAuth(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		
 		List<T> list = service.findAll();
         return ResultTools.custom(Tips.ERROR1).put(ResultKey.DATA, list).toJSONString();
     }
 	
 	
     public String findPage(HttpServletRequest req) {
-		initService();
 		
 		Map<String, Object> vMap = null;
-		//登录
-		vMap = verifyLogin(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//sign
-		vMap = verifySign(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//权限
-		vMap = verifyAuth(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
 		
 		//参数
 		String page = Tools.getReqParamSafe(req, "page");
@@ -326,24 +174,6 @@ public abstract class BaseController<T> {
 	
 	
     public String findOne(HttpServletRequest req) {
-		initService();
-		
-		Map<String, Object> vMap = null;
-		//登录
-		vMap = verifyLogin(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//sign
-		vMap = verifySign(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//权限
-		vMap = verifyAuth(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
 		
 		//参数
 		Map<String, Object> condition = Tools.getReqParamsToMap(req, getObejctClass());
@@ -356,24 +186,6 @@ public abstract class BaseController<T> {
 	
 	
     public String findList(HttpServletRequest req) {
-		initService();
-		
-		Map<String, Object> vMap = null;
-		//登录
-		vMap = verifyLogin(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//sign
-		vMap = verifySign(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//权限
-		vMap = verifyAuth(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
 		
 		//参数
 		Map<String, Object> condition = Tools.getReqParamsToMap(req, getObejctClass());
@@ -386,24 +198,6 @@ public abstract class BaseController<T> {
     
     
     public String excelHeader(HttpServletRequest req){
-		initService();
-		
-		Map<String, Object> vMap = null;
-		//登录
-		vMap = verifyLogin(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//sign
-		vMap = verifySign(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//权限
-		vMap = verifyAuth(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
 		
 		//执行
 		List<Map<String, Object>> excels = new ArrayList<Map<String, Object>>(); //获取导出字段
@@ -431,24 +225,6 @@ public abstract class BaseController<T> {
 	}
 	
 	public String excelFree(HttpServletRequest req, HttpServletResponse resp){
-		initService();
-		
-		Map<String, Object> vMap = null;
-		//登录
-		vMap = verifyLogin(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//sign
-		vMap = verifySign(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
-		//权限
-		vMap = verifyAuth(req);
-		if(vMap != null){
-			return JsonTools.toJsonString(vMap);
-		}
 		
 		//执行
 		Map<String, Object> condition = Tools.getReqParamsToMap(req, getObejctClass());

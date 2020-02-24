@@ -1,0 +1,41 @@
+package PK;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import VerifyAuth;
+
+@Aspect
+@Component
+@Order(3)
+public class VerifyAuthAspect {
+
+
+	/**
+	 * 授权验证<br/>
+	 * 步骤：<br/>
+	 * 1、获取登录用户。<br/>
+	 * 2、获取接口。<br/>
+	 * 3、查询接口权限。<br/>
+	 * 通过情况：<br/>
+	 * 1、如果找不到接口，通过。<br/>
+	 * 2、如果接口是开放的，通过。<br/>
+	 * 3、如果有接口权限，通过。<br/>
+	 * @param req
+	 * @return 通过返回null
+	 */
+    @Before("execution(public * {Controller}.*.*(..)) && @annotation(auth)")
+    public void before(JoinPoint joinPoint, VerifyAuth auth){
+    	
+    	long start = System.currentTimeMillis();
+    	
+    	//do verify auth
+    	
+		System.out.println("=== VerifyAuth ms =====>"+(System.currentTimeMillis()-start));
+    }
+
+
+}

@@ -1,0 +1,124 @@
+package PK;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import App;
+import SysLog;
+
+@Aspect
+@Component
+@Order(4)
+public class SysLogAspect {
+
+	
+    private long startTime = 0;
+    private HttpServletRequest request;
+    private HttpSession session;
+	Map<String, String[]> params = new HashMap<>();
+	
+	private static final Logger logger = LoggerFactory.getLogger(SysLogAspect.class);
+    
+
+    @Before("execution(public * {Controller}.*.*(..)) && @annotation(log)")
+    public void before(JoinPoint joinPoint, SysLog log){
+    	startTime = System.currentTimeMillis();
+    	request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+    	session = request.getSession();
+    	params = new HashMap<>(request.getParameterMap());
+    	System.out.println("----------------------SysLog before--------------------------");
+    }
+
+
+    @After("execution(public * {Controller}.*.*(..)) && @annotation(log)")
+    public void after(JoinPoint joinPoint, SysLog log){
+		
+    	//do create log entity
+    	
+		/*slog = new SystemLog();
+		slog.setsSLog_ID(Utils.newSnowflakeIdStr());
+		slog.setdSLog_CreateDate(new Date());
+		slog.setsSLog_Type(log.type().getValue());
+		slog.setsSLog_Describe(log.describe());
+		if(user != null) {
+			slog.setsSLog_UserID(user.getsUser_ID());
+			slog.setsSLog_UserNick(user.getsUser_Nick());
+		}
+		slog.setlSLog_TimeConsume((int)(System.currentTimeMillis() - startTime));
+		slog.setsSLog_Uri(request.getRequestURI());
+		slog.setsSLog_Method(joinPoint.getSignature().getName());
+		slog.setsSLog_Module(joinPoint.getTarget().getClass().getName());
+		slog.setsSLog_IP(Tools.getIp(request));*/
+    	
+    	//保存
+    	switch (log.type()) {
+		case Query:
+			break;
+		case Add:
+		case Update:
+		case Delete:
+		case Export:;
+			break;
+		case Login:
+			break;
+		default:
+			break;
+		}
+    	System.out.println("----------------------SysLog after--------------------------");
+
+    }
+
+    
+    @AfterReturning(pointcut="execution(public * {Controller}.*.*(..)) && @annotation(log)", returning="obj")
+    public void afterReturning(JoinPoint joinPoint, Object obj, SysLog log){
+    	switch (log.type()) {
+		case Query:
+			break;
+		case Add:
+		case Update:
+		case Delete:
+		case Login:
+		case Export:
+			break;
+		default:
+			break;
+		}
+    	System.out.println("----------------------SysLog afterReturning--------------------------");
+    }
+    
+    @AfterThrowing(pointcut="execution(public * {Controller}.*.*(..)) && @annotation(log)", throwing="e")
+    public void afterThrowing(JoinPoint joinPoint, Exception e, SysLog log){
+    	//e.getMessage() 为 null，用e.toString()。这里自己提取有用信息进行保存。
+    	logger.error(e.toString(), e);
+    	String str = e.toString() + ": ";
+    	StackTraceElement[]  stackTrace = e.getStackTrace();
+    	for (StackTraceElement stackTraceElement : stackTrace) {
+    		String sstr = stackTraceElement.toString();
+    		if(sstr.contains(App.class.getPackage().getName())) { //取第一条跟本包相关的信息
+    			str += sstr;
+    			break;
+    		}
+		}
+    	str = str.substring(0, str.length() > 255 ? 255 : str.length()); //超过一定长度截取。
+    	
+    	// do save Exception to db
+    	System.out.println("----------------------SysLog afterThrowing--------------------------");
+    }
+    
+}

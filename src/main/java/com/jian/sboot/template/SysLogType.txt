@@ -1,0 +1,29 @@
+package PK;
+
+public enum SysLogType {
+
+	Query("query"), 
+	Update("update"), 
+	Delete("delete"), 
+	Add("add"), 
+	Other("other"), 
+	Upload("upload"), 
+	Login("login"), 
+	Export("export");
+	
+	public String value;
+	
+	private SysLogType(String value) {
+		this.value = value;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+	
+	
+}

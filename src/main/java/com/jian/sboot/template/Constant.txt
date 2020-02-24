@@ -1,0 +1,14 @@
+package PK;
+
+
+/**
+ *  	全局常量
+ * 
+ * @author liujian
+ *
+ */
+public class Constant {
+
+	
+	
+}

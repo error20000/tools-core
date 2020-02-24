@@ -60,8 +60,23 @@ public class ResultTools {
             return this;
         }
         
-        public Builder put(Object data){
+        public Builder putCode(int code){
+            this.map.put(ResultKey.CODE, code);
+            return this;
+        }
+        
+        public Builder putMsg(Object msg){
+            this.map.put(ResultKey.MSG, msg);
+            return this;
+        }
+        
+        public Builder putData(Object data){
             this.map.put(ResultKey.DATA, data);
+            return this;
+        }
+        
+        public Builder putTotal(long total){
+            this.map.put(ResultKey.TOTAL, total);
             return this;
         }
         

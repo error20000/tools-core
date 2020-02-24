@@ -1,6 +1,5 @@
 package PK;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import T;
@@ -12,14 +11,7 @@ import Service;
  * @Date  
  */
 @Service
-public class TempServiceImpl extends BaseServiceImpl<T> implements TempService {
+public class TempServiceImpl extends BaseServiceImpl<Temp, TempDao> implements TempService {
 
-	@Autowired
-	private TempDao dao;
-	
-	@Override
-	public void initDao() {
-		super.baseDao = dao;
-	}
 
 }

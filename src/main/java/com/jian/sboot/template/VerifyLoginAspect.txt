@@ -1,0 +1,31 @@
+package PK;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import VerifyLogin;
+
+@Aspect
+@Component
+@Order(2)
+public class VerifyLoginAspect {
+
+
+    @Before("execution(public * {Controller}.*.*(..)) && @annotation(login)")
+    public void before(JoinPoint joinPoint, VerifyLogin login){
+    	HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+
+		//do verify login
+    	System.out.println("----------------------VerifyLogin--------------------------");
+    	
+    }
+
+
+}

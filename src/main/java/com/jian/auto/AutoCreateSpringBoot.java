@@ -189,9 +189,12 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 		String chartset = config.getChartset(); //字符集
 		String tempName = "VerifyConfig"; //模版名
 		String fileName = "VerifyConfig"; //文件名
-		doCreateConfig(packName, tempName, fileName, chartset);
+		//doCreateConfig(packName, tempName, fileName, chartset);
 		tempName = "Config"; //模版名
 		fileName = "Config"; //文件名
+		doCreateConfig(packName, tempName, fileName, chartset);
+		tempName = "Constant"; //模版名
+		fileName = "Constant"; //文件名
 		doCreateConfig(packName, tempName, fileName, chartset);
 	}
 
@@ -204,6 +207,9 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 		doCreateUtils(packName, tempName, fileName, chartset);
 		tempName = "UploadUtils"; //模版名
 		fileName = "UploadUtils"; //文件名
+		doCreateUtils(packName, tempName, fileName, chartset);
+		tempName = "SnowflakeIdWorker"; //模版名
+		fileName = "SnowflakeIdWorker"; //文件名
 		doCreateUtils(packName, tempName, fileName, chartset);
 		packName = config.getBasePackge(); //包路径
 		chartset = config.getChartset(); //字符集
@@ -245,7 +251,54 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 		String fileName = "APIController"; //文件名
 		doCreateApi(packName, tempName, fileName, chartset);
 	}
+
+	@Override
+	public void createAspect(){
+		//Annotation
+		String packName = config.getAspectAnnotationPath(); //包路径
+		String chartset = config.getChartset(); //字符集
+		String tempName = "VerifySign"; //模版名
+		String fileName = "VerifySign"; //文件名
+		doCreateAspect(packName, tempName, fileName, chartset);
+		tempName = "VerifyLogin"; //模版名
+		fileName = "VerifyLogin"; //文件名
+		doCreateAspect(packName, tempName, fileName, chartset);
+		tempName = "VerifyAuth"; //模版名
+		fileName = "VerifyAuth"; //文件名
+		doCreateAspect(packName, tempName, fileName, chartset);
+		tempName = "SysLog"; //模版名
+		fileName = "SysLog"; //文件名
+		doCreateAspect(packName, tempName, fileName, chartset);
+		tempName = "SysLogType"; //模版名
+		fileName = "SysLogType"; //文件名
+		doCreateAspect(packName, tempName, fileName, chartset);
+		//aspect
+		packName = config.getAspectPath(); //包路径
+		tempName = "VerifySignAspect"; //模版名
+		fileName = "VerifySignAspect"; //文件名
+		doCreateAspect(packName, tempName, fileName, chartset);
+		tempName = "VerifyLoginAspect"; //模版名
+		fileName = "VerifyLoginAspect"; //文件名
+		doCreateAspect(packName, tempName, fileName, chartset);
+		tempName = "VerifyAuthAspect"; //模版名
+		fileName = "VerifyAuthAspect"; //文件名
+		doCreateAspect(packName, tempName, fileName, chartset);
+		tempName = "SysLogAspect"; //模版名
+		fileName = "SysLogAspect"; //文件名
+		doCreateAspect(packName, tempName, fileName, chartset);
+	}
 	
+	@Override
+	public void createException(){
+		String packName = config.getExceptionPath(); //包路径
+		String chartset = config.getChartset(); //字符集
+		String tempName = "ServiceException"; //模版名
+		String fileName = "ServiceException"; //文件名
+		doCreateException(packName, tempName, fileName, chartset);
+		tempName = "ControllerExceptionHandler"; //模版名
+		fileName = "ControllerExceptionHandler"; //文件名
+		doCreateException(packName, tempName, fileName, chartset);
+	}
 	
 	private void doCreateEntity(String packName, String tempName, String fileName, String chartset, Table table){
 		
@@ -1308,6 +1361,125 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 			}
 		}
 		System.out.println(DateTools.formatDate()+":	end create config file... " +packName+" "+fileName);
+	}
+	
+	private void doCreateAspect(String packName, String tempName, String fileName, String chartset){
+		System.out.println(DateTools.formatDate()+":	start create aspect file... " +packName+" "+fileName);
+		InputStream in = getClass().getResourceAsStream(Config.getTempPath() + tempName + ".txt"); //模版路径
+		if(in == null){
+			System.out.println(DateTools.formatDate()+":	not find template... " + tempName + ".txt");
+			return;
+		}
+		String outPath = Tools.getBaseSrcPath() + packName.replace(".", File.separator) + File.separator + fileName + ".java"; //输出路径
+		BufferedWriter bw = null;
+		BufferedReader br = null;
+		File outFile = new File(outPath);
+		//如果文件已存在，并且不开启重写。结束创建。
+		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
+			return;
+		}
+		System.out.println(DateTools.formatDate()+":	output file... " +outPath);
+		File pfile = outFile.getParentFile();
+		if(!pfile.exists()){
+			pfile.mkdirs();
+		}
+		try {
+			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), chartset)); 
+			br = new BufferedReader(new InputStreamReader(in, chartset)); 
+			String line; 
+			while((line = br.readLine()) != null){ 
+				//packge
+				if(line.indexOf("package PK;") != -1){
+					line = "package " + packName + ";";
+				}else if(line.indexOf("import VerifySign;") != -1){
+					line = "import " + config.getAspectAnnotationPath()+ ".VerifySign" + ";"; //xxxx.aspect.annotation.VerifySign
+				}else if(line.indexOf("import VerifyLogin;") != -1){
+					line = "import " + config.getAspectAnnotationPath()+ ".VerifyLogin" + ";"; //xxxx.aspect.annotation.VerifyLogin
+				}else if(line.indexOf("import VerifyAuth;") != -1){
+					line = "import " + config.getAspectAnnotationPath()+ ".VerifyAuth" + ";"; //xxxx.aspect.annotation.VerifyAuth
+				}else if(line.indexOf("import SysLog;") != -1){
+					line = "import " + config.getAspectAnnotationPath()+ ".SysLog" + ";"; //xxxx.aspect.annotation.SysLog
+				}else if(line.indexOf("import Config;") != -1){
+					line = "import " + config.getBasePackge()+ ".config.Config" + ";"; //import xxxx.config.Config
+				}else if(line.indexOf("import App;") != -1){
+					line = "import " + config.getBasePackge()+ ".App" + ";"; //import xxxx.App
+				}
+
+				//Controller
+				if(line.indexOf("{Controller}") != -1){
+					line = line.replace("{Controller}", config.getControllerPath());
+				}
+				
+				bw.write(line); 
+				bw.newLine(); 
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try { 
+				if(br != null){
+					br.close(); 
+				}
+				if(bw != null){
+					bw.flush();
+					bw.close(); 
+				}
+			}catch (Exception e) { 
+				e.printStackTrace(); 
+			}
+		}
+		System.out.println(DateTools.formatDate()+":	end create aspect file... " +packName+" "+fileName);
+	}
+	
+	private void doCreateException(String packName, String tempName, String fileName, String chartset){
+		System.out.println(DateTools.formatDate()+":	start create exception file... " +packName+" "+fileName);
+		InputStream in = getClass().getResourceAsStream(Config.getTempPath() + tempName + ".txt"); //模版路径
+		if(in == null){
+			System.out.println(DateTools.formatDate()+":	not find template... " + tempName + ".txt");
+			return;
+		}
+		String outPath = Tools.getBaseSrcPath() + packName.replace(".", File.separator) + File.separator + fileName + ".java"; //输出路径
+		BufferedWriter bw = null;
+		BufferedReader br = null;
+		File outFile = new File(outPath);
+		//如果文件已存在，并且不开启重写。结束创建。
+		if(outFile.exists() && outFile.length() != 0 && !config.isOverWrite()){
+			return;
+		}
+		System.out.println(DateTools.formatDate()+":	output file... " +outPath);
+		File pfile = outFile.getParentFile();
+		if(!pfile.exists()){
+			pfile.mkdirs();
+		}
+		try {
+			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), chartset)); 
+			br = new BufferedReader(new InputStreamReader(in, chartset)); 
+			String line; 
+			while((line = br.readLine()) != null){ 
+				//packge
+				if(line.indexOf("package PK;") != -1){
+					line = "package " + packName + ";";
+				}
+				
+				bw.write(line); 
+				bw.newLine(); 
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try { 
+				if(br != null){
+					br.close(); 
+				}
+				if(bw != null){
+					bw.flush();
+					bw.close(); 
+				}
+			}catch (Exception e) { 
+				e.printStackTrace(); 
+			}
+		}
+		System.out.println(DateTools.formatDate()+":	end create exception file... " +packName+" "+fileName);
 	}
 	
 	public static void main(String[] args) {
