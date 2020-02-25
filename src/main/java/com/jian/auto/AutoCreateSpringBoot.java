@@ -652,6 +652,16 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 					line = "import " + packName.replace("controller", "config.VerifyConfig") + ";";//import xxxx.config.VerifyConfig
 				}else if(line.indexOf("import Utils;") != -1){
 					line = "import " + packName.replace("controller", "util.Utils") + ";";//import xxxx.util.Utils
+				}else if(line.indexOf("import VerifySign;") != -1){
+					line = "import " + config.getAspectAnnotationPath()+ ".VerifySign" + ";"; //xxxx.aspect.annotation.VerifySign
+				}else if(line.indexOf("import VerifyLogin;") != -1){
+					line = "import " + config.getAspectAnnotationPath()+ ".VerifyLogin" + ";"; //xxxx.aspect.annotation.VerifyLogin
+				}else if(line.indexOf("import VerifyAuth;") != -1){
+					line = "import " + config.getAspectAnnotationPath()+ ".VerifyAuth" + ";"; //xxxx.aspect.annotation.VerifyAuth
+				}else if(line.indexOf("import SysLog;") != -1){
+					line = "import " + config.getAspectAnnotationPath()+ ".SysLog" + ";"; //xxxx.aspect.annotation.SysLog
+				}else if(line.indexOf("import SysLogType;") != -1){
+					line = "import " + config.getAspectAnnotationPath()+ ".SysLogType" + ";"; //xxxx.aspect.annotation.SysLog
 				}else{
 					line = line.replace("Temp", en);
 				}

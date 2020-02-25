@@ -43,6 +43,10 @@ public class TempController extends BaseController<Temp, TempService> {
 	@RequestMapping("/update")
     @ResponseBody
 	@API(name="修改", info="需登录认证")
+	@VerifySign
+	@VerifyLogin
+	@VerifyAuth
+	@SysLog(type=SysLogType.Update, describe="修改")
 	public String update(HttpServletRequest req) {
 		return super.update(req);
 	}
@@ -52,6 +56,10 @@ public class TempController extends BaseController<Temp, TempService> {
 	@RequestMapping("/delete")
     @ResponseBody
 	@API(name="删除", info="需登录认证")
+	@VerifySign
+	@VerifyLogin
+	@VerifyAuth
+	@SysLog(type=SysLogType.Delete, describe="删除")
 	public String delete(HttpServletRequest req) {
 		return super.delete(req);
 	}
@@ -61,6 +69,10 @@ public class TempController extends BaseController<Temp, TempService> {
 	@RequestMapping("/findPage")
     @ResponseBody
 	@API(name="分页查询", info="需登录认证")
+	@VerifySign
+	@VerifyLogin
+	@VerifyAuth
+	@SysLog(type=SysLogType.Query, describe="分页查询")
 	public String findPage(HttpServletRequest req) {
 		return super.findPage(req);
 	}
@@ -70,6 +82,10 @@ public class TempController extends BaseController<Temp, TempService> {
 	@RequestMapping("/findOne")
     @ResponseBody
 	@API(name="查询一个", info="需登录认证")
+	@VerifySign
+	@VerifyLogin
+	@VerifyAuth
+	@SysLog(type=SysLogType.Query, describe="查询一个")
 	public String findOne(HttpServletRequest req) {
 		return super.findOne(req);
 	}
@@ -79,6 +95,10 @@ public class TempController extends BaseController<Temp, TempService> {
 	@RequestMapping("/findList")
     @ResponseBody
 	@API(name="查询多个", info="需登录认证")
+	@VerifySign
+	@VerifyLogin
+	@VerifyAuth
+	@SysLog(type=SysLogType.Query, describe="查询多个")
 	public String findList(HttpServletRequest req) {
 		return super.findList(req);
 	}
