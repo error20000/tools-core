@@ -1,5 +1,8 @@
 package com.jian.tools.core;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Base64;
+
 public class XXTEA {
 	/**
 	 * Encrypt data with key.
@@ -152,4 +155,11 @@ public class XXTEA {
 		return result;
 	}
 
+	public static void main(String[] args) throws UnsupportedEncodingException {
+		String data = "test123";
+		String key = "1234567890123456";
+		String str = Base64.getEncoder().encodeToString(encrypt(data.getBytes(), key.getBytes()));
+		System.out.println(str);
+		System.out.println(new String(decrypt(Base64.getDecoder().decode(str), key.getBytes())));
+	}
 }

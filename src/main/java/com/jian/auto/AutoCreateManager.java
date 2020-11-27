@@ -23,9 +23,13 @@ public class AutoCreateManager {
 	
 	public AutoCreateManager(Config config, ConfigDB dbConfig, int mode){
 		switch (mode) {
-		case 1:
+		case 10: //spring + jdbc + mysql
 			Config.setTempPath("/com/jian/sboot/template/");
 			autoCreate = new AutoCreateSpringBoot(config, dbConfig);
+			break;
+		case 20: //spring + mybatis + mysql
+			Config.setTempPath("/com/jian/sboot/template/");
+			autoCreate = new AutoCreateSpringBootMybatis(config, dbConfig);
 			break;
 
 		default:

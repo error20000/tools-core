@@ -1,0 +1,48 @@
+package PK;
+
+import java.util.List;
+import java.util.Map;
+/**
+ * @author liujian
+ * @Date  
+ */
+public interface BaseService<T> {
+
+
+	//TODO ----------------------------------------------------------------------insert
+
+	public int add(T obj);
+	
+	public int add(List<T> objs);
+	
+	//TODO ----------------------------------------------------------------------delete
+	
+	public int delete(Map<String, Object> condition);
+
+	//TODO ----------------------------------------------------------------------update
+
+	public int modify(T obj);
+	
+	public int modify(Map<String, Object> value, Map<String, Object> condition);
+
+	//TODO ----------------------------------------------------------------------select
+
+	public T findOne(Map<String, Object> condition);
+	
+	public Map<String, Object> findOneMap(List<String> columns, Map<String, Object> condition);
+	
+	public List<T> findAll();
+	
+	public List<T> findList(Map<String, Object> condition);
+	
+	public List<Map<String, Object>> findListMap(List<String> columns, Map<String, Object> condition);
+
+	public List<T> findPage(Map<String, Object> condition, int start, int rows);
+
+	//TODO ----------------------------------------------------------------------size
+	
+	public long size(Map<String, Object> condition);
+	
+	public long sizeAll();
+	
+}

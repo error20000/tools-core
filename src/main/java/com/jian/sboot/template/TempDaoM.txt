@@ -1,0 +1,13 @@
+package PK;
+
+import T;
+import org.apache.ibatis.annotations.Mapper;
+
+/**
+ * @author liujian
+ * @Date  
+ */
+@Mapper
+public interface TempDao extends BaseDao<T> {
+
+}

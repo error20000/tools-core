@@ -24,7 +24,7 @@ import com.jian.tools.core.Tools;
  * @see com.jian.auto.Config
  * @see com.jian.auto.db.TableManager
  */
-public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCreate {
+public class AutoCreateSpringBootMybatis extends AbstractAutoCreate implements AutoCreate {
 	
 	private Config config =  null;
 	private TableManager manager = null;
@@ -33,7 +33,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 	private String dbPathSecond = ""; //数据库从库配置
 	
 	
-	public AutoCreateSpringBoot(Config config, ConfigDB dbConfig){
+	public AutoCreateSpringBootMybatis(Config config, ConfigDB dbConfig){
 		//配置
 		this.config = config;
 		this.dbConfig = dbConfig;
@@ -95,10 +95,10 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 		String tempName = ""; //模版名
 		String fileName = ""; //文件名
 		if(table == null){
-			tempName = "BaseDao";
+			tempName = "BaseDaoMM";
 			fileName = "BaseDao";
 		}else{
-			tempName = "TempDao";
+			tempName = "TempDaoM";
 			fileName = table.getEntityName() + "Dao";
 		}
 		doCreateDao(packName, tempName, fileName, chartset);
@@ -106,18 +106,18 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 	
 	@Override
 	public void createDaoImpl(Table table){
-		String packName = config.getDaoImplPath(); //包路径
-		String chartset = config.getChartset(); //字符集
-		String tempName = ""; //模版名
-		String fileName = ""; //文件名
-		if(table == null){
-			tempName = "BaseDaoImpl";
-			fileName = "BaseDaoImpl";
-		}else{
-			tempName = "TempDaoImpl";
-			fileName = table.getEntityName() + "DaoImpl";
-		}
-		doCreateDao(packName, tempName, fileName, chartset);
+//		String packName = config.getDaoImplPath(); //包路径
+//		String chartset = config.getChartset(); //字符集
+//		String tempName = ""; //模版名
+//		String fileName = ""; //文件名
+//		if(table == null){
+//			tempName = "BaseDaoImpl";
+//			fileName = "BaseDaoImpl";
+//		}else{
+//			tempName = "TempDaoImpl";
+//			fileName = table.getEntityName() + "DaoImpl";
+//		}
+//		doCreateDao(packName, tempName, fileName, chartset);
 	}
 
 	@Override
@@ -137,7 +137,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 		String tempName = ""; //模版名
 		String fileName = ""; //文件名
 		if(table == null){
-			tempName = "BaseService";
+			tempName = "BaseServiceM";
 			fileName = "BaseService";
 		}else{
 			tempName = "TempService";
@@ -153,7 +153,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 		String tempName = ""; //模版名
 		String fileName = ""; //文件名
 		if(table == null){
-			tempName = "BaseServiceImpl";
+			tempName = "BaseServiceImplM";
 			fileName = "BaseServiceImpl";
 		}else{
 			tempName = "TempServiceImpl";
@@ -1521,7 +1521,7 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 		String driverClass = "com.mysql.jdbc.Driver";
 		String prefix = "s_";
 		String separator = "_";
-		AutoCreateSpringBoot test =  new AutoCreateSpringBoot(new Config("com.testAuto"), new ConfigDB(jdbcUrl, user, password, driverClass, prefix, separator));
+		AutoCreateSpringBootMybatis test =  new AutoCreateSpringBootMybatis(new Config("com.testAuto"), new ConfigDB(jdbcUrl, user, password, driverClass, prefix, separator));
 		test.start("s_app");
 	}
 	

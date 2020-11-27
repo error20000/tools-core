@@ -49,24 +49,6 @@ public abstract class BaseController<T, S extends BaseService<T>> {
     }
 	
 	
-    public String add2(HttpServletRequest req) {
-    
-		//保存
-		try {
-			T obj = Tools.getReqParamsToObject(req, getObejctClass().newInstance());
-			T res = service.add2(obj);
-			if(res != null){
-				return ResultTools.custom(Tips.ERROR1).put(ResultKey.DATA, res).toJSONString();
-			}else{
-				return ResultTools.custom(Tips.ERROR0).toJSONString();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return ResultTools.custom(Tips.ERROR0).toJSONString();
-    }
-	
-	
     public String update(HttpServletRequest req) {
 		
 		Map<String, Object> vMap = null;

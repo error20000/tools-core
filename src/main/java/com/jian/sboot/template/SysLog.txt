@@ -13,5 +13,6 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface SysLog {
 	SysLogType type();
+	String name() default "";
 	String describe() default "";
 }

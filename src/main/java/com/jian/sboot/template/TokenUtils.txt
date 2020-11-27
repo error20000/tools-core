@@ -1,0 +1,277 @@
+package PK;
+
+
+import java.util.Base64;
+import java.util.Random;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import Config;
+import Constant;
+import ServiceException;
+import com.jian.tools.core.CacheTools;
+import com.jian.tools.core.JsonTools;
+import com.jian.tools.core.Tips;
+import com.jian.tools.core.Tools;
+import com.jian.tools.core.XXTEA;
+import com.jian.tools.core.cache.CacheObject;
+
+/**
+ * token工具类
+ * 
+ * @author liujian
+ * @Date 2020/11/27
+ *
+ */
+@Component
+public class TokenUtils {
+	
+	public static Config config = null;
+	
+	private static String tokenName = "token";
+	
+	@Autowired
+	public void setConfig(Config config){
+		TokenUtils.config = config;
+	}
+	
+	public static String getLoginToken(){
+		HttpServletRequest req =  ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+		return getLoginToken(req);
+	}
+
+	public static String getLoginToken(HttpServletRequest req){
+		//读取cookie
+		String tokenStr = "";
+		Cookie[] cookies = req.getCookies();
+		if(cookies != null){
+			for (int i = 0; i < cookies.length; i++) {
+				Cookie tmp = cookies[i];
+				if(tokenName.equals(tmp.getName())){
+					tokenStr = tmp.getValue();
+					break;
+				}
+			}
+		}
+		//Authorization
+		if(Tools.isNullOrEmpty(tokenStr)){
+			tokenStr = Tools.isNullOrEmpty(req.getHeader("Authorization")) ? "" : Base64.getDecoder().decode(req.getHeader("Authorization").replace("Basic ", "")).toString();
+		}
+		//header parameter
+		if(Tools.isNullOrEmpty(tokenStr)){
+			tokenStr = Tools.isNullOrEmpty(req.getHeader(tokenName)) ? Tools.getReqParamSafe(req, tokenName) : req.getHeader(tokenName);
+		}
+		return tokenStr;
+	}
+	
+	public static boolean checkLoginToken(String tokenStr){
+		if(Tools.isNullOrEmpty(tokenStr)) {
+			return false;
+		}
+		String token = getToken(tokenStr);
+		String userId = getUserId(tokenStr);
+		long time = getTokenTime(tokenStr);
+		long expire = getTokenExpire(tokenStr);
+		String str = userId + "." + time + "."  + expire;
+		return token.equals(tokenMd5(str));
+	}
+	
+	public static String getToken(String tokenStr){
+		String token = "";
+		if(!Tools.isNullOrEmpty(tokenStr) && tokenStr.split("[.]").length >= 1){
+			token = tokenStr.split("[.]")[0];
+		}
+		return token;
+	}
+	
+	public static String getUserId(String tokenStr){
+		String userId = "";
+		if(!Tools.isNullOrEmpty(tokenStr) && tokenStr.split("[.]").length >= 2){
+			userId = tokenStr.split("[.]")[1];
+		}
+		return userId;
+	}
+	
+	public static long getTokenTime(String tokenStr){
+		long time = 0;
+		if(!Tools.isNullOrEmpty(tokenStr) && tokenStr.split("[.]").length >= 3){
+			time = Long.parseLong(tokenStr.split("[.]")[2]);
+		}
+		return time;
+	}
+	
+	public static long getTokenExpire(String tokenStr){
+		long expire = 0;
+		if(!Tools.isNullOrEmpty(tokenStr) && tokenStr.split("[.]").length >= 4){
+			expire = Long.parseLong(tokenStr.split("[.]")[3]);
+		}
+		return expire;
+	}
+	
+	
+	public static boolean isLogin(String userId){
+		return isLogin(Constant.userLoginOnPc, userId);
+	}
+	
+	public static boolean isAppLogin(String userId){
+		return isLogin(Constant.userLoginOnMobile, userId);
+	}
+	
+	public static boolean isLogin(String cacheKeyPrefix, String userId){
+		String pkey = cacheKeyPrefix + userId;
+		CacheObject test = CacheTools.getCacheObj(pkey);
+		if(test == null ) {
+			return false;
+		}
+		return true;
+	}
+	
+	public static  <T> T getLoginUser(Class<T> clss){
+		HttpServletRequest req =  ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+		return getLoginUser(getLoginToken(req), clss);
+	}
+	
+	public static <T> T getLoginUser(String tokenStr, Class<T> clss){
+		return getLoginUser(Constant.userLoginOnPc, tokenStr, clss);
+	}
+	
+	public static  <T> T getAppLoginUser(Class<T> clss){
+		HttpServletRequest req =  ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+		return getAppLoginUser(getLoginToken(req), clss);
+	}
+	
+	public static <T> T getAppLoginUser(String tokenStr, Class<T> clss){
+		return getLoginUser(Constant.userLoginOnMobile, tokenStr, clss);
+		/*User user = new User();
+		user.setPid("111");
+		user.setUsername("test111");
+		return user;*/
+	}
+	
+	public static <T> T getLoginUser(String cacheKeyPrefix, String tokenStr, Class<T> clss){
+		
+		if(!TokenUtils.checkLoginToken(tokenStr)) {
+			throw new ServiceException(Tips.ERROR213, tokenName);
+		}
+		String userId = TokenUtils.getUserId(tokenStr);
+		String pkey = cacheKeyPrefix + userId; //缓存
+		CacheObject test = CacheTools.getCacheObj(pkey);
+		if(test == null ) {
+			throw new ServiceException(Tips.ERROR111);
+		}
+		T user = JsonTools.jsonToObj((String)test.getValue(), clss);
+		if(user == null ) {
+			throw new ServiceException(Tips.ERROR111);
+		}
+		return user;
+	}
+	
+	public static <T> void setLoginUser(String userId, T obj){
+		setLoginUser(Constant.userLoginOnPc, userId, obj);
+	}
+	
+	public static <T> void setAppLoginUser(String userId, T obj){
+		setLoginUser(Constant.userLoginOnMobile, userId, obj);
+	}
+
+	public static <T> void setLoginUser(String cacheKeyPrefix, String userId, T obj){
+		String okey = cacheKeyPrefix + userId;
+		CacheTools.setCacheObj(okey, JsonTools.toJsonString(obj), config.tokenExpireTime); 
+	}
+	
+	public static <T> void clearLoginUser(String userId){
+		clearLoginUser(Constant.userLoginOnPc, userId);
+	}
+	
+	public static <T> void clearAppLoginUser(String userId){
+		clearLoginUser(Constant.userLoginOnMobile, userId);
+	}
+
+	public static <T> void clearLoginUser(String cacheKeyPrefix, String userId){
+		String ckey = cacheKeyPrefix + userId;
+		CacheTools.clearCacheObj(ckey); //清除
+	}
+	
+	
+	public static String newToken(String userId){
+		return newToken(userId, config.tokenExpireTime);
+	}
+	
+	public static String newToken(String userId, int expireTime){
+		long curTime = System.currentTimeMillis();
+		String str = userId + "." + curTime + "."  + expireTime;
+		String token = tokenMd5(str); // userId + time + expire + key
+		String tokenStr = token + "." + str;
+		return tokenStr;
+	}
+	
+	
+	private static String tokenMd5(String str) {
+		String token = Tools.md5(str + config.tokenSecretKey);
+		if(config.tokenMd5Count > 1) {
+			for (int i = 1; i < config.tokenMd5Count; i++) {
+				token = Tools.md5(token);
+			}
+		}
+		return token;
+	}
+	
+	
+	public static String pwdMd5(String str, String salt) {
+		if(config.pwdAddSalt) {
+			str = str + salt;
+		}
+		String pwd = Tools.md5(str);
+		if(config.pwdMd5Count > 1) {
+			for (int i = 1; i < config.pwdMd5Count; i++) {
+				pwd = Tools.md5(pwd);
+			}
+		}
+		return pwd;
+	}
+	
+	
+    public static String getRandomSalt() {
+    	String val = "";
+		Random random = new Random();
+		int length = 4 + random.nextInt(6); // 4-9位
+		for (int i = 0; i < length; i++) {
+//			String charOrNum = i % 2 == 0 ? "num" : "char"; //数字 字母间隔
+			String charOrNum = random.nextInt(2) % 2 == 0 ? "num" : "char"; //随机 数字 字母
+			
+			if ("char".equalsIgnoreCase(charOrNum)){ 
+				int choice = random.nextInt(2) % 2 == 0 ? 65 : 97;   //随机 大小 字母
+				val += (char) (choice + random.nextInt(26));
+			} else if ("num".equalsIgnoreCase(charOrNum)){ 
+				val += String.valueOf(random.nextInt(10));
+			}
+		}
+    	
+    	return val;
+    }
+
+	public static byte[] encryptXXTEA(byte[] data){
+		/*if(data.length < 5){
+			data = Arrays.copyOf(data, 5);
+		}
+		if(key.length < 13){
+			key = Arrays.copyOf(key, 13);
+		}*/
+		return XXTEA.encrypt(data, config.xxteaKey.getBytes());
+	}
+	
+	
+	public static byte[] decryptXXTEA(byte[] data){
+		return XXTEA.decrypt(data, config.xxteaKey.getBytes());
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(getRandomSalt());
+	}
+}
