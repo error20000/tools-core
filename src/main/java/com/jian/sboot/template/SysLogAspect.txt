@@ -37,7 +37,7 @@ public class SysLogAspect {
 	private static final Logger logger = LoggerFactory.getLogger(SysLogAspect.class);
     
     
-    @Around("execution(public * com.jian.analyse.controller.*.*(..)) && @annotation(log)")
+    @Around("execution(public * {Controller}.*.*(..)) && @annotation(log)")
     public Object around(ProceedingJoinPoint joinPoint, SysLog log) throws Throwable {
     	
     	long startTime = System.currentTimeMillis();
@@ -89,21 +89,40 @@ public class SysLogAspect {
         	slog.setType(log.type().getValue());
         	//参数\返回值
         	String str = "";
+        	// 1、需要过滤参数的
         	switch (log.type()) {
 	    		case Login:
 	    			params.remove("password"); //移除密码参数
-	    		case Add:
-	    		case Update:
-	    		case Delete:
-	    			str = JsonTools.toJsonString(res);
-	    			str = str.substring(0, str.length() > 65535 ? 65535 : str.length()); //超过一定长度截取。
-	    			slog.setResponse(str);  //返回值
-	    		case Query:
-	    		case Export:
-	    		default:
+	    			break;
+				default:
+					break;
+        	}
+        	// 2、需要记录参数的
+        	switch (log.type()) {
+    			case Upload:
+					break;
+				default:
 	    			str = JsonTools.toJsonString(params);
 	    			str = str.substring(0, str.length() > 65535 ? 65535 : str.length()); //超过一定长度截取。
 	    			slog.setRequest(str);  //参数
+					break;
+        	}
+        	// 3、需要记录返回值的
+        	switch (log.type()) {
+	    		case Add:
+	    		case Update:
+	    		case Delete:
+	    		case Login:
+	    		case Upload:
+	    		case Other:
+	    			if(res != null) {
+	    				str = JsonTools.toJsonString(res);
+	    				str = str.substring(0, str.length() > 65535 ? 65535 : str.length()); //超过一定长度截取。
+	    				slog.setResponse(str);  //返回值
+	    			}
+	    		case Query:
+	    		case Export:
+	    		default:
 	    			break;
     		}
         	

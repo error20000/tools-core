@@ -15,7 +15,7 @@ public class App {
 	
 	public static void main(String[] args) throws Exception {
 		//项目目录
-		rootPath = App.class.getResource("/").getPath().replace("/target/classes/", "/");
+		rootPath = System.getProperty("user.dir");
     	System.out.println(rootPath);
 		//扫描范围
     	if(App.class.isAnnotationPresent(SpringBootApplication.class)){

@@ -24,6 +24,11 @@ public class VerifyLoginAspect {
 
 		//do verify login
     	System.out.println("----------------------VerifyLogin--------------------------");
+    	/*String tokenStr = TokenUtils.getLoginToken(request);
+		boolean isLogin = TokenUtils.isLogin(tokenStr);
+		if(!isLogin) {
+    		throw new ServiceException(Tips.ERROR111);
+    	}*/
     	
     }
 

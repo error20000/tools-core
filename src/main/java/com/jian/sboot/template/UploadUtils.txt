@@ -3,10 +3,9 @@ package PK;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,15 +14,13 @@ import org.springframework.stereotype.Component;
 import App;
 import Config;
 import com.jian.tools.core.DateTools;
-import com.jian.tools.core.ResultKey;
-import com.jian.tools.core.ResultTools;
 import com.jian.tools.core.Tips;
 import com.jian.tools.core.Tools;
 
 /**
  * 上传工具类
  * 
- * @author Administrator
+ * @author liujian
  *
  */
 @Component
@@ -34,12 +31,13 @@ public class UploadUtils {
 	private static String movFiles = "3gp,asf,avi,flv,f4v,mov,mkv,mp4,ogg,webm,wmv,ra,ram,rm,rmvb,swf,mp3,aac,wav,flac,wma";
 	private static String otherFiles = "rar,zip,tar,tgz,gz,7z,psd,xml";
 	private static String allowFiles = imgFiles+","+docFiles+","+movFiles+","+otherFiles;
+	private static String unAllowFiles = "";
 	
-	public static Config baseConfig = null;
+	public static Config config = null;
 	
 	@Autowired
 	public void setConfig(Config config){
-		UploadUtils.baseConfig = config;
+		UploadUtils.config = config;
 		//上传文件类型可以通过配置文件配置
 //		UploadUtils.imgFiles = config.upload_imgFiles;
 //		UploadUtils.docFiles = config.upload_docFiles;
@@ -52,12 +50,13 @@ public class UploadUtils {
 	 * 图片上传。支持格式  {@link #imgFiles}
 	 * @param fileName  文件名，如：test.jpg
 	 * @param in	文件的输入流。
-	 * @param outDir	文件输出的目录（需要“/”结尾）。
-	 * @return json字符串，code=1，表示上传成功。
+	 * @param outDir	文件输出的目录。
+	 * @return file path。
+	 * @throws Exception 
 	 * @see #upload(String, InputStream, String, String)
 	 */
-	public static String uploadImg(String fileName, InputStream in, String outDir){
-		return upload(fileName, in, outDir, imgFiles, false);
+	public static String uploadImg(String fileName, InputStream in, String outDir) throws Exception{
+		return upload(fileName, in, outDir, imgFiles, unAllowFiles, false);
 	}
 
 	//--------------------------------------------------------------------------------------------------上传文档
@@ -65,12 +64,13 @@ public class UploadUtils {
 	 * 文档上传。支持格式  {@link #docFiles}
 	 * @param fileName  文件名，如：test.doc
 	 * @param in	文件的输入流。
-	 * @param outDir	文件输出的目录（需要“/”结尾）。
-	 * @return json字符串，code=1，表示上传成功。
+	 * @param outDir	文件输出的目录。
+	 * @return file path。
+	 * @throws Exception 
 	 * @see #upload(String, InputStream, String, String)
 	 */
-	public static String uploadDoc(String fileName, InputStream in, String outDir){
-		return upload(fileName, in, outDir, docFiles, false);
+	public static String uploadDoc(String fileName, InputStream in, String outDir) throws Exception{
+		return upload(fileName, in, outDir, docFiles, unAllowFiles, false);
 	}
 
 	//--------------------------------------------------------------------------------------------------上传视频
@@ -78,12 +78,13 @@ public class UploadUtils {
 	 * 文件上传。支持格式  {@link #movFiles}
 	 * @param fileName  文件名，如：test.mp4
 	 * @param in	文件的输入流。
-	 * @param outDir	文件输出的目录（需要“/”结尾）。
-	 * @return json字符串，code=1，表示上传成功。
+	 * @param outDir	文件输出的目录。
+	 * @return file path。
+	 * @throws Exception 
 	 * @see #upload(String, InputStream, String, String)
 	 */
-	public static String uploadMov(String fileName, InputStream in, String outDir){
-		return upload(fileName, in, outDir, movFiles, false);
+	public static String uploadMov(String fileName, InputStream in, String outDir) throws Exception{
+		return upload(fileName, in, outDir, movFiles, unAllowFiles, false);
 	}
 
 	//--------------------------------------------------------------------------------------------------上传文件
@@ -91,12 +92,13 @@ public class UploadUtils {
 	 * 文件上传。支持格式  {@link #allowFiles}
 	 * @param fileName  文件名，如：test.rar
 	 * @param in	文件的输入流。
-	 * @param outDir	文件输出的目录（需要“/”结尾）。
-	 * @return json字符串，code=1，表示上传成功。
+	 * @param outDir	文件输出的目录。
+	 * @return file path。
+	 * @throws Exception 
 	 * @see #upload(String, InputStream, String, String)
 	 */
-	public static String uploadFile(String fileName, InputStream in, String outDir){
-		return upload(fileName, in, outDir, allowFiles, false);
+	public static String uploadFile(String fileName, InputStream in, String outDir) throws Exception{
+		return upload(fileName, in, outDir, allowFiles, unAllowFiles, false);
 	}
 	
 	
@@ -106,50 +108,56 @@ public class UploadUtils {
 	 * 基础上传文件
 	 * @param fileName  文件名，如：test.jpg
 	 * @param in	文件的输入流。
-	 * @param outDir	文件输出的目录（需要“/”结尾）。
-	 * @param limit		文件类型限制，如：jpg,png,doc,txt...。多个逗号分隔。
+	 * @param outDir	文件输出的目录。
+	 * @param allow		允许的文件类型，如：jpg,png,doc,txt...。多个逗号分隔。
+	 * @param unallow	不允许文件类型限制，如：jpg,png,doc,txt...。多个逗号分隔。
 	 * @param isOriginName	是否保留原文件名。true：表示保留，重名会累加，false：表示不保留，会重命名。
-	 * @return json字符串，code=1，表示上传成功。
+	 * @return file path。
+	 * @throws Exception 
 	 * @see #upload(String, InputStream, String, boolean)
 	 */
-	public static String upload(String fileName, InputStream in, String outDir, String limit, boolean isOriginName){
+	public static String upload(String fileName, InputStream in, String outDir, String allow, String unallow, boolean isOriginName) throws Exception{
 		//判断类型
 		String suffix = fileName.substring(fileName.lastIndexOf(".")+1);
-		if(!(limit.toLowerCase()+",").contains(suffix.toLowerCase()+",")){
-			return ResultTools.custom(Tips.ERROR212).toJSONString();
+		if((unallow.toLowerCase()+",").contains(suffix.toLowerCase()+",")) {
+			throw new Exception(Tips.ERROR212.getDesc() + "(" + suffix + ")");
+		}
+		if(!(allow.toLowerCase()+",").contains(suffix.toLowerCase()+",")){
+			throw new Exception(Tips.ERROR212.getDesc() + "(" + suffix + ")");
 		}
 		//上传
-		Map<String, Object> res = upload(fileName, in, outDir, isOriginName);
-		if(res == null || res.isEmpty()){
-			return  ResultTools.custom(Tips.ERROR0).toJSONString();
-		}
-		return ResultTools.custom(Tips.ERROR1).put(ResultKey.DATA, res).toJSONString();
+		return upload(fileName, in, outDir, isOriginName, false);
 	}
 	
 	/**
 	 * 基础上传文件。无文件类型限制
 	 * @param fileName  文件名，如：test.txt
 	 * @param in	文件的输入流。
-	 * @param outDir	文件输出的目录（需要“/”结尾）。
+	 * @param outDir	文件输出的目录。
 	 * @param isOriginName	是否保留原文件名。true：表示保留，重名会累加，false：表示不保留，会重命名。
-	 * @return	map 文件相关信息，如文件大小、后缀、上传名称、上传路径。
+	 * @param override	是否覆盖原文件名文件。true：表示覆盖，false：表示不覆盖。
+	 * 					只在isOriginName为true时有效
+	 * @return	file path。
+	 * @throws Exception 
 	 */
-	public static Map<String, Object> upload(String fileName, InputStream in, String outDir, boolean isOriginName){
+	public static String upload(String fileName, InputStream in, String outDir, boolean isOriginName, boolean override) throws Exception{
 		
 		//生成输出文件
 		String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
 
-		String basePath = Tools.isNullOrEmpty(baseConfig.out_static_path) ? App.rootPath + "static/" : baseConfig.out_static_path;
+		String basePath = Tools.isNullOrEmpty(config.out_static_path) ? App.rootPath + "/static/" : config.out_static_path;
 		basePath = basePath.endsWith("/") ? basePath : basePath + "/";
-		String outFilePath = "upload/" + outDir + DateTools.formatDate("yyyyMMdd") + "/";
+		String outFilePath = "/upload/" + outDir + "/" + DateTools.formatDate("yyyyMMdd") + "/";
 		
 		String outFileName = "";
 		if(isOriginName){
 			outFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "."+ suffix;
 			File test = new File(basePath + outFilePath + outFileName);
-			outFileName = rename(test, 0);
+			if(!override) {
+				outFileName = rename(test, 0);
+			}
 		}else{
-			int random = new Random().nextInt(10000);
+			int random = new Random().nextInt(9999);
 			String str = random+"";
 			for (int i = 0; i <  4 - str.length(); i++) {
 				str = "0" + str;
@@ -157,39 +165,61 @@ public class UploadUtils {
 			outFileName = DateTools.formatDate("yyyyMMddHHmmssSSS") + str + "."+ suffix;
 		}
 		
-		outFilePath = outFilePath + outFileName;
+		outFilePath = buildPath(outFilePath + outFileName);
 		
-		
+		return upload(basePath, outFilePath, in);
+	}
+	
+	/**
+	 * 基础上传文件。自定义路径，无文件类型限制
+	 * @param basePath  根目录，如：/data/.../
+	 * @param outFilePath  文件路径，如：/upload/.../test.txt
+	 * @param in	文件的输入流。
+	 * @return	outFilePath。如果上传异常，outFilePath为空。
+	 * @throws Exception 
+	 */
+	public static String upload(String basePath, String outFilePath, InputStream in) throws Exception{
+		if(Tools.isNullOrEmpty(basePath)) {
+			basePath = "";
+		}else {
+			basePath = basePath.endsWith("/") ? basePath : basePath + "/";
+		}
 		//上传
-		Map<String, Object> res = null;
+		OutputStream out = null;
 		try {
 			File outFile = new File(basePath + outFilePath);
 			File pfile = outFile.getParentFile();
 			if(!pfile.exists()){
 				pfile.mkdirs();
 			}
-			OutputStream out = new FileOutputStream(outFile);
+			out = new FileOutputStream(outFile);
 			byte[] buffer = new byte[1024];
-			long size = 0;
 			int count = -1;
 			while ((count = in.read(buffer)) != -1) {
 				out.write(buffer, 0, count);
-				size += count;
 			}
-			in.close();
-			out.close();
 			out.flush();
-			//返回结果
-			res = new HashMap<>();
-			res.put("type", suffix);
-			res.put("size", size);
-			res.put("name", outFileName);
-			res.put("path", outFilePath);
 		} catch (Exception e) {
-			e.printStackTrace();
+			outFilePath = ""; //上传失败结果置空
+			throw e;
+		} finally {
+			if(in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					
+				}
+			}
+			if(out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
+					
+				}
+			}
 		}
 		
-		return res;
+		return outFilePath;
 	}
 	
 	//递归
@@ -204,6 +234,10 @@ public class UploadUtils {
 			return file.getName();
 		}
 	}*/
+	
+	public static String buildPath(String filePath) {
+		return new File(filePath).getPath().replace("\\", "/");
+	}
 	
 	//查询
 	private static String rename(File file, int index){
