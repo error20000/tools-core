@@ -113,6 +113,16 @@ public class CacheTools {
 		cache.clearCacheObj(key);
 	}
 
+	/**
+	 * 获取keys
+	 * 
+	 * @param regex
+	 * @return	List
+	 */
+	public static List<String> keys(String regex) {
+		return cache.keys(regex);
+	}
+
 
 	private static List<Class<?>> findClass(){
 		List<Class<?>> classes = new ArrayList<>();
@@ -133,8 +143,15 @@ public class CacheTools {
 		return classes;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		CacheTools.setCacheObj("", "");
+		CacheTools.setCacheObj("123", "456", 10 * 1000);
+		CacheTools.setCacheObj("123", "123", 100 * 1000);
+		System.out.println(CacheTools.keys(".*").size());
+		Thread.sleep(5 * 1000);
+		System.out.println(CacheTools.getCacheObj("123").getValue());
+		Thread.sleep(10 * 1000);
+		System.out.println(CacheTools.getCacheObj("123").getValue());
 		System.out.println(((CacheImpl) CacheTools.getIfs()).getClass().getName());
 	}
 

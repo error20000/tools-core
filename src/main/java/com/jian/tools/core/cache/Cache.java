@@ -1,5 +1,7 @@
 package com.jian.tools.core.cache;
 
+import java.util.List;
+
 /**
  * 缓存工具类接口
  * @author liujian
@@ -57,5 +59,12 @@ public interface Cache {
 	 * @param key
 	 */
 	public void clearCacheObj(String key);
+	
+	/**
+	 * 获取keys
+	 * @param regex 正则表达式
+	 * @return List
+	 */
+	public List<String> keys(String regex);
 	
 }

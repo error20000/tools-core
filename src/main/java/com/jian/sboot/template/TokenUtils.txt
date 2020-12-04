@@ -1,7 +1,7 @@
 package PK;
 
-
 import java.util.Base64;
+import java.util.List;
 import java.util.Random;
 
 import javax.servlet.http.Cookie;
@@ -34,18 +34,27 @@ public class TokenUtils {
 	
 	public static Config config = null;
 	
-	private static String tokenName = "token";
+	public static String tokenName = "token";
 	
 	@Autowired
 	public void setConfig(Config config){
 		TokenUtils.config = config;
 	}
 	
+	/**
+	 * 	获取token字符串
+	 * @return
+	 */
 	public static String getLoginToken(){
 		HttpServletRequest req =  ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
 		return getLoginToken(req);
 	}
 
+	/**
+	 * 	获取token字符串
+	 * @param req
+	 * @return
+	 */
 	public static String getLoginToken(HttpServletRequest req){
 		//读取cookie
 		String tokenStr = "";
@@ -70,15 +79,26 @@ public class TokenUtils {
 		return tokenStr;
 	}
 	
+	/**
+	 * 	检查token是否有效
+	 * @param tokenStr	token字符串
+	 * @return
+	 */
 	public static boolean checkLoginToken(String tokenStr){
 		if(Tools.isNullOrEmpty(tokenStr)) {
-			return false;
+			throw new ServiceException(Tips.ERROR211, tokenName);
 		}
 		String token = getToken(tokenStr);
 		String userId = getUserId(tokenStr);
-		long time = getTokenTime(tokenStr);
-		long expire = getTokenExpire(tokenStr);
-		String str = userId + "." + time + "."  + expire;
+		long time = getTime(tokenStr);
+		long expire = getExpire(tokenStr);
+		String plat = getPlat(tokenStr);
+		//判断超时
+		long cur = System.currentTimeMillis();
+		if((time + expire) < cur){
+			throw new ServiceException(Tips.ERROR214, tokenName);
+		}
+		String str = userId + "." + time + "."  + expire + "." + plat;
 		return token.equals(tokenMd5(str));
 	}
 	
@@ -98,7 +118,7 @@ public class TokenUtils {
 		return userId;
 	}
 	
-	public static long getTokenTime(String tokenStr){
+	public static long getTime(String tokenStr){
 		long time = 0;
 		if(!Tools.isNullOrEmpty(tokenStr) && tokenStr.split("[.]").length >= 3){
 			time = Long.parseLong(tokenStr.split("[.]")[2]);
@@ -106,7 +126,7 @@ public class TokenUtils {
 		return time;
 	}
 	
-	public static long getTokenExpire(String tokenStr){
+	public static long getExpire(String tokenStr){
 		long expire = 0;
 		if(!Tools.isNullOrEmpty(tokenStr) && tokenStr.split("[.]").length >= 4){
 			expire = Long.parseLong(tokenStr.split("[.]")[3]);
@@ -114,103 +134,326 @@ public class TokenUtils {
 		return expire;
 	}
 	
-	
-	public static boolean isLogin(String userId){
-		return isLogin(Constant.userLoginOnPc, userId);
-	}
-	
-	public static boolean isAppLogin(String userId){
-		return isLogin(Constant.userLoginOnMobile, userId);
-	}
-	
-	public static boolean isLogin(String cacheKeyPrefix, String userId){
-		String pkey = cacheKeyPrefix + userId;
-		CacheObject test = CacheTools.getCacheObj(pkey);
-		if(test == null ) {
-			return false;
+	public static String getPlat(String tokenStr){
+		String plat = "";
+		if(!Tools.isNullOrEmpty(tokenStr) && tokenStr.split("[.]").length >= 5){
+			plat = tokenStr.split("[.]")[4];
 		}
-		return true;
+		return plat;
 	}
 	
+	/**
+	 * 	判断是否登录
+	 * @param tokenStr	token字符串
+	 * @return
+	 */
+	public static boolean isLogin(String tokenStr){
+		return isLogin(Constant.userLoginOn, tokenStr);
+	}
+	
+	/**
+	 * 	判断是否登录
+	 * @param cacheKeyPrefix	缓存前缀
+	 * @param tokenStr	token字符串
+	 * @return
+	 */
+	public static boolean isLogin(String cacheKeyPrefix, String tokenStr){
+		if(!checkLoginToken(tokenStr)) {
+			throw new ServiceException(Tips.ERROR213, tokenName);
+		}
+		String tkey = getTokenCacheKey(cacheKeyPrefix, tokenStr);
+		CacheObject test = CacheTools.getCacheObj(tkey);
+		if(test == null) {
+			throw new ServiceException(Tips.ERROR214, "登录");
+		}
+		return tokenStr.equals(test.getValue()); //与缓存的token字符串比较，判断登录是否还有效
+	}
+	
+	/**
+	 * 	获取登录用户
+	 * @param <T>
+	 * @param clss	转换类
+	 * @return
+	 */
 	public static  <T> T getLoginUser(Class<T> clss){
 		HttpServletRequest req =  ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
 		return getLoginUser(getLoginToken(req), clss);
 	}
 	
+	/**
+	 * 	获取登录用户
+	 * @param <T>
+	 * @param tokenStr	token字符串
+	 * @param clss	转换类
+	 * @return
+	 */
 	public static <T> T getLoginUser(String tokenStr, Class<T> clss){
-		return getLoginUser(Constant.userLoginOnPc, tokenStr, clss);
+		return getLoginUser(Constant.userLoginOn, tokenStr, clss);
 	}
 	
-	public static  <T> T getAppLoginUser(Class<T> clss){
-		HttpServletRequest req =  ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-		return getAppLoginUser(getLoginToken(req), clss);
-	}
-	
-	public static <T> T getAppLoginUser(String tokenStr, Class<T> clss){
-		return getLoginUser(Constant.userLoginOnMobile, tokenStr, clss);
-		/*User user = new User();
-		user.setPid("111");
-		user.setUsername("test111");
-		return user;*/
-	}
-	
+	/**
+	 * 	获取登录用户
+	 * @param <T>
+	 * @param cacheKeyPrefix	缓存前缀
+	 * @param tokenStr	token字符串
+	 * @param clss	转换类
+	 * @return
+	 */
 	public static <T> T getLoginUser(String cacheKeyPrefix, String tokenStr, Class<T> clss){
-		
-		if(!TokenUtils.checkLoginToken(tokenStr)) {
-			throw new ServiceException(Tips.ERROR213, tokenName);
+		if(!isLogin(tokenStr)) { //判断是否登录
+			throw new ServiceException(Tips.ERROR214, tokenName);
 		}
-		String userId = TokenUtils.getUserId(tokenStr);
-		String pkey = cacheKeyPrefix + userId; //缓存
-		CacheObject test = CacheTools.getCacheObj(pkey);
+		String ukey = getUserCacheKey(cacheKeyPrefix, tokenStr);
+		CacheObject test = CacheTools.getCacheObj(ukey);
 		if(test == null ) {
-			throw new ServiceException(Tips.ERROR111);
+			throw new ServiceException(Tips.ERROR214, "登录");
 		}
 		T user = JsonTools.jsonToObj((String)test.getValue(), clss);
 		if(user == null ) {
-			throw new ServiceException(Tips.ERROR111);
+			throw new ServiceException(Tips.ERROR114, "获取"+clss.getSimpleName());
 		}
 		return user;
 	}
 	
-	public static <T> void setLoginUser(String userId, T obj){
-		setLoginUser(Constant.userLoginOnPc, userId, obj);
+	/**
+	 * 	缓存登录用户
+	 * @param <T>
+	 * @param tokenStr	token字符串
+	 * @param obj	用户信息
+	 */
+	public static <T> void setLoginUser(String tokenStr, T obj){
+		setLoginUser(Constant.userLoginOn, tokenStr, obj);
 	}
 	
-	public static <T> void setAppLoginUser(String userId, T obj){
-		setLoginUser(Constant.userLoginOnMobile, userId, obj);
+	/**
+	 * 	缓存登录用户
+	 * @param <T>	
+	 * @param cacheKeyPrefix	缓存前缀
+	 * @param tokenStr	token字符串
+	 * @param obj	用户信息
+	 */
+	public static <T> void setLoginUser(String cacheKeyPrefix, String tokenStr, T obj){
+		if(!checkLoginToken(tokenStr)) {
+			throw new ServiceException(Tips.ERROR213, tokenName);
+		}
+		if(config.allowOnePlatformMultipleLogin) {
+			//使旧token失效
+			String oldTokenStr = getLoginToken();
+			if(!Tools.isNullOrEmpty(oldTokenStr)) {
+				clearLoginUser(oldTokenStr);
+			}
+		}
+		String tkey = getTokenCacheKey(cacheKeyPrefix, tokenStr);
+		String ukey = getUserCacheKey(cacheKeyPrefix, tokenStr);
+		CacheTools.setCacheObj(tkey, tokenStr, config.tokenExpireTime); //缓存登录的信息
+		CacheTools.setCacheObj(ukey, JsonTools.toJsonString(obj), config.tokenExpireTime);  //缓存用户的信息
+	}
+	
+	/**
+	 * 	退出登录
+	 * @param tokenStr
+	 */
+	public static void clearLoginUser(String tokenStr){
+		clearLoginUser(Constant.userLoginOn, tokenStr);
+	}
+	
+	/**
+	 * 	退出登录
+	 * @param cacheKeyPrefix
+	 * @param tokenStr
+	 */
+	public static void clearLoginUser(String cacheKeyPrefix, String tokenStr){
+		if(!checkLoginToken(tokenStr)) {
+			throw new ServiceException(Tips.ERROR213, tokenName);
+		}
+		String tkey = getTokenCacheKey(cacheKeyPrefix, tokenStr);
+		String ukey = getUserCacheKey(cacheKeyPrefix, tokenStr);
+		CacheTools.clearCacheObj(tkey); //清除Token
+		CacheTools.clearCacheObj(ukey); //清除User
+	}
+	
+	/**
+	 * 	清除用户所有的登录
+	 * @param userId
+	 */
+	public static void clearToken(String userId){
+		clearToken(Constant.userLoginOn, userId);
+	}
+	
+	/**
+	 *  清除用户所有的登录
+	 * @param cacheKeyPrefix
+	 * @param userId
+	 */
+	public static void clearToken(String cacheKeyPrefix, String userId){
+		if(Tools.isNullOrEmpty(userId)) {
+			throw new ServiceException(Tips.ERROR211, "userId");
+		}
+		String regex = cacheKeyPrefix + ".*" + userId + ".*";
+		List<String> list = CacheTools.keys(regex); //获取相关key
+		for (String str : list) {
+			CacheTools.clearCacheObj(str); //清除key
+		}
+	}
+	
+	/**
+	 * 	检查用户登录密码
+	 * @param userId	用户id
+	 * @param password	加密后的密码（保存在数据库的密码）
+	 * @param salt	盐
+	 * @param pwd	明文密码（登录时输入的密码）
+	 */
+	public static void checkLoinPassword(String userId, String password, String salt, String pwd) {
+		checkLoinPassword(userId, password, pwdMd5(pwd, salt));
 	}
 
-	public static <T> void setLoginUser(String cacheKeyPrefix, String userId, T obj){
-		String okey = cacheKeyPrefix + userId;
-		CacheTools.setCacheObj(okey, JsonTools.toJsonString(obj), config.tokenExpireTime); 
+	/**
+	 * 	检查用户登录密码
+	 * @param userId	用户id
+	 * @param password	加密后的密码（保存在数据库的密码）
+	 * @param password2	加密后的密码（登录时输入的密码加密后）
+	 */
+	public static void checkLoinPassword(String userId, String password, String password2) {
+		if(Tools.isNullOrEmpty(userId)) {
+			throw new ServiceException(Tips.ERROR108);
+		}
+		if(Tools.isNullOrEmpty(password)) {
+			throw new ServiceException(Tips.ERROR108);
+		}
+		if(Tools.isNullOrEmpty(password2)) {
+			throw new ServiceException(Tips.ERROR108);
+		}
+		//时长
+		String tkey = Constant.userLoginErrorPwdTime + userId;
+		CacheObject tobj = CacheTools.getCacheObj(tkey);
+		if(tobj != null) {
+			int m = (int)((tobj.getTimeOut() - System.currentTimeMillis()) / (60 * 1000));
+			m = m <= 0 ? 1 : m;
+			throw new ServiceException(Tips.ERROR108.getCode(), "账号登录失败，请" +m+"分钟后重试。");
+		}
+		//次数
+		String ckey = "";
+		if(!password.equals(password2)){
+			if(config.maxLoginCount == 0) {
+				throw new ServiceException(Tips.ERROR110); //不限次数
+			}
+			//限制错误次数
+			int loinTime = config.maxLoginCount - 1;
+			ckey = Constant.userLoginErrorPwdCount + userId;
+			CacheObject cobj = CacheTools.getCacheObj(ckey);
+			if(cobj == null){
+				CacheTools.setCacheObj(ckey, loinTime);
+			}else{
+				loinTime = Integer.parseInt(cobj.getValue()+"");
+				loinTime--;
+				if(loinTime <= 0){
+					//进入时长限制
+					CacheTools.setCacheObj(tkey, 1, config.maxLoginTime); 
+					//解除次数禁用
+					CacheTools.clearCacheObj(ckey); 
+				}else{
+					CacheTools.setCacheObj(ckey, loinTime); //更新次数
+				}
+			}
+			throw new ServiceException(Tips.ERROR108.getCode(), "账号登录失败，剩余次数" + loinTime);
+		}
+		if(!Tools.isNullOrEmpty(ckey)) {
+			CacheTools.clearCacheObj(ckey); //密码正确，解除次数限制
+			CacheTools.clearCacheObj(tkey); 
+		}
 	}
 	
-	public static <T> void clearLoginUser(String userId){
-		clearLoginUser(Constant.userLoginOnPc, userId);
-	}
-	
-	public static <T> void clearAppLoginUser(String userId){
-		clearLoginUser(Constant.userLoginOnMobile, userId);
-	}
-
-	public static <T> void clearLoginUser(String cacheKeyPrefix, String userId){
-		String ckey = cacheKeyPrefix + userId;
-		CacheTools.clearCacheObj(ckey); //清除
-	}
-	
-	
+	/**
+	 * 	新建token
+	 * @param userId	用户id
+	 * @return	token字符串
+	 */
 	public static String newToken(String userId){
-		return newToken(userId, config.tokenExpireTime);
+		return newToken(userId, config.tokenExpireTime, "");
 	}
 	
-	public static String newToken(String userId, int expireTime){
+	/**
+	 * 	新建token
+	 * @param userId	用户id
+	 * @param platform	平台标识
+	 * @return	token字符串
+	 */
+	public static String newToken(String userId, String platform){
+		return newToken(userId, config.tokenExpireTime, platform);
+	}
+	
+	/**
+	 * 	新建token
+	 * @param userId	用户id
+	 * @param expireTime	token有效期（毫秒）
+	 * @param platform	平台标识
+	 * @return	token字符串
+	 */
+	public static String newToken(String userId, int expireTime, String platform){
 		long curTime = System.currentTimeMillis();
-		String str = userId + "." + curTime + "."  + expireTime;
-		String token = tokenMd5(str); // userId + time + expire + key
+		String plat = getPlatform(platform);
+		String str = userId + "." + curTime + "."  + expireTime + "."  + plat;
+		String token = tokenMd5(str); // userId + time + expire + plat + key
 		String tokenStr = token + "." + str;
 		return tokenStr;
 	}
 	
+	/**
+	 * 	获取登录用户的token的缓存key
+	 * @param tokenStr
+	 * @return
+	 */
+	public static String getTokenCacheKey(String tokenStr) {
+		return getTokenCacheKey(Constant.userLoginOn, tokenStr);
+	}
+	
+	/**
+	 * 	获取登录用户的用户详情的缓存key
+	 * @param tokenStr
+	 * @return
+	 */
+	public static String getUserCacheKey(String tokenStr) {
+		return getUserCacheKey(Constant.userLoginOn, tokenStr);
+	}
+	
+	private static String getTokenCacheKey(String cacheKeyPrefix, String tokenStr) {
+		String userId = getUserId(tokenStr);
+		String plat = getPlat(tokenStr);
+		if(config.allowOnePlatformMultipleLogin) {
+			String token = getToken(tokenStr);
+			return cacheKeyPrefix + plat + ":token:" + userId + ":" + token; //生成缓存Key(Token)
+		}
+		return cacheKeyPrefix + plat + ":token:" + userId; //生成缓存Key(Token)
+	}
+	
+	private static String getUserCacheKey(String cacheKeyPrefix, String tokenStr) {
+		String userId = getUserId(tokenStr);
+		String plat = getPlat(tokenStr);
+		if(config.allowOnePlatformMultipleLogin) {
+			String token = getToken(tokenStr);
+			return cacheKeyPrefix + plat + ":user:" + userId + ":" + token; //生成缓存Key(Token)
+		}
+		return cacheKeyPrefix + plat + ":user:" + userId; //生成缓存Key(User)
+	}
+	
+	private static String getPlatform(String platform) {
+		if(!config.allowMultiplePlatformLogin) {
+			return config.loginOnPc;
+		}
+		if(Tools.isNullOrEmpty(platform)) {
+			return config.loginOnPc;
+		}
+		if(config.loginOnPc.equalsIgnoreCase(platform)) {
+			return config.loginOnPc;
+		}else if(config.loginOnMobile.equalsIgnoreCase(platform)) {
+			return config.loginOnMobile;
+		}else if(config.loginOnPad.equalsIgnoreCase(platform)) {
+			return config.loginOnPad;
+		}else if(config.loginOnOther.equalsIgnoreCase(platform)) {
+			return config.loginOnOther;
+		}
+		throw new ServiceException(Tips.ERROR200, "platform");
+	}
 	
 	private static String tokenMd5(String str) {
 		String token = Tools.md5(str + config.tokenSecretKey);
@@ -221,8 +464,22 @@ public class TokenUtils {
 		}
 		return token;
 	}
+
+	/**
+	 * 	密码md5
+	 * @param str	密码
+	 * @return
+	 */
+	public static String pwdMd5(String str) {
+		return pwdMd5(str, "");
+	}
 	
-	
+	/**
+	 * 	密码md5
+	 * @param str	密码
+	 * @param salt	盐
+	 * @return
+	 */
 	public static String pwdMd5(String str, String salt) {
 		if(config.pwdAddSalt) {
 			str = str + salt;
@@ -236,7 +493,10 @@ public class TokenUtils {
 		return pwd;
 	}
 	
-	
+	/**
+	 * 	生产随机盐 4-9位
+	 * @return
+	 */
     public static String getRandomSalt() {
     	String val = "";
 		Random random = new Random();
@@ -252,7 +512,6 @@ public class TokenUtils {
 				val += String.valueOf(random.nextInt(10));
 			}
 		}
-    	
     	return val;
     }
 

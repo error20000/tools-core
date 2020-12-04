@@ -1,5 +1,7 @@
 package com.jian.tools.core.cache;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,6 +20,16 @@ public class CacheImpl extends CacheAbstract {
 
 	protected void initClearCacheObj(String key) {
 		objMap.remove(key);
+	}
+
+	protected List<String> initKeys(String regex) {
+		List<String> res = new ArrayList<String>();
+		for (String str : objMap.keySet()) {
+			if(regex != null && str.matches(regex)) {
+				res.add(str);
+			}
+		}
+		return res;
 	}
 
 	

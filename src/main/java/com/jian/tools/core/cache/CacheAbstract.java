@@ -37,9 +37,11 @@ public abstract class CacheAbstract implements Cache {
 
 	protected abstract void initClearCacheObj(String key);
 
+	protected abstract List<String> initKeys(String regex);
+
 	
 	protected void initAutoClear() {
-		System.out.println(DateTools.formatDate()+":	clear ing ...");
+		System.out.println(DateTools.formatDate()+":	clear ing ..." + sortMap.size());
 		long cur = System.currentTimeMillis();
 		String toKey = cur + "" + 1000;
 		//待清理数据
@@ -55,10 +57,20 @@ public abstract class CacheAbstract implements Cache {
 		//清理
 		for (Map<String, String> map : clearList) {
 			String key = map.get("key");
-			initClearCacheObj(key);
+			//判断是否真的超时(同key覆盖超时时间的情况)
+			CacheObject tmp = initGetCacheObj(key);
+			if(tmp == null){ 
+				continue;
+			}
+			long curss = System.currentTimeMillis();
+			if(tmp.getTimeOut() < curss){
+				//超时移除
+				initClearCacheObj(key);
+			}
+			//initClearCacheObj(key);
 		}
 		clearList = null;
-		System.out.println(DateTools.formatDate()+":	clear end ");
+		System.out.println(DateTools.formatDate()+":	clear end " + sortMap.size());
 	}
 	
 	
@@ -134,6 +146,12 @@ public abstract class CacheAbstract implements Cache {
 	public void clearCacheObj(String key){
 		initClearCacheObj(key);
 	}
+	
+	
+	public List<String> keys(String regex) {
+		return initKeys(regex);
+	}
+	
 	
 	/**
 	 * 自动清理缓存

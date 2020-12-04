@@ -47,6 +47,13 @@ public class Config {
 	
 	public int pwdMd5Count = 1; //密码 md5 次数  大于0
 	public boolean pwdAddSalt = true; //密码是否加盐
-	
+	public boolean pwdDecrypt = true; //密码是否可逆的加密
 	public String xxteaKey = "1234567890000000"; // xxtea 秘钥
+
+	public boolean allowMultiplePlatformLogin = true; //允许多平台登录  (一个账号可以电脑手机等登录)
+	public boolean allowOnePlatformMultipleLogin = false; //允许单平台多设备登录  (一个账号可以多个电脑上登录)
+	public String loginOnPc = "1"; //PC平台标识
+	public String loginOnMobile = "2"; //移动平台标识
+	public String loginOnPad = "3"; //PAD平台标识
+	public String loginOnOther = "4"; //其他平台标识
 }

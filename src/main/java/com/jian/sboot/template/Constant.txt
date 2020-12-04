@@ -9,13 +9,13 @@ package PK;
  */
 public class Constant {
 	
-	//登录 key
-	public static String userLoginOnPc = "user:login:on:pc:"; //PC登录
-	public static String userLoginOnMobile = "user:login:on:mobile:"; //移动登录
-	public static String userLoginErrorPwdCount = "user:login:error:pwd:count:"; //登录密码错误次数限制
-	public static String userLoginErrorPwdTime = "user:login:error:pwd:time:"; //登录密码错误时长限制
+	//登录
+	public static String userLoginOn = "user:login:on:"; //登录  缓存key 前缀
+	public static String userLoginErrorPwdCount = "user:login:error:pwd:count:"; //登录密码错误次数限制  缓存key 前缀
+	public static String userLoginErrorPwdTime = "user:login:error:pwd:time:"; //登录密码错误时长限制  缓存key 前缀
 	
-	//权限 key
-	public static String userAuthCacheKey = "user:auth:cache:key:"; //权限验证
+	//权限
+	public static String superGroupId = "1"; //超管组
+	public static String userAuthCacheKey = "user:auth:cache:key:"; //权限验证  缓存key 前缀
 	
 }
