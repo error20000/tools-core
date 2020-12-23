@@ -7,10 +7,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
 public @interface Column {
 	public String value() default "";
+	public FillType fill() default FillType.DEFAULT;
+	public boolean exist() default true;
 }

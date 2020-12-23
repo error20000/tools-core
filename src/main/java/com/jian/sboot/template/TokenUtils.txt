@@ -308,7 +308,7 @@ public class TokenUtils {
 	}
 
 	/**
-	 * 	检查用户登录密码
+	 * 	检查用户登录密码（直接密码密文匹配）
 	 * @param userId	用户id
 	 * @param password	加密后的密码（保存在数据库的密码）
 	 * @param password2	加密后的密码（登录时输入的密码加密后）

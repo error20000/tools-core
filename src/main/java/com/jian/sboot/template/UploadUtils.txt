@@ -147,7 +147,7 @@ public class UploadUtils {
 
 		String basePath = Tools.isNullOrEmpty(config.out_static_path) ? App.rootPath + "/static/" : config.out_static_path;
 		basePath = basePath.endsWith("/") ? basePath : basePath + "/";
-		String outFilePath = "/upload/" + outDir + "/" + DateTools.formatDate("yyyyMMdd") + "/";
+		String outFilePath = "/upload/" + (Tools.isNullOrEmpty(outDir) ? "" : outDir + "/") + DateTools.formatDate("yyyyMMdd") + "/";
 		
 		String outFileName = "";
 		if(isOriginName){

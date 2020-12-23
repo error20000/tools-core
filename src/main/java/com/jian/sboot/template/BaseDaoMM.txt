@@ -122,7 +122,7 @@ public interface BaseDao<T> {
 		"	</foreach>",
 		"</script>"
 	})
-	public int batchInsert(@Param("tableName") String tableName, @Param("list") List<Map<String, Object>> list);
+	public int insertBatch(@Param("tableName") String tableName, @Param("list") List<Map<String, Object>> list);
 	
 	
 	//TODO ----------------------------------------------------------------------delete
@@ -184,6 +184,38 @@ public interface BaseDao<T> {
 		"</script>"
 	})    
 	public int batchUpdate(@Param("tableName") String tableName, @Param("list") List<Map<String, Object>> list);*/
+
+	@Insert({
+		"<script>",
+		" insert into ",
+		" `${tableName}` (",
+		"	<foreach collection=\"list\" item=\"obj\"  index=\"i\" separator=\" \">",
+		" 		<if test=\" i == 0 \"> ",
+		"			<foreach collection=\"obj.keys\" item=\"item\"  index=\"j\" separator=\",\">",
+		" 				`${item}` ",	
+		"			</foreach>", 
+    	"       </if>", 
+		"	</foreach>",
+		" ) ",
+		" values ",
+		"	<foreach collection=\"list\" item=\"map\"  index=\"i\" separator=\",\">",
+		" 		( ",
+		"			<foreach collection=\"map.keys\" item=\"item\"  index=\"j\" separator=\",\">",
+		" 				#{map.${item}}",	
+		"			</foreach>",
+		" 		) ",
+		"	</foreach>",
+		" on duplicate key update ",
+		"	<foreach collection=\"list\" item=\"obj\"  index=\"i\" separator=\" \">",
+		" 		<if test=\" i == 0 \"> ",
+		"			<foreach collection=\"obj.keys\" item=\"item\"  index=\"j\" separator=\",\">",
+		" 				`${item}` = values(`${item}`)",	
+		"			</foreach>", 
+    	"       </if>", 
+		"	</foreach>",
+		"</script>"
+	})
+	public int updateBatch(@Param("tableName") String tableName, @Param("list") List<Map<String, Object>> list);
     
 	//TODO ----------------------------------------------------------------------select
     

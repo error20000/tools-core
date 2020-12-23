@@ -574,6 +574,8 @@ public class AutoCreateSpringBootMybatis extends AbstractAutoCreate implements A
 				String en = fileName.replaceAll("Impl$", "").replaceAll("Service$", ""); //entity name
 				if(line.indexOf("import Dao;") != -1){
 					line = "import " + packName.replace(".service", "").replace(".impl", "")+".dao."+ dn + ";";  //import xxxx.dao.xxxDao
+				}else if(line.indexOf("import BaseDao;") != -1){
+					line = "import " + packName.replace(".service", "").replace(".impl", "")+".dao.BaseDao" + ";"; //import xxxx.dao.BaseDao
 				}else if(line.indexOf("import Service;") != -1){
 					line = "import " + packName.replace("impl", sn) + ";"; //import xxxx.service.xxxService
 				}else if(line.indexOf("import Config;") != -1){

@@ -54,8 +54,9 @@ public class HttpTools {
 	/**
 	 * 发送 post请求
 	 * @param httpUrl 地址
+	 * @throws Exception 
 	 */
-	public String sendHttpPost(String httpUrl) {
+	public String sendHttpPost(String httpUrl) throws Exception {
 		HttpPost httpPost = new HttpPost(httpUrl);// 创建httpPost  
 		return sendHttpPost(httpPost);
 	}
@@ -64,8 +65,9 @@ public class HttpTools {
 	 * 发送 post请求
 	 * @param httpUrl 地址
 	 * @param params 参数(格式:key1=value1&key2=value2)
+	 * @throws Exception 
 	 */
-	public String sendHttpPost(String httpUrl, String params) {
+	public String sendHttpPost(String httpUrl, String params) throws Exception {
 		HttpPost httpPost = new HttpPost(httpUrl);// 创建httpPost  
 		try {
 			//设置参数
@@ -74,6 +76,7 @@ public class HttpTools {
 			httpPost.setEntity(stringEntity);
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		}
 		return sendHttpPost(httpPost);
 	}
@@ -83,8 +86,9 @@ public class HttpTools {
 	 * @param httpUrl 地址
 	 * @param params 参数
 	 * @param type 参数格式
+	 * @throws Exception 
 	 */
-	public String sendHttpPost(String httpUrl, String params, ContentType type) {
+	public String sendHttpPost(String httpUrl, String params, ContentType type) throws Exception {
 		HttpPost httpPost = new HttpPost(httpUrl);// 创建httpPost  
 		try {
 			//设置参数
@@ -93,6 +97,7 @@ public class HttpTools {
 			httpPost.setEntity(stringEntity);
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		}
 		return sendHttpPost(httpPost);
 	}
@@ -101,8 +106,9 @@ public class HttpTools {
 	 * 发送 post请求
 	 * @param httpUrl 地址
 	 * @param maps 参数
+	 * @throws Exception 
 	 */
-	public String sendHttpPost(String httpUrl, Map<String, Object> maps) {
+	public String sendHttpPost(String httpUrl, Map<String, Object> maps) throws Exception {
 		HttpPost httpPost = new HttpPost(httpUrl);// 创建httpPost  
 		// 创建参数队列  
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
@@ -113,6 +119,7 @@ public class HttpTools {
 			httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		}
 		return sendHttpPost(httpPost);
 	}
@@ -123,8 +130,9 @@ public class HttpTools {
 	 * @param httpUrl 地址
 	 * @param maps 参数
 	 * @param fileLists 附件
+	 * @throws Exception 
 	 */
-	public String sendHttpPost(String httpUrl, Map<String, Object> maps, List<File> fileLists) {
+	public String sendHttpPost(String httpUrl, Map<String, Object> maps, List<File> fileLists) throws Exception {
 		HttpPost httpPost = new HttpPost(httpUrl);// 创建httpPost  
 		MultipartEntityBuilder meBuilder = MultipartEntityBuilder.create();
 		for (String key : maps.keySet()) {
@@ -143,8 +151,9 @@ public class HttpTools {
 	 * 发送Post请求
 	 * @param httpPost
 	 * @return
+	 * @throws Exception 
 	 */
-	public String sendHttpPost(HttpPost httpPost) {
+	public String sendHttpPost(HttpPost httpPost) throws Exception {
 		return sendHttpPost(httpPost, requestConfig);
 	}
 	
@@ -153,8 +162,9 @@ public class HttpTools {
 	 * @param httpPost
 	 * @param requestConfig
 	 * @return
+	 * @throws Exception 
 	 */
-	public String sendHttpPost(HttpPost httpPost, RequestConfig requestConfig) {
+	public String sendHttpPost(HttpPost httpPost, RequestConfig requestConfig) throws Exception {
 		CloseableHttpClient httpClient = null;
 		CloseableHttpResponse response = null;
 		HttpEntity entity = null;
@@ -169,6 +179,7 @@ public class HttpTools {
 			responseContent = EntityUtils.toString(entity, "UTF-8");
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		} finally {
 			try {
 				// 关闭连接,释放资源
@@ -192,8 +203,9 @@ public class HttpTools {
 	/**
 	 * 发送 get请求
 	 * @param httpUrl
+	 * @throws Exception 
 	 */
-	public String sendHttpGet(String httpUrl) {
+	public String sendHttpGet(String httpUrl) throws Exception {
 		HttpGet httpGet = new HttpGet(httpUrl);// 创建get请求
 		return sendHttpGet(httpGet);
 	}
@@ -201,8 +213,9 @@ public class HttpTools {
 	/**
 	 * 发送 get请求Https
 	 * @param httpUrl
+	 * @throws Exception 
 	 */
-	public String sendHttpsGet(String httpUrl) {
+	public String sendHttpsGet(String httpUrl) throws Exception {
 		HttpGet httpGet = new HttpGet(httpUrl);// 创建get请求
 		return sendHttpsGet(httpGet);
 	}
@@ -211,8 +224,9 @@ public class HttpTools {
 	 * 发送Get请求
 	 * @param httpGet
 	 * @return
+	 * @throws Exception 
 	 */
-	public String sendHttpGet(HttpGet httpGet) {
+	public String sendHttpGet(HttpGet httpGet) throws Exception {
 		return  sendHttpGet(httpGet, requestConfig);
 	}
 	
@@ -221,8 +235,9 @@ public class HttpTools {
 	 * @param httpGet
 	 * @param requestConfig
 	 * @return
+	 * @throws Exception 
 	 */
-	public String sendHttpGet(HttpGet httpGet, RequestConfig requestConfig) {
+	public String sendHttpGet(HttpGet httpGet, RequestConfig requestConfig) throws Exception {
 		CloseableHttpClient httpClient = null;
 		CloseableHttpResponse response = null;
 		HttpEntity entity = null;
@@ -237,6 +252,7 @@ public class HttpTools {
 			responseContent = EntityUtils.toString(entity, "UTF-8");
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		} finally {
 			try {
 				// 关闭连接,释放资源
@@ -260,8 +276,9 @@ public class HttpTools {
 	 * 发送Get请求Https
 	 * @param httpPost
 	 * @return
+	 * @throws Exception 
 	 */
-	public String sendHttpsGet(HttpGet httpGet) {
+	public String sendHttpsGet(HttpGet httpGet) throws Exception {
 		return sendHttpsGet(httpGet, requestConfig);
 	}
 	
@@ -269,8 +286,9 @@ public class HttpTools {
 	 * 发送Get请求Https
 	 * @param httpPost
 	 * @return
+	 * @throws Exception 
 	 */
-	public String sendHttpsGet(HttpGet httpGet, RequestConfig requestConfig) {
+	public String sendHttpsGet(HttpGet httpGet, RequestConfig requestConfig) throws Exception {
 		CloseableHttpClient httpClient = null;
 		CloseableHttpResponse response = null;
 		HttpEntity entity = null;
@@ -287,6 +305,7 @@ public class HttpTools {
 			responseContent = EntityUtils.toString(entity, "UTF-8");
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		} finally {
 			try {
 				// 关闭连接,释放资源
@@ -306,7 +325,7 @@ public class HttpTools {
 		return responseContent;
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		String url = "http://s9.gw.gf.ppgame.com/index.php/1009/Api/getRole";
 
 		Map<String, Object> map = new HashMap<>();

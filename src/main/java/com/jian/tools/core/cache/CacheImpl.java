@@ -32,5 +32,8 @@ public class CacheImpl extends CacheAbstract {
 		return res;
 	}
 
+	public Map<String, CacheObject> getObjMap() {
+		return objMap;
+	}
 	
 }

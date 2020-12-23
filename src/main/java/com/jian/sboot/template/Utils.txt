@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import com.jian.annotation.Column;
 import com.jian.annotation.PrimaryKey;
 import com.jian.annotation.PrimaryKeyCondition;
 import com.jian.tools.core.DateTools;
@@ -23,6 +24,7 @@ import com.jian.tools.core.Tools;
 public class Utils {
 
 	private static Map<String, List<PrimaryKeyCondition>> pkArrays = new HashMap<String ,List<PrimaryKeyCondition>>();
+	private static Map<String, List<String>> colArrays = new HashMap<String ,List<String>>();
 	
 	/**
 	 * 获取Entity类注解的PrimaryKey。
@@ -54,6 +56,35 @@ public class Utils {
 			keys.add(pkn);
 		}
 		return keys;
+	}
+	
+	/**
+	 * 获取Entity类注解的Column。
+	 * @param clss
+	 * @param isExist
+	 * @return
+	 */
+	public static List<String> getColumns(Class<?> clss, boolean isExist){
+		String mark = clss.getCanonicalName()+"#"+isExist;
+		List<String> list = null;
+		if(colArrays.containsKey(mark)){
+			list = colArrays.get(mark);
+		}else {
+			list = new ArrayList<String>();
+			Field[] fields = Tools.getFields(clss);
+			for (Field f : fields) {
+				if(f.isAnnotationPresent(Column.class)){
+					Column col = f.getAnnotation(Column.class);
+					if(col.exist() == isExist) {
+						list.add(f.getName());
+					}
+				}else if(isExist) {
+					list.add(f.getName());
+				}
+			}
+			colArrays.put(mark, list);
+		}
+		return list;
 	}
 	
 	@SuppressWarnings("unchecked")

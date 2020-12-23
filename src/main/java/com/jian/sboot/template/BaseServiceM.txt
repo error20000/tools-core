@@ -2,6 +2,9 @@ package PK;
 
 import java.util.List;
 import java.util.Map;
+
+import BaseDao;
+
 /**
  * @author liujian
  * @Date  
@@ -18,10 +21,14 @@ public interface BaseService<T> {
 	//TODO ----------------------------------------------------------------------delete
 	
 	public int delete(Map<String, Object> condition);
+	
+	public int deleteBatch(String column, List<String> values);
 
 	//TODO ----------------------------------------------------------------------update
 
 	public int modify(T obj);
+	
+	public int modify(List<T> objs);
 	
 	public int modify(Map<String, Object> value, Map<String, Object> condition);
 
@@ -44,5 +51,11 @@ public interface BaseService<T> {
 	public long size(Map<String, Object> condition);
 	
 	public long sizeAll();
+
+	//TODO ----------------------------------------------------------------------other
+	
+	public BaseDao<T> getDao();
+	
+	public String getTableName();
 	
 }

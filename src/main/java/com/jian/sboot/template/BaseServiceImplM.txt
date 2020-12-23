@@ -33,74 +33,115 @@ public abstract class BaseServiceImpl<T, M extends BaseDao<T>> implements BaseSe
 	private Config config;
 	
 
+	@Override
+	public M getDao() {
+		return baseDao;
+	}
+
+
 	//TODO ----------------------------------------------------------------------insert
-	
+
 	public int add(T obj) {
-		//fillPrimaryKey(obj);
+		if(obj == null) {
+			return 0;
+		}
+		fillPrimaryKey(obj);
 		//fillDate(config.autoFillDateForAdd, obj);
 		String tableName =  getTableName();
-		return baseDao.insert(tableName, Tools.parseObjectToMap(obj));
+		Map<String, Object> temp = Tools.parseObjectToMap(obj);
+		List<String> unFields = Utils.getColumns(obj.getClass(), false);
+		for (String str : unFields) {
+			temp.remove(str);
+		}
+		return baseDao.insert(tableName, temp);
 	}
 	
 	
 	public int add(List<T> objs) {
+		if(objs == null || objs.isEmpty()) {
+			return 0;
+		}
 		String tableName =  getTableName();
 		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
 		for (T t : objs) {
-			//fillPrimaryKey(t);
+			fillPrimaryKey(t);
 			//fillDate(config.autoFillDateForAdd, t);
-			list.add(Tools.parseObjectToMap(t));
+			Map<String, Object> temp = Tools.parseObjectToMap(t);
+			List<String> unFields = Utils.getColumns(t.getClass(), false);
+			for (String str : unFields) {
+				temp.remove(str);
+			}
+			list.add(temp);
 		}
-		if(list.size() == 0) {
-			return 0;
-		}
-		return baseDao.batchInsert(tableName, list);
+		return baseDao.insertBatch(tableName, list);
 	}
 	
 	//TODO ----------------------------------------------------------------------delete
 
 	
 	public int delete(Map<String, Object> condition) {
+		if(condition == null || condition.isEmpty()) {
+			return 0;
+		}
 		String tableName =  getTableName();
-		condition = condition != null && condition.isEmpty() ? null : condition;
 		return baseDao.delete(tableName, condition);
+	}
+	
+	public int deleteBatch(String column, List<String> values) {
+		if(values == null || values.isEmpty()) {
+			return 0;
+		}
+		String tableName =  getTableName();
+		return baseDao.deleteBatch(tableName, column, values);
 	}
 
 	//TODO ----------------------------------------------------------------------update
 
 	
 	public int modify(T obj) {
+		if(obj == null) {
+			return 0;
+		}
 		List<String> pkeys = getPrimaryKeys();
 		Map<String, Object> value = Tools.parseObjectToMap(obj);
+		List<String> unFields = Utils.getColumns(obj.getClass(), false);
+		for (String str : unFields) {
+			value.remove(str);
+		}
 		Map<String, Object> condition = new HashMap<String, Object>();
 		for (String string : pkeys) {
 			condition.put(string, value.get(string));
 			value.remove(string);
 		}
-		condition = condition != null && condition.isEmpty() ? null : condition;
-		value = value != null && value.isEmpty() ? null : value;
 		return modify(value, condition);
 	}
-
 	
 	public int modify(Map<String, Object> value, Map<String, Object> condition) {
-		fillDate(config.autoFillDateForModify, value);
+		if(value == null || value.isEmpty() || condition == null || condition.isEmpty()) {
+			return 0;
+		}
+		//fillDate(config.autoFillDateForModify, value);
 		String tableName =  getTableName();
-		condition = condition != null && condition.isEmpty() ? null : condition;
 		return baseDao.update(tableName, value, condition);
 	}
 
-
-	/*
 	public int modify(List<T> objs) {
-		String tableName =  getTableName();
-		List<Map<String, Object>> list = new ArrayList<>();
-		for (T obj : objs) {
-			Map<String, Object> value = Tools.parseObjectToMap(obj);
-			list.add(value);
+		if(objs == null || objs.isEmpty()) {
+			return 0;
 		}
-		return baseDao.batchUpdate(tableName, list);
-	}*/
+		String tableName =  getTableName();
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
+		for (T t : objs) {
+			//fillDate(config.autoFillDateForModify, t);
+			Map<String, Object> temp = Tools.parseObjectToMap(t);
+			List<String> unFields = Utils.getColumns(t.getClass(), false);
+			for (String str : unFields) {
+				temp.remove(str);
+			}
+			list.add(temp);
+		}
+		return baseDao.updateBatch(tableName, list);
+	}
 
 	//TODO ----------------------------------------------------------------------select
 
@@ -209,7 +250,7 @@ public abstract class BaseServiceImpl<T, M extends BaseDao<T>> implements BaseSe
 	 * @param fillCondition  格式 “,xxxx,xxxx,xxxx,”
 	 * @param obj 对象
 	 */
-	private void fillDate(String fillCondition, T obj){
+	public void fillDate(String fillCondition, T obj){
 		if(Tools.isNullOrEmpty(fillCondition)){
 			return;
 		}
@@ -257,7 +298,7 @@ public abstract class BaseServiceImpl<T, M extends BaseDao<T>> implements BaseSe
 	 * @param fillCondition  格式 “,xxxx,xxxx,xxxx,”
 	 * @param obj 对象
 	 */
-	private void fillDate(String fillCondition, Map<String, Object> valus){
+	public void fillDate(String fillCondition, Map<String, Object> valus){
 		if(Tools.isNullOrEmpty(fillCondition)){
 			return;
 		}
@@ -299,7 +340,7 @@ public abstract class BaseServiceImpl<T, M extends BaseDao<T>> implements BaseSe
 	 * 填充主键
 	 * @param obj 对象
 	 */
-	private void fillPrimaryKey(T obj){
+	public void fillPrimaryKey(T obj){
 		Field[] fields = Tools.getFields(obj.getClass());
 		for (Field f : fields) {
 			if(f.isAnnotationPresent(PrimaryKey.class)){
@@ -359,6 +400,5 @@ public abstract class BaseServiceImpl<T, M extends BaseDao<T>> implements BaseSe
 			}
 		}
 	}
-	
 	
 }
