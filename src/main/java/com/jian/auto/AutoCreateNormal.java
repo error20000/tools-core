@@ -233,6 +233,18 @@ public class AutoCreateNormal extends AbstractAutoCreate implements AutoCreate {
 	public void createException(){
 		return;
 	}
+
+
+	@Override
+	public void createResult(){
+		return;
+	}
+
+
+	@Override
+	public void createHandle(){
+		return;
+	}
 	
 	private void doCreateEntity(String packName, String tempName, String fileName, String chartset, Table table){
 		

@@ -4,6 +4,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class AccessTokenTools {
 
 	private static AccessTokenInterface tokenIfs = null;

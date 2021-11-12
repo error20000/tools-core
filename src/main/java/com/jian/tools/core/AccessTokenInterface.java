@@ -5,6 +5,7 @@ package com.jian.tools.core;
  * @author liujian
  *
  */
+@Deprecated
 public interface AccessTokenInterface {
 
 	

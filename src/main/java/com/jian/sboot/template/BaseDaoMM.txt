@@ -35,6 +35,7 @@ public interface BaseDao<T> {
 		" )",
     	"</script>"
 	})
+//	@Options(useGeneratedKeys = true, keyProperty = "obj.id", keyColumn = "id") //返回自增主键时使用
 	public int insert(@Param("tableName") String tableName, @Param("obj") Map<String, Object> obj);
 	
 	/* @Insert({
@@ -218,24 +219,6 @@ public interface BaseDao<T> {
 	public int updateBatch(@Param("tableName") String tableName, @Param("list") List<Map<String, Object>> list);
     
 	//TODO ----------------------------------------------------------------------select
-    
-	@Select({
-		"<script>",
-		" select * ",
-		" from `${tableName}` ",
-		" where ",
-    	" 	<if test=\" map != null \"> ",
-    	"		<foreach collection=\"map.keys\" item=\"item\"  index=\"i\" separator=\"and\">",
-    	" 			`${item}` = #{map[${item}]}",	
-    	"		</foreach>",
-    	"   </if>",  
-    	" 	<if test=\" map == null \"> ", 
-    	"		1 = 1 ",
-    	"   </if>",  
-    	"   limit 1 ",  
-		"</script>"
-	})
-	public T selectOne(@Param("tableName") String tableName, @Param("map") Map<String, Object> condition);
 	
 	@Select({
 		"<script>",
@@ -261,30 +244,22 @@ public interface BaseDao<T> {
     	"   limit 1 ", 
 		"</script>"
 	})
-	public Map<String, Object> selectOneMap(@Param("tableName") String tableName, @Param("columns") List<String> columns, @Param("map") Map<String, Object> condition);
+	public Map<String, Object> selectOne(@Param("tableName") String tableName, @Param("columns") List<String> columns, @Param("map") Map<String, Object> condition);
     
 	@Select({
-		" select * ",
+		" select ",
+    	" 	<if test=\" columns != null \"> ",
+    	"		<foreach collection=\"columns\" item=\"item\"  index=\"i\" separator=\",\">",
+    	" 			`${item}` ",	
+    	"		</foreach>",
+    	"   </if>",  
+    	" 	<if test=\" columns == null \"> ", 
+    	"		* ",
+    	"   </if>",
 		" from `${tableName}` "
 	})
-	public List<T> selectAll(@Param("tableName") String tableName);
+	public List<Map<String, Object>> selectAll(@Param("tableName") String tableName, @Param("columns") List<String> columns);
 	
-	@Select({
-		"<script>",
-		" select * ",
-		" from `${tableName}` ",
-		" where ",
-    	" 	<if test=\" map != null \"> ",
-		"		<foreach collection=\"map.keys\" item=\"item\"  index=\"i\" separator=\"and\">",
-		" 			`${item}` = #{map[${item}]}",	
-		"		</foreach>",
-    	"   </if>",   
-    	" 	<if test=\" map == null \"> ",
-    	" 		1 = 1 ",	
-    	"   </if>",   
-		"</script>"
-	})
-	public List<T> selectList(@Param("tableName") String tableName, @Param("map") Map<String, Object> condition);
 	
 	@Select({
 		"<script>",
@@ -309,7 +284,7 @@ public interface BaseDao<T> {
     	"   </if>", 
 		"</script>"
 	})
-	public List<Map<String, Object>> selectListMap(@Param("tableName") String tableName, @Param("columns") List<String> columns, @Param("map") Map<String, Object> condition);
+	public List<Map<String, Object>> selectList(@Param("tableName") String tableName, @Param("columns") List<String> columns, @Param("map") Map<String, Object> condition);
 
 	/* @Select({
 		"<script>",
@@ -343,7 +318,15 @@ public interface BaseDao<T> {
 	//百万级limit需优化
 	@Select({
 		"<script>",
-		" select * ",
+		" select ",
+    	" 	<if test=\" columns != null \"> ",
+    	"		<foreach collection=\"columns\" item=\"item\"  index=\"i\" separator=\",\">",
+    	" 			`${item}` ",	
+    	"		</foreach>",
+    	"   </if>",  
+    	" 	<if test=\" columns == null \"> ", 
+    	"		* ",
+    	"   </if>",
 		" from `${tableName}` ",
 		" where ",
     	" 	<if test=\" map != null \"> ",
@@ -357,7 +340,7 @@ public interface BaseDao<T> {
 		"	 limit ${start} , ${rows}",
 		"</script>"
 	})
-	public List<T> selectPage(@Param("tableName") String tableName, @Param("map") Map<String, Object> condition, @Param("start") int start, @Param("rows") int rows);
+	public List<Map<String, Object>> selectPage(@Param("tableName") String tableName, @Param("columns") List<String> columns, @Param("map") Map<String, Object> condition, @Param("start") int start, @Param("rows") int rows);
 	
 	//TODO ----------------------------------------------------------------------size
     

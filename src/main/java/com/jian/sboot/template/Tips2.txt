@@ -1,0 +1,180 @@
+package PK;
+
+
+public class Tips  {
+	
+	//-3000 以后自定义
+	
+	/**成功*/
+	public static final Tips ERROR1 = new Tips(1, "成功 ");
+	/**失败*/
+	public static final Tips ERROR0 = new Tips(0, "失败 ");
+	
+	//不建议直接展示
+	/**系统错误*/
+	public static final Tips ERROR1000 = new Tips(-1000, "系统错误");
+	
+	/**{param}失败*/
+	public static final Tips ERROR1100 = new Tips(-1100, "{param}失败");
+	/**{param}生成失败*/
+	public static final Tips ERROR1101 = new Tips(-1101, "{param}生成失败");
+	/**{param}效验失败*/
+	public static final Tips ERROR1102 = new Tips(-1102, "{param}效验失败"); 
+
+	/**缺少{param}参数 */
+	public static final Tips ERROR1200 = new Tips(-1200, "缺少{param}参数 ");
+	/**{param}无效/不合法*/
+	public static final Tips ERROR1201 = new Tips(-1201, "{param}无效/不合法"); 
+	/**{param}参数错误*/
+	public static final Tips ERROR1202 = new Tips(-1202, "{param}参数错误"); 
+	
+	
+	//可以直接展示
+	/**{param}不能为空*/
+	public static final Tips ERROR2000 = new Tips(-2000, "{param}不能为空");
+	/**{param}超过限制*/
+	public static final Tips ERROR2001 = new Tips(-2001, "{param}超过限制");
+	/**文件上传失败*/
+	public static final Tips ERROR2002 = new Tips(-2002, "文件上传失败");
+	/**不支持该格式*/
+	public static final Tips ERROR2003 = new Tips(-2003, "不支持该格式");
+	
+	/**保存失败。{param}*/
+	public static final Tips ERROR2100 = new Tips(-2100, "保存失败。{param}");
+	/**修改失败。{param}*/
+	public static final Tips ERROR2101 = new Tips(-2101, "修改失败。{param}");
+	/**查询失败。{param}*/
+	public static final Tips ERROR2102 = new Tips(-2102, "查询失败。{param}");
+	/**删除失败。{param}*/
+	public static final Tips ERROR2103 = new Tips(-2103, "删除失败。{param}");
+	/**{param}已存在*/
+	public static final Tips ERROR2104 = new Tips(-2104, "{param}已存在");
+	/**{param}不存在*/
+	public static final Tips ERROR2105 = new Tips(-2105, "{param}不存在");
+	/**{param}被禁用*/
+	public static final Tips ERROR2106 = new Tips(-2106, "{param}被禁用");
+	/**{param}暂不可保存*/
+	public static final Tips ERROR2107 = new Tips(-2107, "{param}暂不可保存");
+	/**{param}暂不可修改*/
+	public static final Tips ERROR2108 = new Tips(-2108, "{param}暂不可修改");
+	/**{param}暂不可查询*/
+	public static final Tips ERROR2109 = new Tips(-2109, "{param}暂不可查询");
+	/**{param}暂不可删除*/
+	public static final Tips ERROR2110 = new Tips(-2110, "{param}暂不可删除");
+	/**{param}暂不可编辑*/
+	public static final Tips ERROR2111 = new Tips(-2111, "{param}暂不可编辑");
+	/**{param}进行中...暂不可操作*/
+	public static final Tips ERROR2112 = new Tips(-2112, "{param}进行中...暂不可操作");
+	/**{param}不匹配*/
+	public static final Tips ERROR2113 = new Tips(-2113, "{param}不匹配");
+	/**{param}不可保存*/
+	public static final Tips ERROR2114 = new Tips(-2114, "{param}不可保存");
+	/**{param}不可修改*/
+	public static final Tips ERROR2115 = new Tips(-2115, "{param}不可修改");
+	/**{param}不可查询*/
+	public static final Tips ERROR2116 = new Tips(-2116, "{param}不可查询");
+	/**{param}不可删除*/
+	public static final Tips ERROR2117 = new Tips(-2117, "{param}不可删除");
+	/**{param}不可编辑*/
+	public static final Tips ERROR2118 = new Tips(-2118, "{param}不可编辑");
+	/**{param}不可操作*/
+	public static final Tips ERROR2119 = new Tips(-2119, "{param}不可操作");
+	
+	/**{param}登录失败*/
+	public static final Tips ERROR2200 = new Tips(-2200, "{param}登录失败");
+	/**用户名错误*/
+	public static final Tips ERROR2201 = new Tips(-2201, "用户名错误");
+	/**密码错误*/
+	public static final Tips ERROR2202 = new Tips(-2202, "密码错误");
+	/**未登录*/
+	public static final Tips ERROR2203 = new Tips(-2203, "未登录");
+	/**没有权限*/
+	public static final Tips ERROR2204 = new Tips(-2204, "没有权限");
+	/**访问过于频繁，稍后再试*/
+	public static final Tips ERROR2205 = new Tips(-2205, "访问过于频繁，稍后再试");
+	
+	/**{param}不正确*/
+	public static final Tips ERROR2300 = new Tips(-2300, "{param}不正确");
+	/**{param}已过期*/
+	public static final Tips ERROR2301 = new Tips(-2301, "{param}已过期");
+	/**{param}未配置*/
+	public static final Tips ERROR2302 = new Tips(-2302, "{param}未配置");
+	/**{param}未启用*/
+	public static final Tips ERROR2303 = new Tips(-2303, "{param}未启用");
+	
+	/**不在活动时间段*/
+	public static final Tips ERROR2400 = new Tips(-2400, "不在活动时间段");
+	/**活动未开始*/
+	public static final Tips ERROR2401 = new Tips(-2401, "活动未开始");
+	/**活动已结束*/
+	public static final Tips ERROR2402 = new Tips(-2402, "活动已结束"); 
+	/**已参加过*/
+	public static final Tips ERROR2403 = new Tips(-2403, "已参加过"); 
+	/**{param}次数已用完*/
+	public static final Tips ERROR2404 = new Tips(-2404, "{param}次数已用完");
+	/**{param}未领取*/
+	public static final Tips ERROR2405 = new Tips(-2405, "{param}未领取"); 
+	/**{param}已领取*/
+	public static final Tips ERROR2406 = new Tips(-2406, "{param}已领取"); 
+	/**礼包码已用完*/
+	public static final Tips ERROR2407 = new Tips(-2407, "{param}已用完");
+	/**{param}解析错误*/
+	public static final Tips ERROR2408 = new Tips(-2408, "{param}解析错误");
+	
+	/**没有配置邮件*/
+	public static final Tips ERROR2500 = new Tips(-2500, "没有配置邮件");
+	/**邮件内容没有配置,或没启用*/
+	public static final Tips ERROR2501 = new Tips(-2501, "邮件内容没有配置,或没启用");
+	/**邮件已发送，稍后再试*/
+	public static final Tips ERROR2502 = new Tips(-2502, "邮件已发送，稍后再试");
+	/**没有配置短信*/
+	public static final Tips ERROR2503 = new Tips(-2503, "没有配置短信");
+	/**短信内容没有配置,或没启用*/
+	public static final Tips ERROR2504 = new Tips(-2504, "短信内容没有配置,或没启用");
+	/**短信验证码没有配置,或没启用*/
+	public static final Tips ERROR2505 = new Tips(-2505, "短信验证码没有配置,或没启用");
+	/**短信已发送，稍后再试*/
+	public static final Tips ERROR2506 = new Tips(-2506, "短信已发送，稍后再试");
+	
+	
+
+	private int code;
+	private String desc;
+	
+	public Tips() {
+	}
+	
+	public Tips(int code, String desc) {
+		this.code = code;
+		this.desc = desc;
+	}
+
+	public int getCode() {
+		return code;
+	}
+
+	public void setCode(int code) {
+		this.code = code;
+	}
+
+	public String getDesc() {
+		return desc.replace("{param}", "");
+	}
+
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
+
+	public String getDesc(String param) {
+		return desc.replace("{param}", param);
+	}
+	
+	public String getDescOriginal() {
+		return desc;
+	}
+	
+	public String descFormat(Object... args) {
+		return String.format(desc, args);
+	}
+	
+}

@@ -3,6 +3,7 @@ package com.jian.tools.core;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Deprecated
 public class AccessTokenImpl extends AccessTokenAbstract {
 
 	public static Map<String, AccessToken> tokenMap = new ConcurrentHashMap<String, AccessToken>();

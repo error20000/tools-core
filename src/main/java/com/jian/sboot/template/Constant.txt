@@ -2,7 +2,7 @@ package PK;
 
 
 /**
- * 全局常量
+ * 	全局常量
  * 
  * @author liujian
  * @Date 2020/11/27
@@ -15,7 +15,7 @@ public class Constant {
 	public static String userLoginErrorPwdTime = "user:login:error:pwd:time:"; //登录密码错误时长限制  缓存key 前缀
 	
 	//权限
-	public static String superGroupId = "1"; //超管组
+	public static String superGroupId = "admin"; //超管组
 	public static String userAuthCacheKey = "user:auth:cache:key:"; //权限验证  缓存key 前缀
 	
 }

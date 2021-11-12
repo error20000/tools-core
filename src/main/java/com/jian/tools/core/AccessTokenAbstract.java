@@ -1,5 +1,6 @@
 package com.jian.tools.core;
 
+@Deprecated
 public abstract class AccessTokenAbstract implements AccessTokenInterface {
 
 	private static long defOutTime = 2 * 3600 * 1000; //默认超时时间。单位（毫秒）

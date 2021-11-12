@@ -1,4 +1,4 @@
-package com.jian.tools.core;
+package PK;
 
 
 public class Tips  {
@@ -105,10 +105,12 @@ public class Tips  {
 	public static final Tips ERROR314 = new Tips(-314, "短信验证码没有配置,或没启用");
 	
 	
-	
-	
+
 	private int code;
 	private String desc;
+	
+	public Tips() {
+	}
 	
 	public Tips(int code, String desc) {
 		this.code = code;
@@ -137,6 +139,10 @@ public class Tips  {
 	
 	public String getDescOriginal() {
 		return desc;
+	}
+	
+	public String descFormat(Object... args) {
+		return String.format(desc, args);
 	}
 	
 }

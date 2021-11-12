@@ -1,17 +1,23 @@
 package PK;
 
-//import
+import com.jian.annotation.PrimaryKey;
+import com.jian.annotation.PrimaryKeyType;
 import com.jian.annotation.Table;
+import com.jian.annotation.Column;
 import com.jian.annotation.Excel;
+
+import java.sql.Timestamp;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * @author liujian
  * @Date 
  */
 @Table("{Table_Name}")
-public class Temp  extends Base<Temp> {
+public class Temp extends Base<Temp> {
 	
 	//field
+	
 	
 	//get set
 

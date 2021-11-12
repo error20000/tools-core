@@ -14,48 +14,146 @@ public interface BaseService<T> {
 
 	//TODO ----------------------------------------------------------------------insert
 
+	/**
+	 * 	新增
+	 * @param obj
+	 * @return
+	 */
 	public int add(T obj);
 	
+	/**
+	 * 	批量新增
+	 * @param objs
+	 * @return
+	 */
 	public int add(List<T> objs);
 	
 	//TODO ----------------------------------------------------------------------delete
 	
+	/**
+	 * 	按条件删除
+	 * @param condition
+	 * @return
+	 */
 	public int delete(Map<String, Object> condition);
 	
+	/**
+	 * 	批量删除
+	 * @param column
+	 * @param values
+	 * @return
+	 */
 	public int deleteBatch(String column, List<String> values);
 
 	//TODO ----------------------------------------------------------------------update
 
+	/**
+	 * 	修改
+	 * @param obj
+	 * @return
+	 */
 	public int modify(T obj);
 	
+	/**
+	 * 	批量修改
+	 * @param objs
+	 * @return
+	 */
 	public int modify(List<T> objs);
 	
+	/**
+	 * 	按条件修改
+	 * 	<br>注意：该方法不会执行填充策略。如需填充，请手动执行。
+	 * @param value 修改值
+	 * @param condition 修改条件
+	 * @return
+	 */
 	public int modify(Map<String, Object> value, Map<String, Object> condition);
 
 	//TODO ----------------------------------------------------------------------select
 
+	/**
+	 * 	查询一个
+	 * @param condition 查询条件
+	 * @return
+	 */
 	public T findOne(Map<String, Object> condition);
 	
+	/**
+	 * 	查询一个
+	 * @param columns 需要返回的数据表字段，null返回全部
+	 * @param condition 查询条件
+	 * @return
+	 */
 	public Map<String, Object> findOneMap(List<String> columns, Map<String, Object> condition);
 	
+	/**
+	 * 	查询所有
+	 * @return
+	 */
 	public List<T> findAll();
 	
+	/**
+	 * 	查询列表
+	 * @param condition 查询条件
+	 * @return
+	 */
 	public List<T> findList(Map<String, Object> condition);
 	
+	/**
+	 * 	查询列表
+	 * @param columns 需要返回的数据表字段，null返回全部
+	 * @param condition 查询条件
+	 * @return
+	 */
 	public List<Map<String, Object>> findListMap(List<String> columns, Map<String, Object> condition);
 
+	/**
+	 * 	分页查询
+	 * @param condition 查询条件
+	 * @param start	起始条数
+	 * @param rows	每页条数
+	 * @return
+	 */
 	public List<T> findPage(Map<String, Object> condition, int start, int rows);
+
+	/**
+	 * 	分页查询
+	 * @param columns 需要返回的数据表字段，null返回全部
+	 * @param condition 查询条件
+	 * @param start	起始条数
+	 * @param rows	每页条数
+	 * @return
+	 */
+	public List<Map<String, Object>> findPageMap(List<String> columns, Map<String, Object> condition, int start, int rows);
 
 	//TODO ----------------------------------------------------------------------size
 	
+	/**
+	 * 	查询数量
+	 * @param condition 查询条件
+	 * @return
+	 */
 	public long size(Map<String, Object> condition);
 	
+	/**
+	 * 	查询总条数
+	 * @return
+	 */
 	public long sizeAll();
 
 	//TODO ----------------------------------------------------------------------other
 	
+	/**
+	 * 	获取dao
+	 * @return
+	 */
 	public BaseDao<T> getDao();
 	
+	/**
+	 * 	获取泛&lt;T&gt;注解的表名
+	 * @return
+	 */
 	public String getTableName();
 	
 }

@@ -22,12 +22,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.jian.annotation.API;
 import com.jian.annotation.APIType;
-import com.jian.tools.core.Tips;
 import com.jian.tools.core.Tools;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.RootDoc;
 import App;
+import Tips;
 
 /**
  * API文档生成工具

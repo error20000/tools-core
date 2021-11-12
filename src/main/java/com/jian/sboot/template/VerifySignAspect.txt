@@ -17,7 +17,8 @@ public class VerifySignAspect {
 
     @Before("execution(public * {Controller}.*.*(..)) && @annotation(sign)")
     public void before(JoinPoint joinPoint, VerifySign sign){
-    	System.out.println("----------------------VerifySign--------------------------");
+    	
+    	//do verify sign
     }
 
 

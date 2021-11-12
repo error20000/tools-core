@@ -6,54 +6,84 @@ import org.springframework.stereotype.Component;
 @Component
 public class Config {
 	
-	
-	//自动填充主键
-	@Value("${auto_fill_primary_key:}")
-	public String autoFillPrimaryKey; //自动填充主键
-		
-	//日期自动填充配置
-	@Value("${auto_fill_date_for_add:}")
-	public String autoFillDateForAdd; //新增日期类型自动填充
-	@Value("${auto_fill_date_for_modify:}")
-	public String autoFillDateForModify; //修改日期类型自动填充
-	
-	//静态资源
+	//本地静态资源
 	@Value("${out_static_path:}")
 	public String out_static_path; //外部静态资源  如上传
 	@Value("${logs_path:}")
 	public String logs_path; //日志地址
 	
 	//登录session
-	@Value("${login_session_key:login_user}")
-	public String login_session_key="login_user";
+	@Value("${login.session.key:xxx_user}")
+	public String login_session_key;
+	//登录token name
+	@Value("${login.token.name:xxx_token}")
+	public String login_token_name;
 
-	//登录sso
-	@Value("${sso_url:}")
+	//登录SSO
+	@Value("${sso.url:}")
 	public String sso_url;
-	@Value("${sso_module:}")
+	@Value("${sso.module:}")
 	public String sso_module;
 	
 	
 	
+	/** 登录密码错误次数限制 0--不限 */
 	public int maxLoginCount = 5; //登录密码错误次数限制 0--不限
+	/** 登录密码错误时长限制  单位毫秒 与 maxLoginCount 连用 */
 	public int maxLoginTime = 1 * 60 * 1000; //登录密码错误时长限制  单位毫秒 与 maxLoginCount 连用
-	
+
+	/** token有效期 */
 	public int tokenExpireTime = 8 * 3600 * 1000; //token有效期
-	public String tokenSecretKey = "123456700"; //token密钥
+	/** 生成token的密钥  md5 */
+	public String tokenSecretKey = "123456700"; //生成token的密钥
+	/** token md5 次数  大于0 */
 	public int tokenMd5Count = 1; //token md5 次数  大于0
+	/** 连接符  构成token字符串时使用 */
+	public String tokenConnector = "."; //连接符  token字符串
+	/** 分隔符  解析token字符串时使用 */
+	public String tokenSeparator = "\\."; //分隔符  token字符串
+	/** token字符串是否加密 */
+	public boolean tokenEncode = true; //token是否加密
+	/** token字符串加密方式 默认xxtea */
+	public String tokenEncodeMode = "xxtea"; //默认xxtea
+	/** token字符串加密的密钥 */
+	public String tokenEncodeKey = "1234567890000000"; //密钥
 
+	/** 密码正则表达式 */
 	public String pwdReg = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$"; //密码正则表达式
+	/** 密码格式提示 */
 	public String pwdRegTips = "（密码至少包含 数字和英文，长度6-20）"; //密码格式提示
-	
-	public int pwdMd5Count = 1; //密码 md5 次数  大于0
-	public boolean pwdAddSalt = true; //密码是否加盐
-	public boolean pwdDecrypt = true; //密码是否可逆的加密
-	public String xxteaKey = "1234567890000000"; // xxtea 秘钥
 
+	/** 密码 md5 次数  大于0 */
+	public int pwdMd5Count = 1; //密码 md5 次数  大于0
+	/** 密码是否加盐 */
+	public boolean pwdAddSalt = true; //密码是否加盐
+	/** 密码是否加密 */
+	public boolean pwdEncode = true; //密码是否可逆的加密
+	/** 密码加密的方式 默认xxtea */
+	public String pwdEncodeMode = "xxtea"; //默认xxtea
+	/** 密码加密的密钥 */
+	public String pwdEncodeKey = "1234567890000000"; //密钥
+
+	/** 允许多平台登录  (一个账号可以电脑、手机、平板等平台登录) */
 	public boolean allowMultiplePlatformLogin = true; //允许多平台登录  (一个账号可以电脑手机等登录)
+	/** 允许未知平台登录  (不在平台标识里的) */
+	public boolean allowUnknownPlatformLogin = true; //允许未知平台登录  (不在平台标识里的)
+	/** 允许单平台多设备登录  (一个账号可以多个电脑上登录) */
 	public boolean allowOnePlatformMultipleLogin = false; //允许单平台多设备登录  (一个账号可以多个电脑上登录)
+	/** 允许多属性登录  (一个账号可以通过用户名、手机号、邮箱、工号等方式登录) */
+	public boolean allowMultipleAttrLogin = true; //允许多属性登录  (一个账号可以通过用户名、手机号、邮箱、工号等登录)
+	
+	/** 默认平台标识 */
+	public String loginOnDef = "1"; //默认平台标识
+	/** 平台标识为空 */
+	public String loginOnNull = "1"; //平台标识为空
+	/** PC平台标识 */
 	public String loginOnPc = "1"; //PC平台标识
+	/** 移动平台标识 */
 	public String loginOnMobile = "2"; //移动平台标识
+	/** PAD平台标识 */
 	public String loginOnPad = "3"; //PAD平台标识
+	/** 其他平台标识 */
 	public String loginOnOther = "4"; //其他平台标识
 }

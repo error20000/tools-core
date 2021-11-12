@@ -10,19 +10,19 @@ public class CacheImpl extends CacheAbstract {
 	private static Map<String, CacheObject> objMap = new ConcurrentHashMap<String, CacheObject>();
 	
 	
-	protected void initSetCacheObj(CacheObject obj) {
+	protected void doSetCacheObj(CacheObject obj) {
 		objMap.put(obj.getKey(), obj);
 	}
 
-	protected CacheObject initGetCacheObj(String key) {
+	protected CacheObject doGetCacheObj(String key) {
 		return objMap.get(key);
 	}
 
-	protected void initClearCacheObj(String key) {
+	protected void doClearCacheObj(String key) {
 		objMap.remove(key);
 	}
 
-	protected List<String> initKeys(String regex) {
+	protected List<String> doKeys(String regex) {
 		List<String> res = new ArrayList<String>();
 		for (String str : objMap.keySet()) {
 			if(regex != null && str.matches(regex)) {

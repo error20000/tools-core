@@ -1,26 +1,30 @@
-package com.jian.tools.core;
+package PK;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import com.jian.tools.core.JsonTools;
 
-public class ResultTools {
+
+public class RTools {
 	
-	public static final Map<String, Object> SUCCESS = new Builder(Tips.ERROR1).build();
-	public static final Map<String, Object> FAILED = new Builder(Tips.ERROR0).build();
 	
-	public static ResultTools.Builder custom(){
+	public static RTools.Builder success(){
+		return new Builder(Tips.ERROR1);
+	}
+	
+	public static RTools.Builder custom(){
 		return new Builder();
 	}
 	
-	public static ResultTools.Builder custom(Tips tips){
+	public static RTools.Builder custom(Tips tips){
 		return custom(tips, "");
 	}
 	
-	public static ResultTools.Builder custom(Tips tips, String param){
+	public static RTools.Builder custom(Tips tips, String param){
 		Map<String, Object> map =  new HashMap<String, Object>();
-		map.put(ResultKey.CODE, tips.getCode());
-		map.put(ResultKey.MSG, tips.getDesc(param));
+		map.put(RKey.CODE, tips.getCode());
+		map.put(RKey.MSG, tips.getDesc(param));
 		return new Builder(map);
 	}
 	
@@ -41,8 +45,8 @@ public class ResultTools {
         Builder(Tips tips) {
             super();
             this.map =  new HashMap<String, Object>();
-            this.map.put(ResultKey.CODE, tips.getCode());
-            this.map.put(ResultKey.MSG, tips.getDesc());
+            this.map.put(RKey.CODE, tips.getCode());
+            this.map.put(RKey.MSG, tips.getDesc());
         }
         
         public Builder put(String key, Object value){
@@ -55,28 +59,28 @@ public class ResultTools {
         }
         
         public Builder put(Tips tips, String param){
-            this.map.put(ResultKey.CODE, tips.getCode());
-            this.map.put(ResultKey.MSG, tips.getDesc(param));
+            this.map.put(RKey.CODE, tips.getCode());
+            this.map.put(RKey.MSG, tips.getDesc(param));
             return this;
         }
         
         public Builder putCode(int code){
-            this.map.put(ResultKey.CODE, code);
+            this.map.put(RKey.CODE, code);
             return this;
         }
         
         public Builder putMsg(Object msg){
-            this.map.put(ResultKey.MSG, msg);
+            this.map.put(RKey.MSG, msg);
             return this;
         }
         
         public Builder putData(Object data){
-            this.map.put(ResultKey.DATA, data);
+            this.map.put(RKey.DATA, data);
             return this;
         }
         
         public Builder putTotal(long total){
-            this.map.put(ResultKey.TOTAL, total);
+            this.map.put(RKey.TOTAL, total);
             return this;
         }
         

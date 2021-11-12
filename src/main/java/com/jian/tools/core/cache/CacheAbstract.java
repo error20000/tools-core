@@ -16,7 +16,7 @@ public abstract class CacheAbstract implements Cache {
 	private static boolean timerStart = false; 
 	private static AtomicInteger count = new AtomicInteger(1);
 	private static Timer timer = null;
-	private static int runTime = 2 * 3600; //定时清理时间。单位（秒）
+	private static int runTime = 2 * 3600 * 1000; //定时清理时间。单位（毫秒）
 	private static long outTime = 2 * 3600 * 1000; //资源超时时间。单位（毫秒）
 	
 	private static List<Map<String, String>> sortMap = new ArrayList<Map<String, String>>();
@@ -31,13 +31,13 @@ public abstract class CacheAbstract implements Cache {
 		}
 	}
 	
-	protected abstract void initSetCacheObj(CacheObject obj);
+	protected abstract void doSetCacheObj(CacheObject obj);
 
-	protected abstract CacheObject initGetCacheObj(String key);
+	protected abstract CacheObject doGetCacheObj(String key);
 
-	protected abstract void initClearCacheObj(String key);
+	protected abstract void doClearCacheObj(String key);
 
-	protected abstract List<String> initKeys(String regex);
+	protected abstract List<String> doKeys(String regex);
 
 	
 	protected void initAutoClear() {
@@ -58,14 +58,14 @@ public abstract class CacheAbstract implements Cache {
 		for (Map<String, String> map : clearList) {
 			String key = map.get("key");
 			//判断是否真的超时(同key覆盖超时时间的情况)
-			CacheObject tmp = initGetCacheObj(key);
+			CacheObject tmp = doGetCacheObj(key);
 			if(tmp == null){ 
 				continue;
 			}
 			long curss = System.currentTimeMillis();
 			if(tmp.getTimeOut() < curss){
 				//超时移除
-				initClearCacheObj(key);
+				doClearCacheObj(key);
 			}
 			//initClearCacheObj(key);
 		}
@@ -85,7 +85,7 @@ public abstract class CacheAbstract implements Cache {
 		long cur = System.currentTimeMillis();
 		obj.setMillis(cur); //设置缓存时间
 		obj.setTimeOut(cur + timeOut); //设置超时时间
-		initSetCacheObj(obj);
+		doSetCacheObj(obj);
 		//清理：排序key
 		int index = count.getAndAdd(1);
 		count.compareAndSet(1000, 1);
@@ -98,7 +98,7 @@ public abstract class CacheAbstract implements Cache {
 	}
 	
 	public CacheObject getCacheObj(String key){
-		CacheObject tmp = initGetCacheObj(key);
+		CacheObject tmp = doGetCacheObj(key);
 		if(tmp == null){ 
 			return tmp;
 		}
@@ -144,12 +144,12 @@ public abstract class CacheAbstract implements Cache {
 	}
 	
 	public void clearCacheObj(String key){
-		initClearCacheObj(key);
+		doClearCacheObj(key);
 	}
 	
 	
 	public List<String> keys(String regex) {
-		return initKeys(regex);
+		return doKeys(regex);
 	}
 	
 	
@@ -159,7 +159,7 @@ public abstract class CacheAbstract implements Cache {
 	public void autoClear() {
 		if(!timerStart){
 			System.out.println(DateTools.formatDate()+":	start cache clear...");
-			runTime = runTime <= 0 ? 2 * 3600 * 1000 : runTime * 1000;
+			runTime = runTime <= 0 ? 2 * 3600 * 1000 : runTime;
 			timer = new Timer(true); 
 			timer.schedule(new TimerTask() {
 				

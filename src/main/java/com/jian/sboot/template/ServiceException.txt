@@ -1,7 +1,7 @@
 package PK;
 
-import com.jian.tools.core.ResultTools;
-import com.jian.tools.core.Tips;
+import RTools;
+import Tips;
 
 public class ServiceException extends RuntimeException{
 
@@ -9,11 +9,11 @@ public class ServiceException extends RuntimeException{
 
 
 	public ServiceException(Tips tips) {
-		super(ResultTools.custom(tips).toJSONString());
+		super(RTools.custom(tips).toJSONString());
 	}
 	
 	public ServiceException(Tips tips, String params) {
-		super(ResultTools.custom(tips, params).toJSONString());
+		super(RTools.custom(tips, params).toJSONString());
 	}
 	
 	public ServiceException(String msg){
@@ -21,7 +21,7 @@ public class ServiceException extends RuntimeException{
 	}
 	
 	public ServiceException(int code, String msg){
-		super(ResultTools.custom().putCode(code).putMsg(msg).toJSONString());
+		super(RTools.custom().putCode(code).putMsg(msg).toJSONString());
 	}
 
 }

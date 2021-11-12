@@ -75,7 +75,6 @@ public class HttpTools {
 			stringEntity.setContentType("application/x-www-form-urlencoded");
 			httpPost.setEntity(stringEntity);
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw e;
 		}
 		return sendHttpPost(httpPost);
@@ -96,7 +95,6 @@ public class HttpTools {
 			stringEntity.setContentType(type.getMimeType());
 			httpPost.setEntity(stringEntity);
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw e;
 		}
 		return sendHttpPost(httpPost);
@@ -118,7 +116,6 @@ public class HttpTools {
 		try {
 			httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw e;
 		}
 		return sendHttpPost(httpPost);
@@ -178,7 +175,6 @@ public class HttpTools {
 			entity = response.getEntity();
 			responseContent = EntityUtils.toString(entity, "UTF-8");
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw e;
 		} finally {
 			try {
@@ -251,7 +247,6 @@ public class HttpTools {
 			entity = response.getEntity();
 			responseContent = EntityUtils.toString(entity, "UTF-8");
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw e;
 		} finally {
 			try {
@@ -304,7 +299,6 @@ public class HttpTools {
 			entity = response.getEntity();
 			responseContent = EntityUtils.toString(entity, "UTF-8");
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw e;
 		} finally {
 			try {

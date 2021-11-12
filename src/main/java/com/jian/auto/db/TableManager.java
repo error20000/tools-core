@@ -226,6 +226,15 @@ public class TableManager {
 		case "decimal":
 			str = "float";
 			break;
+		case "date":
+			str = "Timestamp";
+			break;
+		case "datetime":
+			str = "Timestamp";
+			break;
+		case "timestamp":
+			str = "Timestamp";
+			break;
 		default:
 			str = "String";
 			break;

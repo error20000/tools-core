@@ -68,10 +68,6 @@ public class Tools {
 	private static Lock lock = new ReentrantLock();
 	
 	//可配置信息
-	private static String initOutputCode = ResultKey.CODE;//输出的code字段名，默认值：ResultKey.CODE
-	private static String initOutputMsg = ResultKey.MSG; //输出的message字段名，默认值：ResultKey.MSG
-	private static String initOutputData = ResultKey.DATA;//输出的data字段名，默认值：ResultKey.DATA
-	
 	private static String initDateFormatStr = "yyyy-MM-dd HH:mm:ss";	//格式化时间的格式，默认值："yyyy-MM-dd HH:mm:ss"
 	private static String initCharsetName = "utf-8";	//统一字符编码，默认值："utf-8"
 	private static String initAttackLogPath = "attacks/request/";	//记录SQL注入日志文件路径，默认值："attacks/request/"
@@ -674,13 +670,13 @@ public class Tools {
 	 */
 	public static String getReqParam(HttpServletRequest req, String key){
 		String value = req.getParameter(key);
-		if (isNullOrEmpty(value)) {
+		if (value == null) { //修改：不使用isNullOrEmpty()，是应为有时需要字段置空
 			Object tmp = req.getAttribute(key);
-			if(!isNullOrEmpty(tmp)){
+			if(tmp != null){
 				value = String.valueOf(tmp);
 			}
 		}
-		return isNullOrEmpty(value) ? null : value.trim();
+		return value == null ? null : value.trim();
 	}
 	
 	/**
@@ -691,74 +687,16 @@ public class Tools {
 	 */
 	public static String getReqParamSafe(HttpServletRequest req, String key){
 		String value = req.getParameter(key);
-		if (isNullOrEmpty(value)) {
+		if (value == null) { //修改：不使用isNullOrEmpty(value)，是应为有时需要字段置空
 			Object tmp = req.getAttribute(key);
-			if(!isNullOrEmpty(tmp)){
+			if(tmp != null){
 				value = String.valueOf(tmp);
 			}
 		}
-		if(!isNullOrEmpty(value) && isAttack(value)){
+		if(value != null && isAttack(value)){
 			value = null;
 		}
-		return isNullOrEmpty(value) ? null : value.trim();
-	}
-	
-	/**
-	 * 参数验证
-	 * @param key	参数名
-	 * @param value	参数值
-	 * @param minLength	为 0 不参与长度验证
-	 * @param maxLength	为 0 不参与最大长度验证
-	 * @return null	通过验证
-	 */
-	public static Map<String, Object> verifyParam(String key, String value, int minLength, int maxLength) {
-		return verifyParam(key, value, minLength, maxLength, false);
-	}
-	
-	/**
-	 * 参数验证
-	 * @param key	参数名
-	 * @param value	参数值
-	 * @param minLength	为 0 不参与长度验证
-	 * @param maxLength	为 0 不参与最大长度验证
-	 * @param isNumber	是否为数字
-	 * @return null	通过验证
-	 */
-	public static Map<String, Object> verifyParam(String key, String value, int minLength, int maxLength, boolean isNumber) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		
-		if(isNullOrEmpty(value)){
-			map.put(initOutputCode, Tips.ERROR211.getCode());
-			map.put(initOutputMsg, Tips.ERROR211.getDesc(key));
-			map.put(initOutputData, "");
-			return map;
-		}
-		//minLength=0, maxLength=0, 不参与长度验证
-		if(minLength > 0 && maxLength > 0){
-			if(value.length() > maxLength && maxLength != 0){
-				map.put(initOutputCode, Tips.ERROR210.getCode());
-				map.put(initOutputMsg, Tips.ERROR210.getDesc(key+", 长度"));
-				map.put(initOutputData, "");
-				return map;
-			}else if(value.length() < minLength && minLength != 0){
-				map.put(initOutputCode, Tips.ERROR200.getCode());
-				map.put(initOutputMsg, Tips.ERROR200.getDesc(key+", 长度"));
-				map.put(initOutputData, "");
-				return map;
-			}
-		}
-		
-		if(isNumber){
-			String tmp = value.replaceAll("[^0-9]", "");
-			if(isNullOrEmpty(tmp) || tmp.length() != value.length()){
-				map.put(initOutputCode, Tips.ERROR200.getCode());
-				map.put(initOutputMsg, Tips.ERROR200.getDesc(key));
-				map.put(initOutputData, "");
-				return map;
-			}
-		}
-		
-		return null;
+		return value == null ? null : value.trim();
 	}
 	
 	
@@ -1432,7 +1370,7 @@ public class Tools {
 	    try {
 	        inputStream = new FileInputStream(imgFile);
 	        data = new byte[inputStream.available()];
-	        inputStream.read(data);
+//	        inputStream.read(data);
 	        inputStream.close();
 	    } catch (IOException e) {
 	        e.printStackTrace();
@@ -1859,8 +1797,11 @@ public class Tools {
 		File[] files = directory.listFiles();
 
 		for (File file : files) {
+			if("META-INF".equals(file.getName()) || "BOOT-INF".equals(file.getName())) {
+				continue; //排除不相关的文件夹
+			}
 			if (file.isDirectory()) {
-				assert !file.getName().contains(".");
+				assert !file.getName().contains(".") : " Error: " +file.getName() +" -- "+ file.getPath();
 				classes.addAll(findClass(file, packageName + file.getName()));
 			} else if (file.getName().endsWith(".class")) {
 				String name = packageName + file.getName().substring(0, file.getName().length() - 6);
@@ -1875,7 +1816,38 @@ public class Tools {
 //		String imgstr = getImageStr("C:\\Users\\Administrator\\Desktop\\65.png");
 //		System.out.println(imgstr);
 //		generateImage(imgstr, "C:\\Users\\Administrator\\Desktop\\63.png");
+
+		String str = Base64.getEncoder().encodeToString("严".getBytes());
+		System.out.println(str);
+		byte[] b = "严".getBytes();
+		for (byte c : b) {
+			System.out.print(Integer.toHexString(c & 0xff));
+			System.out.print(" ");
+		}
+		System.out.println();
 		
+		final char[] toBase64 = {
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
+        };
+		int[] fromBase64 = new int[256];
+     
+        Arrays.fill(fromBase64, -1);
+        for (int i = 0; i < toBase64.length; i++) {
+        	System.out.println((int)toBase64[i]);
+        	fromBase64[toBase64[i]] = i;
+        }
+        fromBase64['='] = -2;
+        
+        for (int i : fromBase64) {
+
+			System.out.print(i);
+			System.out.print(" ");
+		}
+        
 	}
 	
 }

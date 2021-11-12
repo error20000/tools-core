@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -16,22 +17,82 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import com.jian.annotation.Column;
+import com.jian.annotation.FillType;
 import com.jian.annotation.PrimaryKey;
 import com.jian.annotation.PrimaryKeyCondition;
 import com.jian.tools.core.DateTools;
 import com.jian.tools.core.Tools;
+import RKey;
+import Tips;
 
 public class Utils {
 
 	private static Map<String, List<PrimaryKeyCondition>> pkArrays = new HashMap<String ,List<PrimaryKeyCondition>>();
 	private static Map<String, List<String>> colArrays = new HashMap<String ,List<String>>();
 	
+
+	
 	/**
-	 * 获取Entity类注解的PrimaryKey。
+	 * 参数验证
+	 * @param key	参数名
+	 * @param value	参数值
+	 * @param minLength	最小值
+	 * @param maxLength	最大值，为 0 不参与最大长度验证
+	 * @return null	通过验证
+	 */
+	public static Map<String, Object> verifyParam(String key, String value, int minLength, int maxLength) {
+		return verifyParam(key, value, minLength, maxLength, false);
+	}
+	
+	/**
+	 * 	参数验证
+	 * @param key	参数名
+	 * @param value	参数值
+	 * @param minLength	最小值
+	 * @param maxLength	最大值，为 0 不参与最大长度验证
+	 * @param isNumber	是否为数字
+	 * @return null	通过验证
+	 */
+	public static Map<String, Object> verifyParam(String key, String value, int minLength, int maxLength, boolean isNumber) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		if(Tools.isNullOrEmpty(value)){
+			map.put(RKey.CODE, Tips.ERROR211.getCode());
+			map.put(RKey.MSG, Tips.ERROR211.getDesc(key));
+			return map;
+		}
+		//maxLength=0, 不参与长度验证
+		if(maxLength > 0){
+			if(value.length() > maxLength){
+				map.put(RKey.CODE, Tips.ERROR210.getCode());
+				map.put(RKey.MSG, Tips.ERROR210.getDesc(key+", 长度"));
+				return map;
+			}else if(value.length() < minLength && minLength > 0){ //最小值小于等于0不去判断
+				map.put(RKey.CODE, Tips.ERROR200.getCode());
+				map.put(RKey.MSG, Tips.ERROR200.getDesc(key+", 长度"));
+				return map;
+			}
+		}
+		//判断数字
+		if(isNumber){
+			String tmp = value.replaceAll("[^0-9]", "");
+			if(Tools.isNullOrEmpty(tmp) || tmp.length() != value.length()){
+				map.put(RKey.CODE, Tips.ERROR200.getCode());
+				map.put(RKey.MSG, Tips.ERROR200.getDesc(key));
+				return map;
+			}
+		}
+		return null;
+	}
+	
+	
+	
+	/**
+	 * 	获取Entity类注解的PrimaryKey。
 	 * @param clss
 	 * @return
 	 */
-	public static List<String> getPrimaryKeys(Class<?> clss){
+	public static List<PrimaryKeyCondition> getPrimaryKeys(Class<?> clss){
 		String mark = clss.getCanonicalName();
 		List<PrimaryKeyCondition> list = null;
 		if(pkArrays.containsKey(mark)){
@@ -41,15 +102,35 @@ public class Utils {
 			Field[] fields = Tools.getFields(clss);
 			for (Field f : fields) {
 				if(f.isAnnotationPresent(PrimaryKey.class)){
+					PrimaryKey pk = f.getAnnotation(PrimaryKey.class);
+					//数据库字段
+					String colName = f.getName();
+					if(f.isAnnotationPresent(Column.class)){
+						Column col = f.getAnnotation(Column.class);
+						//主键忽略exist属性
+						colName = Tools.isNullOrEmpty(col.value()) ? colName : col.value();
+					}
+					colName = Tools.isNullOrEmpty(pk.value()) ? colName : pk.value();
+					//对象
 					PrimaryKeyCondition node = new PrimaryKeyCondition();
-					node.setField(f.getName());
+					node.setField(colName); 
 					node.setType(f.getType().getSimpleName());
-					node.setKeyType(f.getAnnotation(PrimaryKey.class).type());
+					node.setKeyType(pk.type());
 					list.add(node);
 				}
 			}
 			pkArrays.put(mark, list);
 		}
+		return list;
+	}
+	
+	/**
+	 * 	获取Entity类注解为PrimaryKey的数据库字段。
+	 * @param clss
+	 * @return
+	 */
+	public static List<String> getPriColumns(Class<?> clss){
+		List<PrimaryKeyCondition> list = getPrimaryKeys(clss);
 		List<String> keys = new ArrayList<>();
 		for (PrimaryKeyCondition pkc : list) {
 			String pkn = pkc.getField();
@@ -59,13 +140,12 @@ public class Utils {
 	}
 	
 	/**
-	 * 获取Entity类注解的Column。
+	 * 	获取Entity类中需要插入填充的数据库字段。
 	 * @param clss
-	 * @param isExist
 	 * @return
 	 */
-	public static List<String> getColumns(Class<?> clss, boolean isExist){
-		String mark = clss.getCanonicalName()+"#"+isExist;
+	public static List<String> getInsertFillColumns(Class<?> clss){
+		String mark = clss.getCanonicalName() + "#insertFill";
 		List<String> list = null;
 		if(colArrays.containsKey(mark)){
 			list = colArrays.get(mark);
@@ -75,16 +155,229 @@ public class Utils {
 			for (Field f : fields) {
 				if(f.isAnnotationPresent(Column.class)){
 					Column col = f.getAnnotation(Column.class);
-					if(col.exist() == isExist) {
-						list.add(f.getName());
+					if(col.exist() && (col.fill() == FillType.INSERT || col.fill() == FillType.INSERT_UPDATE)) {
+						list.add(Tools.isNullOrEmpty(col.value()) ? f.getName() : col.value());
 					}
-				}else if(isExist) {
-					list.add(f.getName());
 				}
 			}
 			colArrays.put(mark, list);
 		}
 		return list;
+	}
+	
+	/**
+	 * 	获取Entity类中需要更新填充的数据库字段。
+	 * @param clss
+	 * @return
+	 */
+	public static List<String> getUpdateFillColumns(Class<?> clss){
+		String mark = clss.getCanonicalName() + "#insertFill";
+		List<String> list = null;
+		if(colArrays.containsKey(mark)){
+			list = colArrays.get(mark);
+		}else {
+			list = new ArrayList<String>();
+			Field[] fields = Tools.getFields(clss);
+			for (Field f : fields) {
+				if(f.isAnnotationPresent(Column.class)){
+					Column col = f.getAnnotation(Column.class);
+					if(col.exist() && (col.fill() == FillType.UPDATE || col.fill() == FillType.INSERT_UPDATE)) {
+						list.add(Tools.isNullOrEmpty(col.value()) ? f.getName() : col.value());
+					}
+				}
+			}
+			colArrays.put(mark, list);
+		}
+		return list;
+	}
+	
+	/**
+	 * 	获取Entity类注解为Column的数据库字段。默认可以不加Column注解
+	 * @param clss
+	 * @return
+	 */
+	public static List<String> getColumns(Class<?> clss){
+		String mark = clss.getCanonicalName();
+		List<String> list = null;
+		if(colArrays.containsKey(mark)){
+			list = colArrays.get(mark);
+		}else {
+			list = new ArrayList<String>();
+			Field[] fields = Tools.getFields(clss);
+			for (Field f : fields) {
+				if(f.isAnnotationPresent(Column.class)){
+					Column col = f.getAnnotation(Column.class);
+					if(col.exist()) {
+						list.add(Tools.isNullOrEmpty(col.value()) ? f.getName() : col.value());
+					}
+				}else{
+					list.add(f.getName()); //默认可以不加Column注解
+				}
+			}
+			colArrays.put(mark, list);
+		}
+		return list;
+	}
+	
+	/**
+	 * 	对象属性转数据库字段。
+	 * @param clss 对象
+	 * @param fieldName 属性名
+	 * @return
+	 */
+	public static String attrToColumn(Class<?> clss, String fieldName){
+		try {
+			Field field = Tools.findField(clss, fieldName);
+			return attrToColumn(field);
+		} catch (ReflectiveOperationException e) {
+			e.printStackTrace();
+		}
+		return fieldName;
+	}
+	
+	/**
+	 * 	对象属性字段转数据库字段。
+	 * @param clss 对象属性字段
+	 * @return
+	 */
+	public static String attrToColumn(Field field){
+		String columnName = field.getName();
+		if(field.isAnnotationPresent(Column.class)){
+			Column col = field.getAnnotation(Column.class);
+			if(col.exist()) {
+				columnName = Tools.isNullOrEmpty(col.value()) ? field.getName() : col.value();
+			}else {
+				columnName = ""; //不是数据库字段，置空
+			}
+		}
+		return columnName;
+	}
+	
+	/**
+	 * 	对象转数据库字段
+	 * @param obj	对象
+	 * @return	Map
+	 */
+	public static Map<String, Object> objectToMap(Object object){
+		Map<String, Object> map = new HashMap<String, Object>();
+		Field[] fields = Tools.getFields(object.getClass()); //object.getClass().getDeclaredFields();
+		Method[] methods = Tools.getMethods(object.getClass()); //object.getClass().getDeclaredMethods();  
+		for (Field f : fields) {
+			//字段
+			String key = f.getName();
+			if(f.isAnnotationPresent(Column.class)){
+				Column col = f.getAnnotation(Column.class);
+				if(!col.exist()) {
+					continue; //不存在跳过
+				}
+				key = col.value();
+			}
+			//值
+			Object value = null;
+			// get
+			for (Method method : methods) {
+				String mname = method.getName().replace("get", "");
+				mname = mname.substring(0,1).toLowerCase() + mname.substring(1);
+				if(mname.equals(f.getName())){
+					try {
+						value = method.invoke(object);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					break;
+				}
+			}
+			map.put(key, value);
+		}
+		return map;
+	}
+	
+	/**
+	 * 	数据库字段转对象
+	 * @param map	字段
+	 * @param obj	对象
+	 * @return	Map
+	 */
+	public static <T> T mapToObject(Map<String, Object> map, T obj){
+		if(map == null) {
+			return obj;
+		}
+		Field[] fields = Tools.getFields(obj.getClass()); //object.getClass().getDeclaredFields();
+		Method[] methods = Tools.getMethods(obj.getClass()); //object.getClass().getDeclaredMethods(); 
+		for (Field f : fields) {
+			//字段
+			String key = f.getName();
+			if(f.isAnnotationPresent(Column.class)){
+				Column col = f.getAnnotation(Column.class);
+				if(!col.exist()) {
+					continue; //不存在跳过
+				}
+				key = col.value();
+			}
+			//值
+			Object value = map.get(key);
+			// set
+			for (Method method : methods) {
+				String mname = method.getName().replace("set", "");
+				mname = mname.substring(0,1).toLowerCase() + mname.substring(1);
+				if(mname.equals(f.getName())){
+					try {
+						method.invoke(obj, value);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					break;
+				}
+			}
+		}
+		return obj;
+	}
+	
+	/**
+	 * 	数据库字段转对象
+	 * @param map	字段
+	 * @param clzz	对象类型
+	 * @return	Map
+	 */
+	public static <T> T mapToObject(Map<String, Object> map, Class<T> clzz){
+		T obj = null;
+		try {
+			obj = clzz.newInstance();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if(map == null) {
+			return obj;
+		}
+		Field[] fields = Tools.getFields(clzz); //object.getClass().getDeclaredFields();
+		Method[] methods = Tools.getMethods(clzz); //object.getClass().getDeclaredMethods(); 
+		for (Field f : fields) {
+			//字段
+			String key = f.getName();
+			if(f.isAnnotationPresent(Column.class)){
+				Column col = f.getAnnotation(Column.class);
+				if(!col.exist()) {
+					continue; //不存在跳过
+				}
+				key = col.value();
+			}
+			//值
+			Object value = map.get(key);
+			//set
+			for (Method method : methods) {
+				String mname = method.getName().replace("set", "");
+				mname = mname.substring(0,1).toLowerCase() + mname.substring(1);
+				if(mname.equals(f.getName())){
+					try {
+						method.invoke(obj, value);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					break;
+				}
+			}
+		}
+		return obj;
 	}
 	
 	@SuppressWarnings("unchecked")

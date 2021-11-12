@@ -16,12 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jian.annotation.Excel;
 import com.jian.tools.core.JsonTools;
-import com.jian.tools.core.ResultKey;
-import com.jian.tools.core.ResultTools;
-import com.jian.tools.core.Tips;
 import com.jian.tools.core.Tools;
 
+import RTools;
 import Service;
+import ServiceException;
+import Tips;
 import Utils;
 
 public abstract class BaseController<T, S extends BaseService<T>> {
@@ -30,40 +30,47 @@ public abstract class BaseController<T, S extends BaseService<T>> {
 	@Autowired
 	protected S service;
 	
-	
+	/**
+	 * 	新增
+	 * @param req
+	 * @return
+	 */
     public String add(HttpServletRequest req) {
-		
 		//保存
+    	T obj = null;
 		try {
-			T obj = Tools.getReqParamsToObject(req, getObejctClass().newInstance());
-			int res = service.add(obj);
-			if(res > 0){
-				return ResultTools.custom(Tips.ERROR1).put(ResultKey.DATA, res).toJSONString();
-			}else{
-				return ResultTools.custom(Tips.ERROR0).toJSONString();
-			}
+			obj = Tools.getReqParamsToObject(req, getObejctClass().newInstance());
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ServiceException(Tips.ERROR101.getCode(), Tips.ERROR101.getDesc(e.getMessage()));
 		}
-		return ResultTools.custom(Tips.ERROR0).toJSONString();
+		int res = service.add(obj);
+		if(res > 0){
+			return RTools.success().putData(res).toJSONString();
+		}else{
+			return RTools.custom(Tips.ERROR0).toJSONString();
+		}
     }
 	
-	
+	/**
+	 * 	按主键修改
+	 * @param req
+	 * @return
+	 */
     public String update(HttpServletRequest req) {
 		
 		Map<String, Object> vMap = null;
 		
 		//参数
-		List<String> pkeys = Utils.getPrimaryKeys(getObejctClass());//获取主键
+		List<String> pkeys = Utils.getPriColumns(getObejctClass());//获取主键字段
 		if(pkeys == null || pkeys.isEmpty()){
-			return ResultTools.custom(Tips.ERROR206).toJSONString();
+			return RTools.custom(Tips.ERROR206).toJSONString();
 		}
 		Map<String, Object> condition = new HashMap<String, Object>();
 		for (String str : pkeys) {
 			String strv = Tools.getReqParamSafe(req, str);
-			vMap = Tools.verifyParam(str, strv, 0, 0);
+			vMap = Utils.verifyParam(str, strv, 0, 0);
 			if(vMap != null){
-				return ResultTools.custom(Tips.ERROR206, str).toJSONString();
+				return RTools.custom(Tips.ERROR206, str).toJSONString();
 			}
 			condition.put(str, strv);
 		}
@@ -71,65 +78,80 @@ public abstract class BaseController<T, S extends BaseService<T>> {
 		//保存
 		int res = service.modify(setValues, condition);
 		if(res > 0){
-			return ResultTools.custom(Tips.ERROR1).toJSONString();
+			return RTools.success().toJSONString();
 		}else{
-			return ResultTools.custom(Tips.ERROR0).put(ResultKey.DATA, res).toJSONString();
+			return RTools.custom(Tips.ERROR0).putData(res).toJSONString();
 		}
     }
 	
-	
-	
+	/**
+	 * 	按主键删除
+	 * @param req
+	 * @return
+	 */
     public String delete(HttpServletRequest req) {
 		
 		Map<String, Object> vMap = null;
 		
 		//参数
-		List<String> pkeys = Utils.getPrimaryKeys(getObejctClass());//获取主键
+		List<String> pkeys = Utils.getPriColumns(getObejctClass());//获取主键字段
 		if(pkeys == null || pkeys.isEmpty()){
-			return ResultTools.custom(Tips.ERROR206).toJSONString();
+			return RTools.custom(Tips.ERROR206).toJSONString();
 		}
 		Map<String, Object> condition = new HashMap<String, Object>();
 		for (String str : pkeys) {
 			String strv = Tools.getReqParamSafe(req, str);
-			vMap = Tools.verifyParam(str, strv, 0, 0);
+			vMap = Utils.verifyParam(str, strv, 0, 0);
 			if(vMap != null){
-				return ResultTools.custom(Tips.ERROR206, str).toJSONString();
+				return RTools.custom(Tips.ERROR206, str).toJSONString();
 			}
 			condition.put(str, strv);
 		}
 		//保存
 		int res = service.delete(condition);
 		if(res > 0){
-			return ResultTools.custom(Tips.ERROR1).toJSONString();
+			return RTools.success().toJSONString();
 		}else{
-			return ResultTools.custom(Tips.ERROR0).put(ResultKey.DATA, res).toJSONString();
+			return RTools.custom(Tips.ERROR0).putData(res).toJSONString();
 		}
     }
 	
-	
+	/**
+	 * 	按条件删除
+	 * @param req
+	 * @return
+	 */
     public String deleteBy(HttpServletRequest req) {
 		
 		//参数
 		Map<String, Object> condition = Tools.getReqParamsToMap(req, getObejctClass());
 		if(condition == null || condition.isEmpty()){
-			return ResultTools.custom(Tips.ERROR211, "删除条件").toJSONString();
+			return RTools.custom(Tips.ERROR211, "删除条件").toJSONString();
 		}
 		//保存
 		int res = service.delete(condition);
 		if(res > 0){
-			return ResultTools.custom(Tips.ERROR1).toJSONString();
+			return RTools.success().toJSONString();
 		}else{
-			return ResultTools.custom(Tips.ERROR0).put(ResultKey.DATA, res).toJSONString();
+			return RTools.custom(Tips.ERROR0).putData(res).toJSONString();
 		}
     }
 	
-	
+	/**
+	 * 	查询所有
+	 * @param req
+	 * @return
+	 */
     public String findAll(HttpServletRequest req) {
 		List<T> list = service.findAll();
-        return ResultTools.custom(Tips.ERROR1).put(ResultKey.DATA, list).toJSONString();
+        return RTools.success().putData(list).toJSONString();
     }
 	
-	
+	/**
+	 * 	分页查询
+	 * @param req
+	 * @return
+	 */
     public String findPage(HttpServletRequest req) {
 		
 		Map<String, Object> vMap = null;
@@ -137,11 +159,11 @@ public abstract class BaseController<T, S extends BaseService<T>> {
 		//参数
 		String page = Tools.getReqParamSafe(req, "page");
 		String rows = Tools.getReqParamSafe(req, "rows");
-		vMap = Tools.verifyParam("page", page, 0, 0, true);
+		vMap = Utils.verifyParam("page", page, 0, 0, true);
 		if(vMap != null){
 			return JsonTools.toJsonString(vMap);
 		}
-		vMap = Tools.verifyParam("rows", rows, 0, 0, true);
+		vMap = Utils.verifyParam("rows", rows, 0, 0, true);
 		if(vMap != null){
 			return JsonTools.toJsonString(vMap);
 		}
@@ -151,31 +173,39 @@ public abstract class BaseController<T, S extends BaseService<T>> {
 		
 		List<T> list = service.findPage(condition, start, Tools.parseInt(rows));
 		long total = service.size(condition);
-        return ResultTools.custom(Tips.ERROR1).put(ResultKey.TOTAL, total).put(ResultKey.DATA, list).toJSONString();
+        return RTools.success().putTotal(total).putData(list).toJSONString();
     }
 	
-	
+	/**
+	 * 	按条件查询一个
+	 * @param req
+	 * @return
+	 */
     public String findOne(HttpServletRequest req) {
 		
 		//参数
 		Map<String, Object> condition = Tools.getReqParamsToMap(req, getObejctClass());
 		if(condition == null || condition.isEmpty()){
-			return ResultTools.custom(Tips.ERROR211, "查询条件").toJSONString();
+			return RTools.custom(Tips.ERROR211, "查询条件").toJSONString();
 		}
 		T res = service.findOne(condition);
-        return ResultTools.custom(Tips.ERROR1).put(ResultKey.DATA, res).toJSONString();
+        return RTools.success().putData(res).toJSONString();
     }
 	
-	
+	/**
+	 * 	按条件查询列表
+	 * @param req
+	 * @return
+	 */
     public String findList(HttpServletRequest req) {
 		
 		//参数
 		Map<String, Object> condition = Tools.getReqParamsToMap(req, getObejctClass());
 		if(condition == null || condition.isEmpty()){
-			return ResultTools.custom(Tips.ERROR211, "查询条件").toJSONString();
+			return RTools.custom(Tips.ERROR211, "查询条件").toJSONString();
 		}
 		List<T> list = service.findList(condition);
-        return ResultTools.custom(Tips.ERROR1).put(ResultKey.DATA, list).toJSONString();
+        return RTools.success().putData(list).toJSONString();
     }
     
     
@@ -203,7 +233,7 @@ public abstract class BaseController<T, S extends BaseService<T>> {
 				}
 			}
 		}
-		return ResultTools.custom(Tips.ERROR1).put(ResultKey.DATA, excels).toJSONString();
+		return RTools.success().putData(excels).toJSONString();
 	}
 	
 	public String excelFree(HttpServletRequest req, HttpServletResponse resp){

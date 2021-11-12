@@ -1,0 +1,8 @@
+package PK;
+
+import com.jian.tools.core.ResultKey;
+
+public class RKey extends ResultKey {
+
+	
+}

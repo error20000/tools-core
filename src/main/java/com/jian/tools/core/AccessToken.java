@@ -1,5 +1,6 @@
 package com.jian.tools.core;
 
+@Deprecated
 public class AccessToken {
 
 	private String key;

@@ -30,11 +30,8 @@ public class VerifyAuthAspect {
     @Before("execution(public * {Controller}.*.*(..)) && @annotation(auth)")
     public void before(JoinPoint joinPoint, VerifyAuth auth){
     	
-    	long start = System.currentTimeMillis();
-    	
     	//do verify auth
     	
-		System.out.println("=== VerifyAuth ms =====>"+(System.currentTimeMillis()-start));
     }
 
 

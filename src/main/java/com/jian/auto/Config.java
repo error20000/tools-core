@@ -18,16 +18,23 @@ public class Config {
 	private static final String CONFIG_PATH = "config";
 	private static final String UTIL_PATH = "util";
 	private static final String ASPECT_PATH = "aspect";
-	private static final String ASPECT_ANNOTATION_PATH = "aspect.annotation";
+	private static final String ASPECT_ANNOTATION_PATH = "annotation";
 	private static final String EXCEPTION_PATH = "exception";
+	private static final String RESULT_PATH = "result";
+	private static final String HANDLE_PATH = "handle";
 	
 	//配置
 	private String dbPropertiesName = "autodb.properties"; //数据库配置文件名
 	private String dbSecondPropertiesName = "autodb2.properties"; //数据库配置文件名
-	private boolean overWrite = false; //文件已存在是否覆盖
+	private boolean overWrite = false; //文件已存在是否覆盖。这是一个危险的开关，建议默认false
+	private boolean camelCase = true; //驼峰命名法
 	private String reqPrefix = "/api"; //请求前缀
 	private String chartset = "utf-8";//文件字符集
 	private static String tempPath = "/com/jian/auto/template/";//模版路径
+	private String tipsVersion = "Tips1"; //选择提示的类 Tips1 or Tips2
+	private boolean excel = false; //是否开启excel注解
+	private boolean api = false; //是否开启api注解
+	
 	
 	//自动填充
 	//主键
@@ -100,6 +107,14 @@ public class Config {
 
 	public String getExceptionPath(){
 		return basePackge+"."+EXCEPTION_PATH;
+	}
+
+	public String getResultPath(){
+		return basePackge+"."+RESULT_PATH;
+	}
+
+	public String getHandlePath(){
+		return basePackge+"."+HANDLE_PATH;
 	}
 	
 	
@@ -225,6 +240,37 @@ public class Config {
 	public void setAutoFillDateForModify(String autoFillDateForModify) {
 		this.autoFillDateForModify = autoFillDateForModify;
 	}
-	
+
+	public boolean isCamelCase() {
+		return camelCase;
+	}
+
+	public void setCamelCase(boolean camelCase) {
+		this.camelCase = camelCase;
+	}
+
+	public String getTipsVersion() {
+		return tipsVersion;
+	}
+
+	public void setTipsVersion(String tipsVersion) {
+		this.tipsVersion = tipsVersion;
+	}
+
+	public boolean isExcel() {
+		return excel;
+	}
+
+	public void setExcel(boolean excel) {
+		this.excel = excel;
+	}
+
+	public boolean isApi() {
+		return api;
+	}
+
+	public void setApi(boolean api) {
+		this.api = api;
+	}
 
 }

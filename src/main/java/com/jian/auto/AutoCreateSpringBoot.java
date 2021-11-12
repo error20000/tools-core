@@ -302,6 +302,18 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 		fileName = "ControllerExceptionHandler"; //文件名
 		doCreateException(packName, tempName, fileName, chartset);
 	}
+
+
+	@Override
+	public void createResult(){
+		return;
+	}
+
+
+	@Override
+	public void createHandle(){
+		return;
+	}
 	
 	private void doCreateEntity(String packName, String tempName, String fileName, String chartset, Table table){
 		
@@ -665,6 +677,8 @@ public class AutoCreateSpringBoot extends AbstractAutoCreate implements AutoCrea
 					line = "import " + config.getAspectAnnotationPath()+ ".SysLog" + ";"; //xxxx.aspect.annotation.SysLog
 				}else if(line.indexOf("import SysLogType;") != -1){
 					line = "import " + config.getAspectAnnotationPath()+ ".SysLogType" + ";"; //xxxx.aspect.annotation.SysLog
+				}else if(line.indexOf("import ServiceException;") != -1){
+					line = "import " + config.getBasePackge()+ ".exception.ServiceException" + ";"; //import xxxx.exception.ServiceException
 				}else{
 					line = line.replace("Temp", en);
 				}

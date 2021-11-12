@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import App;
 import Config;
 import com.jian.tools.core.DateTools;
-import com.jian.tools.core.Tips;
+import Tips;
 import com.jian.tools.core.Tools;
 
 /**

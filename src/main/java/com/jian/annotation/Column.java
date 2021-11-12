@@ -13,7 +13,13 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited
 public @interface Column {
+	
+	/** 数据库字段名  */
 	public String value() default "";
+
+    /**  字段自动填充策略 */
 	public FillType fill() default FillType.DEFAULT;
+	
+    /** 是否为数据库表字段  默认 true 是，false 否  */
 	public boolean exist() default true;
 }

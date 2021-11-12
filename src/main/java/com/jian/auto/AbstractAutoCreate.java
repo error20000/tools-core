@@ -75,6 +75,9 @@ public abstract class AbstractAutoCreate implements AutoCreate {
 		createStart();
 		createAspect();
 		createException();
+		createException();
+		createResult();
+		createHandle();
 		
 		createEntity(null);
 		createDao(null);
@@ -249,4 +252,16 @@ public abstract class AbstractAutoCreate implements AutoCreate {
 	 * 异常处理文件
 	 */
 	public abstract void createException();
+
+	
+	/**
+	 * 结果处理文件
+	 */
+	public abstract void createResult();
+
+	
+	/**
+	 * 结果处理文件
+	 */
+	public abstract void createHandle();
 }

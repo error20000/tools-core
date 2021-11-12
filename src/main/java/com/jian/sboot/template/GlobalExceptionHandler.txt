@@ -17,16 +17,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.jian.tools.core.ResultKey;
-import com.jian.tools.core.ResultTools;
-import com.jian.tools.core.Tips;
+import RKey;
+import RTools;
+import Tips;
 
 @ResponseBody
 @Order(-1)
 @ControllerAdvice
-public class ControllerExceptionHandler {
+public class GlobalExceptionHandler {
 
-	private static final Logger log = LoggerFactory.getLogger(ControllerExceptionHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
 	@ExceptionHandler({ ServiceException.class })
 	@ResponseStatus(HttpStatus.OK)
@@ -46,7 +46,7 @@ public class ControllerExceptionHandler {
 		
 		log.error(result.toString());
 		
-		return ResultTools.custom(Tips.ERROR0).put(ResultKey.MSG, e.getMessage()).toJSONString();
+		return RTools.custom(Tips.ERROR0).put(RKey.MSG, e.getMessage()).toJSONString();
 	}
 
 	@ResponseBody
@@ -71,8 +71,9 @@ public class ControllerExceptionHandler {
 			}else{
 				cmd = "cmd -c cd "+javaBin+" && jstack -F " + pid + " > "+jstackPath;
 			}
-			Process test = Runtime.getRuntime().exec(cmd);
-			/*InputStream in = test.getInputStream();
+			Runtime.getRuntime().exec(cmd);
+			/*Process test = Runtime.getRuntime().exec(cmd);
+			InputStream in = test.getInputStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in, "gbk"));
 			String line;
 			while ((line = reader.readLine()) != null) {
@@ -94,7 +95,7 @@ public class ControllerExceptionHandler {
 			}else{
 				cmd = "cmd -c cd "+javaBin+" && jinfo " + pid + " > "+jinfoPath;
 			}
-			Process info = Runtime.getRuntime().exec(cmd);
+			Runtime.getRuntime().exec(cmd);
 			
 			System.out.println("=======================end jinfo=============================");
 		} catch (Exception e2) {
