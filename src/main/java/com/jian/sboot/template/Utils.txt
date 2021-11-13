@@ -299,8 +299,8 @@ public class Utils {
 	 * @return	Map
 	 */
 	public static <T> T mapToObject(Map<String, Object> map, T obj){
-		if(map == null) {
-			return obj;
+		if(map == null || obj == null) {
+			return null;
 		}
 		Field[] fields = Tools.getFields(obj.getClass()); //object.getClass().getDeclaredFields();
 		Method[] methods = Tools.getMethods(obj.getClass()); //object.getClass().getDeclaredMethods(); 
@@ -340,14 +340,14 @@ public class Utils {
 	 * @return	Map
 	 */
 	public static <T> T mapToObject(Map<String, Object> map, Class<T> clzz){
+		if(map == null) {
+			return null;
+		}
 		T obj = null;
 		try {
 			obj = clzz.newInstance();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		if(map == null) {
-			return obj;
 		}
 		Field[] fields = Tools.getFields(clzz); //object.getClass().getDeclaredFields();
 		Method[] methods = Tools.getMethods(clzz); //object.getClass().getDeclaredMethods(); 

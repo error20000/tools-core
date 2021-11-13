@@ -18,7 +18,6 @@ import com.jian.auto.db.TableManager;
 import com.jian.tools.core.DateTools;
 import com.jian.tools.core.ResultKey;
 import com.jian.tools.core.Tools;
-import com.testAuto.result.Tips;
 
 /**
  * 	自动生成管理器，spring boot的实现

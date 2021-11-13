@@ -36,7 +36,6 @@ public abstract class BaseController<T, S extends BaseService<T>> {
 	 * @return
 	 */
     public String add(HttpServletRequest req) {
-		//保存
     	T obj = null;
 		try {
 			obj = Tools.getReqParamsToObject(req, getObejctClass().newInstance());
@@ -57,26 +56,13 @@ public abstract class BaseController<T, S extends BaseService<T>> {
 	 * @return
 	 */
     public String update(HttpServletRequest req) {
-		
-		Map<String, Object> vMap = null;
-		
-		//参数
-		List<String> pkeys = Utils.getPriColumns(getObejctClass());//获取主键字段
-		if(pkeys == null || pkeys.isEmpty()){
-			return RTools.custom(Tips.ERROR206).toJSONString();
+    	T obj = null;
+		try {
+			obj = Tools.getReqParamsToObject(req, getObejctClass().newInstance());
+		} catch (Exception e) {
+			throw new ServiceException(Tips.ERROR101.getCode(), Tips.ERROR101.getDesc(e.getMessage()));
 		}
-		Map<String, Object> condition = new HashMap<String, Object>();
-		for (String str : pkeys) {
-			String strv = Tools.getReqParamSafe(req, str);
-			vMap = Utils.verifyParam(str, strv, 0, 0);
-			if(vMap != null){
-				return RTools.custom(Tips.ERROR206, str).toJSONString();
-			}
-			condition.put(str, strv);
-		}
-		Map<String, Object> setValues = Tools.getReqParamsToMap(req, getObejctClass());
-		//保存
-		int res = service.modify(setValues, condition);
+		int res = service.modify(obj);
 		if(res > 0){
 			return RTools.success().toJSONString();
 		}else{

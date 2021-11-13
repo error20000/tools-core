@@ -53,6 +53,11 @@ public class Config {
 	public String pwdReg = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$"; //密码正则表达式
 	/** 密码格式提示 */
 	public String pwdRegTips = "（密码至少包含 数字和英文，长度6-20）"; //密码格式提示
+	
+	/** 超管账号 默认：admin */
+	public String adminUsername = "admin"; //超管账号
+	/** 超管账号密码 默认：admin */
+	public String adminPassword = "admin123"; //超管账号密码。重置超管账号密码：只需要数据库密码和此密码一样，即可把超管密码重置为该密码
 
 	/** 密码 md5 次数  大于0 */
 	public int pwdMd5Count = 1; //密码 md5 次数  大于0
