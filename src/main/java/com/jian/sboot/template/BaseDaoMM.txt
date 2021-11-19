@@ -247,6 +247,7 @@ public interface BaseDao<T> {
 	public Map<String, Object> selectOne(@Param("tableName") String tableName, @Param("columns") List<String> columns, @Param("map") Map<String, Object> condition);
     
 	@Select({
+		"<script>",
 		" select ",
     	" 	<if test=\" columns != null \"> ",
     	"		<foreach collection=\"columns\" item=\"item\"  index=\"i\" separator=\",\">",
@@ -257,6 +258,7 @@ public interface BaseDao<T> {
     	"		* ",
     	"   </if>",
 		" from `${tableName}` "
+		"</script>"
 	})
 	public List<Map<String, Object>> selectAll(@Param("tableName") String tableName, @Param("columns") List<String> columns);
 	

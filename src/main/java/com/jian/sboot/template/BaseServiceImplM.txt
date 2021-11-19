@@ -242,9 +242,12 @@ public abstract class BaseServiceImpl<T, M extends BaseDao<T>> implements BaseSe
 		if(fillHandler == null) {
 			return;
 		}
+		List<String> cols = Utils.getInsertFillColumns(clss);
+		if(cols == null || cols.isEmpty()) {
+			return;
+		}
 		Map<String, Object> fillData = new HashMap<String, Object>();
 		fillHandler.insertFill(fillData);
-		List<String> cols = Utils.getInsertFillColumns(clss);
 		for (String key : cols) {
 			if(target.get(key) == null) { // null，填充
 				target.put(key, fillData.get(key));
@@ -261,9 +264,12 @@ public abstract class BaseServiceImpl<T, M extends BaseDao<T>> implements BaseSe
 		if(fillHandler == null) {
 			return;
 		}
+		List<String> cols = Utils.getUpdateFillColumns(clss);
+		if(cols == null || cols.isEmpty()) {
+			return;
+		}
 		Map<String, Object> fillData = new HashMap<String, Object>();
 		fillHandler.updateFill(fillData);
-		List<String> cols = Utils.getUpdateFillColumns(clss);
 		for (String key : cols) {
 			if(target.get(key) == null) { // null，填充
 				target.put(key, fillData.get(key));
