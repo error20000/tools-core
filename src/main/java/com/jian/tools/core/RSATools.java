@@ -15,6 +15,8 @@ import java.util.Map;
 
 import javax.crypto.Cipher;
 
+import com.jian.exception.ToolsException;
+
 public class RSATools {
 
 	private String key_algorithm = "RSA"; 
@@ -60,7 +62,7 @@ public class RSATools {
 			keyMap.put(publicKey, Base64.getEncoder().encodeToString(kp.getPublic().getEncoded()));
 			keyMap.put(privateKey, Base64.getEncoder().encodeToString(kp.getPrivate().getEncoded()));
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}  
 	}
 
@@ -89,9 +91,8 @@ public class RSATools {
 			RSAPublicKey pubKey = (RSAPublicKey) factory.generatePublic(spec);
 			return pubKey;
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}
-		return null;
 	}
 	
 	public RSAPrivateKey getRSAPrivateKey(String priKeyStr){
@@ -101,9 +102,8 @@ public class RSATools {
 			RSAPrivateKey priKey = (RSAPrivateKey) factory.generatePrivate(spec);
 			return priKey;
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}
-		return null;
 	}
 
 	//TODO -------------------------------------------------------------------------------------------------加密
@@ -156,9 +156,8 @@ public class RSATools {
 			
 			return cipher.doFinal(data);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}
-		return null;
     }
 	
 	/**
@@ -174,9 +173,8 @@ public class RSATools {
 			
 			return cipher.doFinal(data);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}
-		return null;
     }
 	
 	//TODO -------------------------------------------------------------------------------------------------解密
@@ -231,9 +229,8 @@ public class RSATools {
     		
     		return cipher.doFinal(data);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}
-    	return null;
     }
 	
 	/**
@@ -249,9 +246,8 @@ public class RSATools {
     		
     		return cipher.doFinal(data);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}
-    	return null;
     }
     
     public static void main(String[] args) {

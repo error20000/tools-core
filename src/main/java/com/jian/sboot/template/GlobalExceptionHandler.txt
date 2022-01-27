@@ -17,7 +17,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import RKey;
+import com.jian.exception.HttpException;
+import com.jian.exception.JsonException;
+import com.jian.exception.ToolsException;
+
 import RTools;
 import Tips;
 
@@ -28,14 +31,36 @@ public class GlobalExceptionHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+	/**
+	 * 业务异常
+	 */
 	@ExceptionHandler({ ServiceException.class })
 	@ResponseStatus(HttpStatus.OK)
-	public String ServiceValidHandler(HttpServletRequest request, HttpServletResponse response, ServiceException e) {
+	public String serviceValidHandler(HttpServletRequest request, HttpServletResponse response, ServiceException e) {
 		String message = e.getLocalizedMessage();
-		log.error(message);
+		log.error(">>> 业务异常：{}", message);
 		return message;
 	}
 
+	/**
+	 * 工具类异常
+	 */
+	@ExceptionHandler({ HttpException.class, JsonException.class, ToolsException.class })
+	@ResponseStatus(HttpStatus.OK)
+	public String toolsValidHandler(HttpServletRequest request, HttpServletResponse response, HttpException e) {
+
+		Writer result = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(result);
+		e.printStackTrace(printWriter);
+		
+		log.error(">>> 工具类异常：{}", result.toString());
+
+		return RTools.custom(Tips.ERROR0).putMsg(e.getMessage()).toJSONString();
+	}
+
+	/**
+	 * 未知异常
+	 */
 	@ExceptionHandler({ Exception.class })
 	@ResponseStatus(HttpStatus.OK)
 	public String GlobalException(HttpServletRequest request, HttpServletResponse response, Exception e) {
@@ -44,11 +69,15 @@ public class GlobalExceptionHandler {
 		PrintWriter printWriter = new PrintWriter(result);
 		e.printStackTrace(printWriter);
 		
-		log.error(result.toString());
+		log.error(">>> 未知异常：{}", result.toString());
 		
-		return RTools.custom(Tips.ERROR0).put(RKey.MSG, e.getMessage()).toJSONString();
+		return RTools.custom(Tips.ERROR0).putMsg(e.getMessage()).toJSONString();
 	}
 
+
+	/**
+	 * 内存溢出
+	 */
 	@ResponseBody
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	@ExceptionHandler(OutOfMemoryError.class)
@@ -101,6 +130,9 @@ public class GlobalExceptionHandler {
 		} catch (Exception e2) {
 			e2.printStackTrace();
 		}
-		return message;
+		
+		log.error(">>> 内存溢出：{}", message);
+		
+		return RTools.custom(Tips.ERROR0).putMsg(e.getMessage()).toJSONString();
 	}
 }

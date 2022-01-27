@@ -21,6 +21,7 @@ import com.jian.annotation.Column;
 import com.jian.annotation.FillType;
 import com.jian.annotation.PrimaryKey;
 import com.jian.annotation.PrimaryKeyCondition;
+import com.jian.exception.ToolsException;
 import com.jian.tools.core.DateTools;
 import com.jian.tools.core.Tools;
 import RKey;
@@ -231,9 +232,8 @@ public class Utils {
 			Field field = Tools.findField(clss, fieldName);
 			return attrToColumn(field);
 		} catch (ReflectiveOperationException e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}
-		return fieldName;
 	}
 	
 	/**
@@ -282,7 +282,7 @@ public class Utils {
 					try {
 						value = method.invoke(object);
 					} catch (Exception e) {
-						e.printStackTrace();
+						throw new ToolsException(e);
 					}
 					break;
 				}
@@ -332,7 +332,7 @@ public class Utils {
 						System.out.println(method.getName());
 						System.out.println(value);
 						System.out.println(value.getClass().getName());
-						e.printStackTrace();
+						throw new ToolsException(e);
 					}
 					break;
 				}
@@ -355,7 +355,7 @@ public class Utils {
 		try {
 			obj = clzz.newInstance();
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}
 		return mapToObject(map, obj);
 	}
@@ -391,7 +391,7 @@ public class Utils {
 			Class<?>[] clsses = Tools.getGenericClass((ParameterizedType) type);
 			clss = (Class<T>) clsses[0];
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}
 		return clss;
 	}

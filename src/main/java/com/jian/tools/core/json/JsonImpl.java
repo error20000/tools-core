@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.jian.exception.JsonException;
 
 public class JsonImpl implements JsonInterface {
 	
@@ -24,18 +25,16 @@ public class JsonImpl implements JsonInterface {
         		return new ObjectMapper().writeValueAsString(obj);
         	}
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			throw new JsonException(e);
 		}
-        return null;
     }
 	
 	public String toXmlString(Object obj) {
         try {
 			return new XmlMapper().writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			throw new JsonException(e);
 		}
-        return null;
     }
 
 	public <T> T jsonToObj(String json, Class<T> clss) {
@@ -44,9 +43,8 @@ public class JsonImpl implements JsonInterface {
         	objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			return objectMapper.readValue(json, clss);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new JsonException(e);
 		}
-        return null;
     }
 	
 	@SuppressWarnings("unchecked")
@@ -56,9 +54,8 @@ public class JsonImpl implements JsonInterface {
         	objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			return (T) objectMapper.readValue(json, typeReference);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new JsonException(e);
 		}
-        return null;
     }
 	
 	public <T> T xmlToObj(String xml, Class<T> clss) {
@@ -80,9 +77,8 @@ public class JsonImpl implements JsonInterface {
 			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			return (T) mapper.readValue(xml, typeReference);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new JsonException(e);
 		}
-        return null;
     }
 	
 	//TODO jsonToObj 实现
@@ -95,9 +91,8 @@ public class JsonImpl implements JsonInterface {
 					.constructParametricType(HashMap.class, String.class, Object.class); 
 			return mapper.readValue(json, javaType);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new JsonException(e);
 		}  
-        return null;
     }
 	
 	public <K, V> Map<K, V> jsonToMap(String json, Class<K> key, Class<V> value) {
@@ -108,18 +103,16 @@ public class JsonImpl implements JsonInterface {
 					.constructParametricType(HashMap.class, key, value); 
 			return mapper.readValue(json, javaType);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new JsonException(e);
 		}  
-        return null;
     }
 	
 	public List<Map<String, Object>> jsonToList(String json) {
 		try {
 			return new ObjectMapper().readValue(json, new TypeReference<List<Map<String, Object>>>(){});
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new JsonException(e);
 		}  
-        return null;
     }
 	
 	public <T> List<T> jsonToList(String json, Class<T> clss) {
@@ -131,9 +124,8 @@ public class JsonImpl implements JsonInterface {
 					.constructParametricType(List.class, clss);  
 			return mapper.readValue(json, javaType);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new JsonException(e);
 		}  
-        return null;
     }
 	
 	
@@ -147,9 +139,8 @@ public class JsonImpl implements JsonInterface {
 					.constructParametricType(HashMap.class, String.class, Object.class); 
 			return mapper.readValue(xml, javaType);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new JsonException(e);
 		}  
-        return null;
     }
 	
 	public <K, V> Map<K, V> xmlToMap(String xml, Class<K> key, Class<V> value) {
@@ -160,18 +151,16 @@ public class JsonImpl implements JsonInterface {
 					.constructParametricType(HashMap.class, key, value); 
 			return mapper.readValue(xml, javaType);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new JsonException(e);
 		}  
-        return null;
     }
 	
 	public List<Map<String, Object>> xmlToList(String xml) {
 		try {
 			return new XmlMapper().readValue(xml, new TypeReference<List<Map<String, Object>>>(){});
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new JsonException(e);
 		}  
-        return null;
     }
 	
 	public <T> List<T> xmlToList(String xml, Class<T> clss) {
@@ -183,9 +172,8 @@ public class JsonImpl implements JsonInterface {
 					.constructParametricType(List.class, clss);  
 			return mapper.readValue(xml, javaType);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new JsonException(e);
 		}  
-        return null;
     }
 
 	public static void main(String[] args) {

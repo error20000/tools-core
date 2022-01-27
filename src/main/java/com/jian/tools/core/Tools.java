@@ -51,6 +51,8 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.jian.exception.ToolsException;
+
 
 
 public class Tools {
@@ -295,7 +297,7 @@ public class Tools {
 		try {
 			number = NumberFormat.getInstance().parse(str);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}
 		return number;
 	}
@@ -492,9 +494,8 @@ public class Tools {
 			charsetName = isNullOrEmpty(charsetName) ? initCharsetName : charsetName;
 			return md5(str.getBytes(charsetName));
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}
-		return "";
 	}
 	
 	/**
@@ -510,7 +511,7 @@ public class Tools {
 			digest.update(bytes);
 			res = getFormattedText(digest.digest());
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}
 		return res;
 	}
@@ -629,9 +630,8 @@ public class Tools {
 		try {
 			return getProperties(new FileInputStream(file));
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}
-		return null;
 	}
 	
 	/**
@@ -644,7 +644,7 @@ public class Tools {
 		try {
 			properties.load(in);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}finally {
 			if(in != null){
 				try {
@@ -937,7 +937,7 @@ public class Tools {
 							try {
 								m.invoke(obj, value);
 							} catch (Exception e) {
-								e.printStackTrace();
+								throw new ToolsException(e);
 							}
 						}
 					}
@@ -966,7 +966,7 @@ public class Tools {
 					try {
 						value = method.invoke(object);
 					} catch (Exception e) {
-						e.printStackTrace();
+						throw new ToolsException(e);
 					}
 				}
 			}
@@ -1042,7 +1042,7 @@ public class Tools {
 			writer.flush();
 			writer.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ToolsException(e);
 		}
 	}
 	
@@ -1232,7 +1232,7 @@ public class Tools {
 					}
 					out.close();
 				} catch (Exception e) {
-					e.printStackTrace();
+					throw new ToolsException(e);
 				} finally {
 					lock.unlock();
 					if(out != null){
@@ -1266,7 +1266,7 @@ public class Tools {
 				}
 				reader.close();
 			} catch (Exception e) {
-				e.printStackTrace();
+				throw new ToolsException(e);
 			}finally {
 				if(reader != null){
 					try {
@@ -1353,7 +1353,7 @@ public class Tools {
 			out.close();
 			return true;
 		} catch (Exception e) {
-			return false;
+			throw new ToolsException(e);
 		}
 	}
 	
@@ -1373,7 +1373,7 @@ public class Tools {
 //	        inputStream.read(data);
 	        inputStream.close();
 	    } catch (IOException e) {
-	        e.printStackTrace();
+			throw new ToolsException(e);
 	    }
 	    return Base64.getEncoder().encodeToString(data);
 	}
