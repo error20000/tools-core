@@ -20,8 +20,8 @@ public class Demo {
 		//数据库配置
 		ConfigDB cdb = new ConfigDB(jdbcUrl, user, password, driverClass, prefix, separator);
 		AutoCreateManager test =  new AutoCreateManager(config, cdb, 20); //10 20
-		test.start();
-//		test.start(tableName);
+		test.start(); //全部数据表
+//		test.start(tableName); //指定数据表
 		
 	}
 	

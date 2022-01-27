@@ -1,0 +1,124 @@
+package PK;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.jian.handle.ErrorCodeHandler;
+import com.jian.tools.core.JsonTools;
+
+
+public class RBuilder {
+
+	
+	private ErrorCodeHandler handler;
+	
+	private String language;
+
+	private Map<String, Object> map = null;
+
+	RBuilder() {
+        super();
+        this.map =  new HashMap<String, Object>();
+    }
+    
+	RBuilder(Map<String, Object> map) {
+        super();
+        this.map =  map;
+    }
+    
+	RBuilder(Tips tips) {
+        super();
+        this.map =  new HashMap<String, Object>();
+        this.map.put(RKey.CODE, tips.getCode());
+        this.map.put(RKey.MSG, tips.getDesc());
+    }
+	
+	public RBuilder setErrorCodeHandler(ErrorCodeHandler handler){
+		this.handler = handler;
+        return this;
+    }
+	
+	public RBuilder setLanguage(String language){
+		this.language = language;
+        return this;
+    }
+    
+    
+    public RBuilder put(String key, Object value){
+		this.map.put(key, value);
+        return this;
+    }
+    
+    public RBuilder put(Tips tips){
+        return this.put(tips, "");
+    }
+    
+    public RBuilder put(Tips tips, String param){
+        this.map.put(RKey.CODE, tips.getCode());
+        this.map.put(RKey.MSG, tips.getDesc(param));
+        return this;
+    }
+    
+    public RBuilder putCode(int code){
+        this.map.put(RKey.CODE, code);
+        return this;
+    }
+    
+    public RBuilder putMsg(String msg){
+        this.map.put(RKey.MSG, msg);
+        return this;
+    }
+    
+    public RBuilder putTMsg(String tmsg){
+        this.map.put(RKey.TMSG, tmsg);
+        return this;
+    }
+    
+    public RBuilder putData(Object data){
+        this.map.put(RKey.DATA, data);
+        return this;
+    }
+    
+    public RBuilder putTotal(long total){
+        this.map.put(RKey.TOTAL, total);
+        return this;
+    }
+    
+    public RBuilder remove(String key){
+		this.map.remove(key);
+        return this;
+    }
+    
+    public RBuilder clear(){
+		this.map.clear();
+        return this;
+    }
+    
+    public Map<String, Object> build() {
+    	System.out.println(handler);
+    	this.translate();
+    	return this.map;
+    }
+    
+    public String toJSONString() {
+    	this.translate();
+    	return JsonTools.toJsonString(this.map);
+    }
+	
+    private void translate() {
+    	String msg = "";
+    	if(this.handler == null) {
+    		return;
+    	}
+    	if(this.map.get(RKey.CODE) == null) {
+    		this.putTMsg(msg);
+    		return;
+    	}
+    	if(this.language == null) {
+    		msg = this.handler.translate((int) this.map.get(RKey.CODE));
+    	}else {
+    		msg = this.handler.translate((int) this.map.get(RKey.CODE), this.language);
+    	}
+    	this.putTMsg(msg);
+    }
+}

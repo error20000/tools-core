@@ -3,104 +3,38 @@ package PK;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.jian.tools.core.JsonTools;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import com.jian.handle.ErrorCodeHandler;
 
+@Component
 public class RTools {
-	
-	
-	public static RTools.Builder success(){
-		return new Builder(Tips.ERROR1);
+
+	private static ErrorCodeHandler handler;
+
+	@Autowired(required = false)
+	public void setHandler(ErrorCodeHandler handler) {
+		RTools.handler = handler;
 	}
 	
-	public static RTools.Builder custom(){
-		return new Builder();
+	public static RBuilder success(){
+		return new RBuilder(Tips.ERROR1).setErrorCodeHandler(handler);
 	}
 	
-	public static RTools.Builder custom(Tips tips){
+	public static RBuilder custom(){
+		return new RBuilder().setErrorCodeHandler(handler);
+	}
+	
+	public static RBuilder custom(Tips tips){
 		return custom(tips, "");
 	}
 	
-	public static RTools.Builder custom(Tips tips, String param){
+	public static RBuilder custom(Tips tips, String param){
 		Map<String, Object> map =  new HashMap<String, Object>();
 		map.put(RKey.CODE, tips.getCode());
 		map.put(RKey.MSG, tips.getDesc(param));
-		return new Builder(map);
-	}
-	
-	public static class Builder {
-
-		private Map<String, Object> map = null;
-
-        Builder() {
-            super();
-            this.map =  new HashMap<String, Object>();
-        }
-        
-        Builder(Map<String, Object> map) {
-            super();
-            this.map =  map;
-        }
-        
-        Builder(Tips tips) {
-            super();
-            this.map =  new HashMap<String, Object>();
-            this.map.put(RKey.CODE, tips.getCode());
-            this.map.put(RKey.MSG, tips.getDesc());
-        }
-        
-        public Builder put(String key, Object value){
-    		this.map.put(key, value);
-            return this;
-        }
-        
-        public Builder put(Tips tips){
-            return this.put(tips, "");
-        }
-        
-        public Builder put(Tips tips, String param){
-            this.map.put(RKey.CODE, tips.getCode());
-            this.map.put(RKey.MSG, tips.getDesc(param));
-            return this;
-        }
-        
-        public Builder putCode(int code){
-            this.map.put(RKey.CODE, code);
-            return this;
-        }
-        
-        public Builder putMsg(Object msg){
-            this.map.put(RKey.MSG, msg);
-            return this;
-        }
-        
-        public Builder putData(Object data){
-            this.map.put(RKey.DATA, data);
-            return this;
-        }
-        
-        public Builder putTotal(long total){
-            this.map.put(RKey.TOTAL, total);
-            return this;
-        }
-        
-        public Builder remove(String key){
-    		this.map.remove(key);
-            return this;
-        }
-        
-        public Builder clear(){
-    		this.map.clear();
-            return this;
-        }
-        
-        public Map<String, Object> build() {
-        	return this.map;
-        }
-        
-        public String toJSONString() {
-        	return JsonTools.toJsonString(this.map);
-        }
+		return new RBuilder(map).setErrorCodeHandler(handler);
 	}
 	
 }

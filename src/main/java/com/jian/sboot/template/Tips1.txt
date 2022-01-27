@@ -2,13 +2,16 @@ package PK;
 
 
 public class Tips  {
-
+	
+	//TODO -------------------------------------------------------------------------------- 1  成功
 	/**成功*/
 	public static final Tips ERROR1 = new Tips(1, "成功 ");
+
+	//TODO -------------------------------------------------------------------------------- 0  失败
 	/**失败*/
 	public static final Tips ERROR0 = new Tips(0, "失败 ");
 	
-	//失败类型
+	//TODO -------------------------------------------------------------------------------- -1xx  失败类型
 	/**系统错误*/
 	public static final Tips ERROR100 = new Tips(-100, "系统错误");
 	/**保存失败，{param}*/
@@ -40,7 +43,7 @@ public class Tips  {
 	/**{param}失败*/
 	public static final Tips ERROR114 = new Tips(-114, "{param}失败");
 	
-	//验证类型
+	//TODO -------------------------------------------------------------------------------- -2xx  验证类型
 	/**{param}无效/不合法*/
 	public static final Tips ERROR200 = new Tips(-200, "{param}无效/不合法"); 
 	/**没有权限*/
@@ -72,7 +75,7 @@ public class Tips  {
 	/**{param}已过期*/
 	public static final Tips ERROR214 = new Tips(-214, "{param}已过期");
 	
-	//提示类型
+	//TODO -------------------------------------------------------------------------------- -3xx  提示类型
 	/**不在活动时间段*/
 	public static final Tips ERROR300 = new Tips(-300, "不在活动时间段");
 	/**活动未开始*/
@@ -103,6 +106,8 @@ public class Tips  {
 	public static final Tips ERROR313 = new Tips(-313, "短信内容没有配置,或没启用");
 	/**短信验证码没有配置,或没启用*/
 	public static final Tips ERROR314 = new Tips(-314, "短信验证码没有配置,或没启用");
+	
+	//TODO -------------------------------------------------------------------------------- -xxx  自定义类型
 	
 	
 
@@ -141,6 +146,12 @@ public class Tips  {
 		return desc;
 	}
 	
+	/**
+	 * 支持String.format
+	 * @param args
+	 * @return
+	 * @see String.format
+	 */
 	public String descFormat(Object... args) {
 		return String.format(desc, args);
 	}

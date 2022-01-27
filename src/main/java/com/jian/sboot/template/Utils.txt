@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -276,9 +277,8 @@ public class Utils {
 			Object value = null;
 			// get
 			for (Method method : methods) {
-				String mname = method.getName().replace("get", "");
-				mname = mname.substring(0,1).toLowerCase() + mname.substring(1);
-				if(mname.equals(f.getName())){
+				String mname = "get" + f.getName().substring(0,1).toUpperCase() + f.getName().substring(1);
+				if(mname.equals(method.getName())){
 					try {
 						value = method.invoke(object);
 					} catch (Exception e) {
@@ -287,6 +287,7 @@ public class Utils {
 					break;
 				}
 			}
+			//put
 			map.put(key, value);
 		}
 		return map;
@@ -316,14 +317,21 @@ public class Utils {
 			}
 			//值
 			Object value = map.get(key);
+			if(value == null) {
+				continue; //不存在值跳过
+			}
 			// set
 			for (Method method : methods) {
-				String mname = method.getName().replace("set", "");
-				mname = mname.substring(0,1).toLowerCase() + mname.substring(1);
-				if(mname.equals(f.getName())){
+				String mname = "set" + f.getName().substring(0,1).toUpperCase() + f.getName().substring(1);
+				if(mname.equals(method.getName())){
 					try {
+						value = transformValue(method.getParameterTypes()[0], value); //类型不匹配，转换类型
 						method.invoke(obj, value);
 					} catch (Exception e) {
+						System.out.println(key);
+						System.out.println(method.getName());
+						System.out.println(value);
+						System.out.println(value.getClass().getName());
 						e.printStackTrace();
 					}
 					break;
@@ -349,35 +357,30 @@ public class Utils {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		Field[] fields = Tools.getFields(clzz); //object.getClass().getDeclaredFields();
-		Method[] methods = Tools.getMethods(clzz); //object.getClass().getDeclaredMethods(); 
-		for (Field f : fields) {
-			//字段
-			String key = f.getName();
-			if(f.isAnnotationPresent(Column.class)){
-				Column col = f.getAnnotation(Column.class);
-				if(!col.exist()) {
-					continue; //不存在跳过
-				}
-				key = col.value();
+		return mapToObject(map, obj);
+	}
+	
+	/**
+	 * 	转换数据类型
+	 * @param clazz	目标类型
+	 * @param value	
+	 * @return
+	 */
+	public static Object transformValue(Class<?> clazz, Object value) {
+		if(clazz == Integer.class) {
+			//Byte BigDecimal -> Integer
+			if(value instanceof Byte) {
+				value = ((Byte) value).intValue();
+			}else if(value instanceof BigDecimal) {
+				value = ((BigDecimal) value).intValue();
 			}
-			//值
-			Object value = map.get(key);
-			//set
-			for (Method method : methods) {
-				String mname = method.getName().replace("set", "");
-				mname = mname.substring(0,1).toLowerCase() + mname.substring(1);
-				if(mname.equals(f.getName())){
-					try {
-						method.invoke(obj, value);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					break;
-				}
+		}else if(clazz == String.class) {
+			//Character -> String
+			if(value instanceof Character) {
+				value = value.toString();
 			}
 		}
-		return obj;
+		return value;
 	}
 	
 	@SuppressWarnings("unchecked")

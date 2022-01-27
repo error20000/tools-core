@@ -321,6 +321,9 @@ public class AutoCreateSpringBootMybatis extends AbstractAutoCreate implements A
 		tempName = "RTools"; //模版名
 		fileName = "RTools"; //文件名
 		doCreateResult(packName, tempName, fileName, chartset);
+		tempName = "RBuilder"; //模版名
+		fileName = "RBuilder"; //文件名
+		doCreateResult(packName, tempName, fileName, chartset);
 		if("Tips2".equals(config.getTipsVersion())){
 			tempName = "Tips2";
 			fileName = "Tips";
@@ -335,8 +338,8 @@ public class AutoCreateSpringBootMybatis extends AbstractAutoCreate implements A
 	public void createHandle(){
 		String packName = config.getHandlePath(); //包路径
 		String chartset = config.getChartset(); //字符集
-		String tempName = "LocalTokenHandler"; //模版名
-		String fileName = "LocalTokenHandler"; //文件名
+		String tempName = "DefaultTokenHandler"; //模版名
+		String fileName = "DefaultTokenHandler"; //文件名
 		doCreateHandle(packName, tempName, fileName, chartset);
 		packName = config.getConfigPath(); //包路径
 		chartset = config.getChartset(); //字符集
@@ -380,8 +383,8 @@ public class AutoCreateSpringBootMybatis extends AbstractAutoCreate implements A
 			line = "import " + config.getResultPath()+ ".RKey;"; //import xxxx.result.RKey
 		}else if(line.indexOf("import RTools;") != -1){
 			line = "import " + config.getResultPath()+ ".RTools;"; //import xxxx.result.RTools
-		}else if(line.indexOf("import LocalTokenHandler;") != -1){
-			line = "import " + config.getHandlePath()+ ".LocalTokenHandler;"; //import xxxx.handle.LocalTokenHandler
+		}else if(line.indexOf("import DefaultTokenHandler;") != -1){
+			line = "import " + config.getHandlePath()+ ".DefaultTokenHandler;"; //import xxxx.handle.DefaultTokenHandler
 		}
 		//@Date
 		if(line.trim().endsWith("@Date")){

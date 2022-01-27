@@ -28,7 +28,7 @@ import Tips;
  * @Date 2021/11/02
  *
  */
-public class LocalTokenHandler implements TokenHandler  {
+public class DefaultTokenHandler implements TokenHandler  {
 
 	@Autowired
 	private Config config;

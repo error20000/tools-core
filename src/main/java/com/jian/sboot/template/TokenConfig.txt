@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import com.jian.handle.TokenHandler;
-import LocalTokenHandler;
+import DefaultTokenHandler;
 
 /**
  * 	注入token工具类
@@ -16,13 +16,13 @@ import LocalTokenHandler;
 public class TokenConfig {
 	
 	/**
-	 * 	默认注入LocalTokenHandler
+	 * 	默认注入DefaultTokenHandler
 	 * @return
 	 */
 	@Bean
 	@ConditionalOnMissingBean(TokenHandler.class)
 	public TokenHandler defTokenHandle() {
-		return new LocalTokenHandler();
+		return new DefaultTokenHandler();
 	}
 	
 }

@@ -257,7 +257,7 @@ public interface BaseDao<T> {
     	" 	<if test=\" columns == null \"> ", 
     	"		* ",
     	"   </if>",
-		" from `${tableName}` "
+		" from `${tableName}` ",
 		"</script>"
 	})
 	public List<Map<String, Object>> selectAll(@Param("tableName") String tableName, @Param("columns") List<String> columns);

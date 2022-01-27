@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,25 @@ public class DBTest {
 	
 	@Autowired
 	private com.testAuto.util.Test test;
+	
+	@Autowired
+	private SqlSessionFactory factory;
+	
+    @Test
+    public void testSql(){
+//    	List<Map<String, Object>> list = service.getDao().query("select * from s_user_group_copy1");
+    	Map<String, String> order = new HashMap<String, String>();
+    	order.put("key", "pid");
+    	order.put("value", "desc");
+//    	List<Map<String, Object>> listOrder = 
+    	List<Map<String, Object>> list = service.getDao().selectPage("s_user_group_copy1", null, null, order, 0, 10);
+    	System.out.println(JsonTools.toJsonString(list.get(0)));
+    }
+
+    @Test
+    public void testFactory(){
+		System.out.println(factory.openSession());
+    }
 
     @Test
     public void testBean(){
