@@ -110,7 +110,9 @@ public class GlobalExceptionHandler {
 			String javaVersion = System.getProperty("java.version");
 			String javaBin = System.getProperty("java.home").split(javaVersion)[0].replace("jre", "jdk") + javaVersion + File.separator + "bin";
 			String userDir = System.getProperty("user.dir");
-			String jstackPath = userDir + File.separator + "jstack_" + System.currentTimeMillis() + ".txt";
+			long time = System.currentTimeMillis();
+			//jstack
+			String jstackPath = userDir + File.separator + "jstack_" + time + ".txt";
 			if(osName.toLowerCase().contains("windows")){
 				// cmd /c cd C:\\Program Files\\Java\\jre1.8.0_111\\bin && c: && jstack -F "+ pid + " > d:\\1.txt
 				cmd = "cmd /c cd "+javaBin+" && "+javaBin.split(":")[0]+": && jstack -F " + pid + " > "+jstackPath;
@@ -134,18 +136,39 @@ public class GlobalExceptionHandler {
 				System.out.println(eline);
 			}*/
 			System.out.println("=======================end jstack=============================");
-			String jinfoPath = userDir + File.separator + "jinfo_" + System.currentTimeMillis() + ".txt";
+			//jinfo
+			String jinfoPath = userDir + File.separator + "jinfo_" + time + ".txt";
 			if(osName.toLowerCase().contains("windows")){
-				// cmd /c cd C:\\Program Files\\Java\\jre1.8.0_111\\bin && c: && jstack -F "+ pid + " > d:\\1.txt
+				// cmd /c cd C:\\Program Files\\Java\\jre1.8.0_111\\bin && c: && jinfo "+ pid + " > d:\\1.txt
 				cmd = "cmd /c cd "+javaBin+" && "+javaBin.split(":")[0]+": && jinfo " + pid + " > "+jinfoPath;
 			}else{
 				cmd = "cmd -c cd "+javaBin+" && jinfo " + pid + " > "+jinfoPath;
 			}
 			Runtime.getRuntime().exec(cmd);
-			
 			System.out.println("=======================end jinfo=============================");
+			//jmap -heap
+			String jmapPath = userDir + File.separator + "jmap_" + time + ".txt";
+			if(osName.toLowerCase().contains("windows")){
+				// cmd /c cd C:\\Program Files\\Java\\jre1.8.0_111\\bin && c: && jmap -heap "+ pid + " > d:\\1.txt
+				cmd = "cmd /c cd "+javaBin+" && "+javaBin.split(":")[0]+": && jmap -heap " + pid + " > "+jmapPath;
+			}else{
+				cmd = "cmd -c cd "+javaBin+" && jmap -heap " + pid + " > "+jmapPath;
+			}
+			Runtime.getRuntime().exec(cmd);
+			System.out.println("=======================end jmap heap=============================");
+			//jstat -gc
+			String jstatPath = userDir + File.separator + "jstat_" + time + ".txt";
+			if(osName.toLowerCase().contains("windows")){
+				// cmd /c cd C:\\Program Files\\Java\\jre1.8.0_111\\bin && c: && jstat -gc "+ pid + " > d:\\1.txt
+				cmd = "cmd /c cd "+javaBin+" && "+javaBin.split(":")[0]+": && jstat -gc " + pid + " > "+jstatPath;
+			}else{
+				cmd = "cmd -c cd "+javaBin+" && jstat -gc " + pid + " > "+jstatPath;
+			}
+			Runtime.getRuntime().exec(cmd);
+			System.out.println("=======================end jstat gc=============================");
 		} catch (Exception e2) {
-			e2.printStackTrace();
+			//e2.printStackTrace();
+			//do nothing
 		}
 	}
 	
