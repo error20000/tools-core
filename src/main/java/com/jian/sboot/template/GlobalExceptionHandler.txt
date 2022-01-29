@@ -36,8 +36,8 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler({ ServiceException.class })
 	@ResponseStatus(HttpStatus.OK)
-	public String serviceValidHandler(HttpServletRequest request, HttpServletResponse response, ServiceException e) {
-		String message = e.getLocalizedMessage();
+	public String handleServiceException(HttpServletRequest request, HttpServletResponse response, ServiceException e) {
+		String message = e.getMessage();
 		log.error(">>> 业务异常：{}", message);
 		return message;
 	}
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler({ HttpException.class, JsonException.class, ToolsException.class })
 	@ResponseStatus(HttpStatus.OK)
-	public String toolsValidHandler(HttpServletRequest request, HttpServletResponse response, HttpException e) {
+	public String handleToolsException(HttpServletRequest request, HttpServletResponse response, HttpException e) {
 
 		Writer result = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(result);
@@ -63,13 +63,18 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler({ Exception.class })
 	@ResponseStatus(HttpStatus.OK)
-	public String GlobalException(HttpServletRequest request, HttpServletResponse response, Exception e) {
+	public String handleException(HttpServletRequest request, HttpServletResponse response, Exception e) {
 
 		Writer result = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(result);
 		e.printStackTrace(printWriter);
 		
 		log.error(">>> 未知异常：{}", result.toString());
+		
+		//由于匹配了Exception，会导致下面的OutOfMemoryError匹配不到，所以在这里处理OutOfMemoryError。
+		if(e.getMessage().contains("java.lang.OutOfMemoryError")) {
+			outOfMemoryError();
+		}
 		
 		return RTools.custom(Tips.ERROR0).putMsg(e.getMessage()).toJSONString();
 	}
@@ -78,15 +83,27 @@ public class GlobalExceptionHandler {
 	/**
 	 * 内存溢出
 	 */
-	@ResponseBody
-	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	@ExceptionHandler(OutOfMemoryError.class)
-	private String handleOutOfMemoryError(OutOfMemoryError e) {
-		String message = e.getLocalizedMessage();
-		System.out.println("----------------------------");
-		System.out.println(message);
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	private String handleOutOfMemoryError(HttpServletRequest request, HttpServletResponse response, OutOfMemoryError e) {
+		
+		Writer result = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(result);
+		e.printStackTrace(printWriter);
+		
+		log.error(">>> 内存溢出：{}", result.toString());
+		
+		outOfMemoryError();
+		
+		return RTools.custom(Tips.ERROR0).putMsg(e.getMessage()).toJSONString();
+	}
+
+    /**
+     * 抓取异常信息
+     * 
+     */
+	private void outOfMemoryError() {
 		try {
-			
 			String cmd = "";
 			String pid = System.getProperty("PID");
 			String osName = System.getProperty("os.name");
@@ -130,9 +147,6 @@ public class GlobalExceptionHandler {
 		} catch (Exception e2) {
 			e2.printStackTrace();
 		}
-		
-		log.error(">>> 内存溢出：{}", message);
-		
-		return RTools.custom(Tips.ERROR0).putMsg(e.getMessage()).toJSONString();
 	}
+	
 }

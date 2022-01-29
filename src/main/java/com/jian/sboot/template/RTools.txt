@@ -1,29 +1,60 @@
 package PK;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.jian.handle.ErrorCodeHandler;
 
+import Config;
+
+/**
+ * 结果类
+ * <p>使用方式：</p>
+ * <pre>
+	RTools.success().putData(data).toJSONString();
+	RTools.custom(Tips.ERROR0).toJSONString();
+	RTools.custom().putCode(code).putMsg(msg).putData(data).build();
+ * </pre>
+ * <p>注册错误码转译：</p>
+ * <pre>
+  	//@Component
+  	public class TestErrorCodeHandler implements ErrorCodeHandler
+  	
+ 	// 可配合Config语言标识，支持多语言 
+	Config.languageName; 
+ * </pre>
+ */
 @Component
 public class RTools {
 
+	private static Logger logger = LoggerFactory.getLogger(RTools.class);
 	private static ErrorCodeHandler handler;
+	private static Config config;
 
 	@Autowired(required = false)
 	public void setHandler(ErrorCodeHandler handler) {
 		RTools.handler = handler;
 	}
+
+	@Autowired(required = false)
+	public void setConfig(Config config) {
+		RTools.config = config;
+	}
 	
 	public static RBuilder success(){
-		return new RBuilder(Tips.ERROR1).setErrorCodeHandler(handler);
+		return new RBuilder(Tips.ERROR1)
+				.setErrorCodeHandler(handler)
+				.setLanguage(getLanguage());
 	}
 	
 	public static RBuilder custom(){
-		return new RBuilder().setErrorCodeHandler(handler);
+		return custom(null, "");
 	}
 	
 	public static RBuilder custom(Tips tips){
@@ -31,10 +62,31 @@ public class RTools {
 	}
 	
 	public static RBuilder custom(Tips tips, String param){
-		Map<String, Object> map =  new HashMap<String, Object>();
-		map.put(RKey.CODE, tips.getCode());
-		map.put(RKey.MSG, tips.getDesc(param));
-		return new RBuilder(map).setErrorCodeHandler(handler);
+		return new RBuilder(tips, param)
+				.setErrorCodeHandler(handler)
+				.setLanguage(getLanguage());
 	}
-	
+
+	/**
+	 * 获取语言标识
+	 * @return
+	 */
+	private static String getLanguage() {
+		if(config == null) {
+			logger.debug(" getLanguage config is null. ");
+			return null;
+		}
+		ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+		if(servletRequestAttributes == null) {
+			logger.debug(" getLanguage servletRequestAttributes is null. ");
+			return null;
+		}
+		HttpServletRequest req = servletRequestAttributes.getRequest();
+		if(req == null) {
+			logger.debug(" getLanguage req is null. ");
+			return null;
+		}
+		//参数 > 请求头
+		return req.getParameter(config.languageName) != null ? req.getParameter(config.languageName) : req.getHeader(config.languageName);
+	}
 }

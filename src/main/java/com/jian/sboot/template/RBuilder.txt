@@ -17,21 +17,22 @@ public class RBuilder {
 	private Map<String, Object> map = null;
 
 	RBuilder() {
-        super();
-        this.map =  new HashMap<String, Object>();
-    }
-    
-	RBuilder(Map<String, Object> map) {
-        super();
-        this.map =  map;
+        this(null);
     }
     
 	RBuilder(Tips tips) {
+        this(null, "");
+    }
+    
+	RBuilder(Tips tips, String param) {
         super();
         this.map =  new HashMap<String, Object>();
-        this.map.put(RKey.CODE, tips.getCode());
-        this.map.put(RKey.MSG, tips.getDesc());
+        if(tips != null) {
+        	this.map.put(RKey.CODE, tips.getCode());
+        	this.map.put(RKey.MSG, tips.getDesc(param));
+        }
     }
+	
 	
 	public RBuilder setErrorCodeHandler(ErrorCodeHandler handler){
 		this.handler = handler;
@@ -95,7 +96,6 @@ public class RBuilder {
     }
     
     public Map<String, Object> build() {
-    	System.out.println(handler);
     	this.translate();
     	return this.map;
     }
@@ -108,16 +108,15 @@ public class RBuilder {
     private void translate() {
     	String msg = "";
     	if(this.handler == null) {
-    		return;
+    		return; //直接返回。
     	}
     	if(this.map.get(RKey.CODE) == null) {
-    		this.putTMsg(msg);
-    		return;
+    		return; //如果没有错误码，直接返回。
     	}
     	if(this.language == null) {
-    		msg = this.handler.translate((int) this.map.get(RKey.CODE));
+    		msg = this.handler.translate((int) this.map.get(RKey.CODE), (String) this.map.get(RKey.MSG));
     	}else {
-    		msg = this.handler.translate((int) this.map.get(RKey.CODE), this.language);
+    		msg = this.handler.translate((int) this.map.get(RKey.CODE), (String) this.map.get(RKey.MSG), this.language);
     	}
     	this.putTMsg(msg);
     }

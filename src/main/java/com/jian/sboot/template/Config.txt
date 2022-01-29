@@ -26,6 +26,8 @@ public class Config {
 	public String sso_module;
 	
 	
+	/** 语言标识 */
+	public String languageName = "xxx_language"; 
 	
 	/** 登录密码错误次数限制 0--不限 */
 	public int maxLoginCount = 5; //登录密码错误次数限制 0--不限

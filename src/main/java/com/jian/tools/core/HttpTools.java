@@ -28,7 +28,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.springframework.util.StopWatch;
 
 import com.jian.exception.HttpException;
 
@@ -359,15 +358,15 @@ public class HttpTools {
 		String str2 = HttpTools.getInstance().sendHttpPost(url, data);
 		System.out.println(str2);*/
 
-		StopWatch watch = new StopWatch();
+		/*StopWatch watch = new StopWatch();
         for (int i = 0; i < 10; i++) {
 			watch.start(i + "");
-			String sstr = HttpTools.getInstance().sendHttpPost("http://notices.digisky.com/api/third/send");
+			String sstr = HttpTools.getInstance().sendHttpPost("http://notice.digisky.com/api/third/send");
 			watch.stop();
 			System.out.println("------"+sstr);
 			System.out.println(System.getProperty("https.protocols"));
 		}
-        System.out.println(watch.prettyPrint());
+        System.out.println(watch.prettyPrint());*/
 	}
 	
 	

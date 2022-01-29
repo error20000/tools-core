@@ -166,7 +166,7 @@ public class Tips  {
 	}
 
 	public String getDesc(String param) {
-		return desc.replace("{param}", param);
+		return desc.replace("{param}", param == null ? "" : param);
 	}
 	
 	public String getDescOriginal() {

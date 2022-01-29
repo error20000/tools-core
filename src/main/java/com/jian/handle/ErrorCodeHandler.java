@@ -11,17 +11,19 @@ public interface ErrorCodeHandler {
      * 	转译
      * 
      * @param code 错误码
+     * @param msg 错误描述
      * @return
      */
-    String translate(int code);
+    String translate(int code, String msg);
     
     /**
      * 转译（多语言）
      * 
      * @param code 错误码
+     * @param msg 错误描述
      * @param language 语言标识
      * @return
      */
-    String translate(int code, String language);
+    String translate(int code, String msg, String language);
 
 }
