@@ -53,7 +53,7 @@ public interface TokenHandler {
 	 * @param platform	平台标识
 	 * @return	token字符串
 	 */
-	public String newToken(String userId, int expireTime, String platform);
+	public String newToken(String userId, long expireTime, String platform);
 	
 	
 

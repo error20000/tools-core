@@ -16,6 +16,7 @@ import com.jian.tools.core.JsonTools;
 import com.jian.tools.core.Tools;
 import com.jian.tools.core.XXTEA;
 import com.jian.tools.core.cache.CacheObject;
+
 import Config;
 import Constant;
 import ServiceException;
@@ -82,7 +83,9 @@ public class DefaultTokenHandler implements TokenHandler  {
 		if(Tools.isNullOrEmpty(tokenStr)) {
 			throw new ServiceException(Tips.ERROR211, config.login_token_name);
 		}
-		tokenStr = tokenStrDecode(tokenStr); //解码
+		//解码
+		tokenStr = tokenStrDecode(tokenStr);
+		//提取信息
 		String token = getToken(tokenStr);
 		String userId = getUserId(tokenStr);
 		long time = getTime(tokenStr);
@@ -93,8 +96,8 @@ public class DefaultTokenHandler implements TokenHandler  {
 		if((time + expire) < cur){
 			throw new ServiceException(Tips.ERROR214, config.login_token_name);
 		}
-		//判断MD5
-		String str = userId + config.tokenConnector + time + config.tokenConnector + expire + config.tokenConnector + plat;
+		//判断格式（md5）
+		String str = tokenStr(userId, time, expire, plat);
 		return token.equals(tokenMd5(str));
 	}
 
@@ -124,13 +127,13 @@ public class DefaultTokenHandler implements TokenHandler  {
 	 * @param platform	平台标识
 	 * @return	token字符串
 	 */
-	public String newToken(String userId, int expireTime, String platform) {
+	public String newToken(String userId, long expireTime, String platform) {
 		long curTime = System.currentTimeMillis();
 		String plat = getPlatform(platform);
-		String str = userId + config.tokenConnector + curTime + config.tokenConnector + expireTime + config.tokenConnector + plat;
-		String token = tokenMd5(str); //md5 userId + time + expire + plat
-		String tokenStr = token + config.tokenConnector + str;
-		tokenStr = tokenStrEncode(tokenStr);//加密
+		String str = tokenStr(userId, curTime, expireTime, plat); //原始的字符串
+		String token = tokenMd5(str); //md5后的字符串
+		String tokenStr = token + config.tokenConnector + str; //md5后的字符串 + 原始的字符串
+		tokenStr = tokenStrEncode(tokenStr);//加密后的字符串
 		return tokenStr;
 	}
 	
@@ -173,10 +176,24 @@ public class DefaultTokenHandler implements TokenHandler  {
 		}
 		return token;
 	}
+
+	/**
+	 *  构成token的原始字符串
+	 * @param userId	用户标识
+	 * @param curTime	当前时间
+	 * @param expireTime	过期时间
+	 * @param plat	平台标识
+	 * @return
+	 */
+	private String tokenStr(String userId, long curTime, long expireTime, String plat){
+		//userId + time + expire + plat
+		String str = userId + config.tokenConnector + curTime + config.tokenConnector + expireTime + config.tokenConnector + plat;
+		return str;
+	}
 	
 	/**
-	 * 	生成token
-	 * @param tokenStr
+	 *  生成token
+	 * @param str 原始字符串
 	 * @return
 	 */
 	private String tokenMd5(String str){

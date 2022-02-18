@@ -22,6 +22,7 @@ public class TokenConfig {
 	@Bean
 	@ConditionalOnMissingBean(TokenHandler.class)
 	public TokenHandler defTokenHandle() {
+		System.out.println("注入默认的TokenHandler。。。");
 		return new DefaultTokenHandler();
 	}
 	
