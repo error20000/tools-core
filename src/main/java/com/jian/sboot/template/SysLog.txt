@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Documented
 @Inherited
 public @interface SysLog {
-	SysLogType type();
+	SysLogType type() default SysLogType.Query;
 	String name() default "";
 	String describe() default "";
 }

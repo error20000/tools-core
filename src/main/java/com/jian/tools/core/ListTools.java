@@ -14,6 +14,7 @@ import java.util.Map;
 			.add("test2")
 			.add("test3")
 			.add("test4")
+			.addIf(null)
 			.build();
 			
 	List<String> list2 = ListTools.custom(String.class).build();
@@ -78,6 +79,18 @@ public class ListTools {
             return this;
         }
         
+        /**
+         *  当e = null时，不会add。
+         * @param e
+         * @return
+         */
+        public Builder<T> addIf(T e){
+        	if(e != null) {
+        		this.list.add(e);
+        	}
+            return this;
+        }
+        
 		public Builder<T> remove(T e){
     		this.list.remove(e);
             return this;
@@ -103,6 +116,7 @@ public class ListTools {
 				.add("test2")
 				.add("test3")
 				.add("test4")
+				.addIf(null)
 				.build();
 		List<String> list2 = ListTools.custom(String.class).build();
 		List<String> list5 = ListTools.custom(list).add("test5").build();

@@ -3,7 +3,7 @@ package com.jian.handle;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 	登录工具类
+ * 	本地登录工具类
  * @author liujian
  */
 public interface TokenHandler {

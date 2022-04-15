@@ -11,11 +11,12 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.jian.tools.core.DateTools;
+import com.jian.tools.core.Tools;
+
 import App;
 import Config;
-import com.jian.tools.core.DateTools;
 import Tips;
-import com.jian.tools.core.Tools;
 
 /**
  * 上传工具类
@@ -26,12 +27,12 @@ import com.jian.tools.core.Tools;
 @Component
 public class UploadUtils {
 
-	private static String imgFiles = "bmp,gif,jpeg,jpg,png,svg";
-	private static String docFiles = "csv,doc,docx,pdf,ppt,pptx,txt,xls,xlsx,md";
-	private static String movFiles = "3gp,asf,avi,flv,f4v,mov,mkv,mp4,ogg,webm,wmv,ra,ram,rm,rmvb,swf,mp3,aac,wav,flac,wma";
-	private static String otherFiles = "rar,zip,tar,tgz,gz,7z,psd,xml";
-	private static String allowFiles = imgFiles+","+docFiles+","+movFiles+","+otherFiles;
-	private static String unAllowFiles = "";
+	private static String imgFiles = ".bmp,.gif,.jpeg,.jpg,.png,.svg";
+	private static String docFiles = ".csv,.doc,.docx,.pdf,.ppt,.pptx,.txt,.xls,.xlsx,.md";
+	private static String movFiles = ".3gp,.asf,.avi,.flv,.f4v,.mov,.mkv,.mp4,.ogg,.webm,.wmv,.ra,.ram,.rm,.rmvb,.swf,.mp3,.aac,.wav,.flac,.wma";
+	private static String otherFiles = ".rar,.zip,.tar,.tgz,.gz,.7z,.psd,.xml";
+	public static String allowFiles = imgFiles+","+docFiles+","+movFiles+","+otherFiles;
+	public static String unAllowFiles = "";
 	
 	public static Config config = null;
 	
@@ -109,8 +110,8 @@ public class UploadUtils {
 	 * @param fileName  文件名，如：test.jpg
 	 * @param in	文件的输入流。
 	 * @param outDir	文件输出的目录。
-	 * @param allow		允许的文件类型，如：jpg,png,doc,txt...。多个逗号分隔。
-	 * @param unallow	不允许文件类型限制，如：jpg,png,doc,txt...。多个逗号分隔。
+	 * @param allow		允许的文件类型，如：.jpg,.png,.doc,.txt...。多个逗号分隔。
+	 * @param unallow	不允许文件类型限制，如：.jpg,.png,.doc,.txt...。多个逗号分隔。
 	 * @param isOriginName	是否保留原文件名。true：表示保留，重名会累加，false：表示不保留，会重命名。
 	 * @return file path。
 	 * @throws Exception 
@@ -118,11 +119,11 @@ public class UploadUtils {
 	 */
 	public static String upload(String fileName, InputStream in, String outDir, String allow, String unallow, boolean isOriginName) throws Exception{
 		//判断类型
-		String suffix = fileName.substring(fileName.lastIndexOf(".")+1);
-		if((unallow.toLowerCase()+",").contains(suffix.toLowerCase()+",")) {
+		String suffix = getSuffix(fileName);
+		if((unallow.toLowerCase()).contains(suffix.toLowerCase())) {
 			throw new Exception(Tips.ERROR212.getDesc() + "(" + suffix + ")");
 		}
-		if(!(allow.toLowerCase()+",").contains(suffix.toLowerCase()+",")){
+		if(!(allow.toLowerCase()).contains(suffix.toLowerCase())){
 			throw new Exception(Tips.ERROR212.getDesc() + "(" + suffix + ")");
 		}
 		//上传
@@ -143,7 +144,7 @@ public class UploadUtils {
 	public static String upload(String fileName, InputStream in, String outDir, boolean isOriginName, boolean override) throws Exception{
 		
 		//生成输出文件
-		String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+		String suffix = getSuffix(fileName);
 
 		String basePath = Tools.isNullOrEmpty(config.out_static_path) ? App.rootPath + "/static/" : config.out_static_path;
 		basePath = basePath.endsWith("/") ? basePath : basePath + "/";
@@ -151,7 +152,7 @@ public class UploadUtils {
 		
 		String outFileName = "";
 		if(isOriginName){
-			outFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "."+ suffix;
+			outFileName = fileName.substring(0, fileName.lastIndexOf(".")) + suffix;
 			File test = new File(basePath + outFilePath + outFileName);
 			if(!override) {
 				outFileName = rename(test, 0);
@@ -162,7 +163,7 @@ public class UploadUtils {
 			for (int i = 0; i <  4 - str.length(); i++) {
 				str = "0" + str;
 			}
-			outFileName = DateTools.formatDate("yyyyMMddHHmmssSSS") + str + "."+ suffix;
+			outFileName = DateTools.formatDate("yyyyMMddHHmmssSSS") + str + suffix;
 		}
 		
 		outFilePath = buildPath(outFilePath + outFileName);
@@ -239,11 +240,38 @@ public class UploadUtils {
 		return new File(filePath).getPath().replace("\\", "/");
 	}
 	
+	/**
+	 * 根据给定的文件名，获取扩展名，包含“.”。
+	 * @param filename  文件名
+	 * @return 返回扩展名。如：.txt
+	 */
+	public static String getSuffix(String filename) {
+		if(filename.lastIndexOf( "." ) == -1) {
+			return "";
+		}
+		return filename.substring(filename.lastIndexOf( "." )).toLowerCase();
+    }
+
+	/**
+	 * 根据给定的文件名，获取扩展名，不包含“.”。
+	 * @param filename  文件名
+	 * @return 返回扩展名。如：txt
+	 */
+	public static String getExtension(String filename) {
+		if(filename.lastIndexOf( "." ) == -1) {
+			return "";
+		}
+		return filename.substring(filename.lastIndexOf( "." ) + 1).toLowerCase();
+    }
+	
 	//查询
 	private static String rename(File file, int index){
+		if(!file.exists() && index == 0){
+			return file.getName(); //文件不存在
+		}
 		String fname = file.getName();
 		String tname = fname.substring(0, fname.lastIndexOf(".")).toLowerCase();
-		String suffix = fname.substring(fname.lastIndexOf(".") + 1).toLowerCase();
+		String suffix = getSuffix(fname);
 		File parent = file.getParentFile();
 		String[] str = parent.list(new FilenameFilter() {
 			@Override
@@ -261,11 +289,8 @@ public class UploadUtils {
 				index = Math.max(index, tindex);
 			}
 		}
-		if(!file.exists() && index == 0){
-			return file.getName();
-		}
 		index = index + 1;
-		return fname.substring(0, fname.lastIndexOf(".")) + "("+index+")" + fname.substring(fname.lastIndexOf("."));
+		return fname.substring(0, fname.lastIndexOf(".")) + "("+index+")" + suffix;
 	}
 	
 }

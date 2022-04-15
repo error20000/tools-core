@@ -37,7 +37,7 @@ public class DefaultTokenHandler implements TokenHandler  {
 	//TODO ----------------------------------------------------------------------------------------------------- token
 	
 	/**
-	 * 	获取token字符串
+	 * 	获取token字符串。 优先级：cookie > 请求头 > 参数
 	 * @return
 	 */
 	public String getLoginToken() {
@@ -46,7 +46,7 @@ public class DefaultTokenHandler implements TokenHandler  {
 	}
 
 	/**
-	 * 	获取token字符串
+	 * 	获取token字符串。 优先级：cookie > 请求头 > 参数
 	 * @param req
 	 * @return
 	 */

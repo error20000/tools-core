@@ -103,7 +103,10 @@ public abstract class AbstractAutoCreate implements AutoCreate {
 		System.out.println(DateTools.formatDate()+":	解析数据库...");
 		List<Table> list = manager.getDbInfo();
 		for (Table table : list) {
-			String ename = table.getTableName().replaceFirst(config.getPrefix(), "");
+			String ename = table.getTableName();
+			if(ename.startsWith(config.getPrefix())) {
+				ename = ename.replaceFirst(config.getPrefix(), "");
+			}
 			ename = ename.substring(0, 1).toUpperCase() + ename.substring(1);
 			if(!Tools.isNullOrEmpty(config.getSeparator())){
 				int index = 0;
@@ -127,7 +130,10 @@ public abstract class AbstractAutoCreate implements AutoCreate {
 		//解析数据表
 		System.out.println(DateTools.formatDate()+":	解析数据表...");
 		Table table = manager.getDbTable(tableName);
-		String ename = table.getTableName().replaceFirst(config.getPrefix(), "");
+		String ename = table.getTableName();
+		if(ename.startsWith(config.getPrefix())) {
+			ename = ename.replaceFirst(config.getPrefix(), "");
+		}
 		ename = ename.substring(0, 1).toUpperCase() + ename.substring(1);
 		if(!Tools.isNullOrEmpty(config.getSeparator())){
 			int index = 0;

@@ -107,12 +107,13 @@ public class Utils {
 					PrimaryKey pk = f.getAnnotation(PrimaryKey.class);
 					//数据库字段
 					String colName = f.getName();
+					colName = Tools.isNullOrEmpty(pk.value()) ? colName : pk.value();
+					//如果存在Column，取Column值。
 					if(f.isAnnotationPresent(Column.class)){
 						Column col = f.getAnnotation(Column.class);
 						//主键忽略exist属性
 						colName = Tools.isNullOrEmpty(col.value()) ? colName : col.value();
 					}
-					colName = Tools.isNullOrEmpty(pk.value()) ? colName : pk.value();
 					//对象
 					PrimaryKeyCondition node = new PrimaryKeyCondition();
 					node.setField(colName); 
@@ -132,13 +133,20 @@ public class Utils {
 	 * @return
 	 */
 	public static List<String> getPriColumns(Class<?> clss){
-		List<PrimaryKeyCondition> list = getPrimaryKeys(clss);
-		List<String> keys = new ArrayList<>();
-		for (PrimaryKeyCondition pkc : list) {
-			String pkn = pkc.getField();
-			keys.add(pkn);
+		String mark = clss.getCanonicalName() + "#PrimaryKey";
+		List<String> list = null;
+		if(colArrays.containsKey(mark)){
+			list = colArrays.get(mark);
+		}else {
+			list = new ArrayList<>();
+			List<PrimaryKeyCondition> keys = getPrimaryKeys(clss);
+			for (PrimaryKeyCondition pkc : keys) {
+				String pkn = pkc.getField();
+				list.add(pkn);
+			}
+			colArrays.put(mark, list);
 		}
-		return keys;
+		return list;
 	}
 	
 	/**
@@ -147,7 +155,7 @@ public class Utils {
 	 * @return
 	 */
 	public static List<String> getInsertFillColumns(Class<?> clss){
-		String mark = clss.getCanonicalName() + "#insertFill";
+		String mark = clss.getCanonicalName() + "#InsertFill";
 		List<String> list = null;
 		if(colArrays.containsKey(mark)){
 			list = colArrays.get(mark);
@@ -173,7 +181,7 @@ public class Utils {
 	 * @return
 	 */
 	public static List<String> getUpdateFillColumns(Class<?> clss){
-		String mark = clss.getCanonicalName() + "#insertFill";
+		String mark = clss.getCanonicalName() + "#UpdateFill";
 		List<String> list = null;
 		if(colArrays.containsKey(mark)){
 			list = colArrays.get(mark);
@@ -406,7 +414,7 @@ public class Utils {
 	
 	public static String newId(String suffix) {
 		int random = new Random().nextInt(10000);
-		String str = random+"";
+		String str = random + "";
 		for (int i = 0; i <  4 - str.length(); i++) {
 			str = "0" + str;
 		}

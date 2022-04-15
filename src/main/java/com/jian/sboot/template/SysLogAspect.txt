@@ -1,5 +1,6 @@
 package PK;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.jian.tools.core.Tools;
 import App;
 import SysLog;
 
@@ -29,27 +31,121 @@ import SysLog;
 public class SysLogAspect {
 
 	@Autowired
-//	protected SystemLogsService service;
+//	protected SysLogsService service;
 	
     //线程池
-  	private static ExecutorService pools = new ThreadPoolExecutor(20, 20, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1000));
+  	private static ExecutorService pools = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1000));
   	
 	private static final Logger logger = LoggerFactory.getLogger(SysLogAspect.class);
+	private static Map<String, Method> methodCache = new HashMap<String, Method>();
+	private static Map<String, Object> implCache = new HashMap<String, Object>();
+	private String methodName = "selectListForLog";
     
     
     @Around("execution(public * {Controller}.*.*(..)) && @annotation(log)")
     public Object around(ProceedingJoinPoint joinPoint, SysLog log) throws Throwable {
     	
-    	long startTime = System.currentTimeMillis();
+    	long allTime = System.currentTimeMillis();
     	HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
     	Map<String, String[]> params = new HashMap<>(request.getParameterMap());
-//    	SystemLogs slog = new SystemLogs();
+    	
+    	/*SysLogs slog = new SysLogs();  
+    	slog.setCreateTime(new Timestamp(System.currentTimeMillis()));
+    	slog.setMethodName(joinPoint.getSignature().getName());
+    	slog.setClassName(joinPoint.getTarget().getClass().getName());
+    	slog.setType(log.type().name());
+    	slog.setDescription(log.describe());
+    	slog.setIp(Tools.getIp(request));
+    	slog.setBroswer(request.getHeader("User-Agent"));
+    	slog.setUrl(request.getRequestURI());
+    	slog.setMethod(request.getMethod());*/
+    	
+		//获取登录用户  -- 如果没有登录用户不抛出业务异常
+    	/*try {
+			TokenUser user = SSOTokenUtils.getLoginUser(request);
+			if(user != null) {
+        		slog.setUserId(user.getUserId());
+        		slog.setUserNick(user.getUserNick());
+        	}
+		} catch (Exception e) {
+			//do nothing
+		}*/
+
+    	//修改、删除时，需要记录旧值。
+    	/*try {
+    		Class<?>[] clazz = Tools.getGenericType(joinPoint.getTarget().getClass());
+    		Class<?> entityClass = clazz[0]; //获取 entity class
+    		Class<?> serviceClass = clazz[1]; //获取 service class
+			//查询参数
+			Map<String, Object> pmap = null;	//请求参数
+			Map<String, Object> condition = null;	//查询参数
+        	//需要记录的类型
+			switch (log.type()) {
+				//修改时记录，按主键查询。
+				case Update:
+					pmap = Tools.getReqParamsToMap(request, entityClass);
+					condition = new HashMap<String, Object>();
+					List<String> pkList = DbUtils.getPrimaryKeys(entityClass);
+					for (String attr : pmap.keySet()) {
+						String column = DbUtils.attrToColumn(entityClass, attr); //java bean to db column
+						if(!Tools.isNullOrEmpty(column) && pkList.contains(column)) {
+							condition.put(column, pmap.get(attr));
+						}
+					}
+					break;
+				//删除时记录，按删除条件查询。
+				case Delete:
+					pmap = Tools.getReqParamsToMap(request, entityClass);
+					condition = new HashMap<String, Object>();
+					for (String attr : pmap.keySet()) {
+						String column = DbUtils.attrToColumn(entityClass, attr); //java bean to db column
+						if(!Tools.isNullOrEmpty(column)) {
+							condition.put(column, pmap.get(attr));
+						}
+					}
+				//其他情况不记录
+				default:
+					break;	
+			}
+			//当有查询参数时，开始记录。
+			if(condition != null && !condition.isEmpty()){
+				logger.debug("SysLogAspect -- class: {}, method: {} -- 查询参数: {}", slog.getClassName(), slog.getMethodName(), condition);
+				long oldTime = System.currentTimeMillis();
+	    		Method method = findMethod(serviceClass);	//查询方法
+	    		logger.debug("SysLogAspect -- class: {}, method: {} -- 查询方法: {}", slog.getClassName(), slog.getMethodName(), method);
+	    		if(method == null) {
+		    		logger.warn("SysLogAspect -- class: {}, method: {} -- 未查询到方法: {}", slog.getClassName(), slog.getMethodName(), methodName);
+	    		}
+	    		if(method != null) {
+    				//获取service的实现
+    				Object implClass = findImpl(serviceClass);
+	            	logger.debug("SysLogAspect -- class: {}, method: {} -- 查询实现类: {}", slog.getClassName(), slog.getMethodName(), implClass);
+	            	if(implClass == null) {
+			    		logger.warn("SysLogAspect -- class: {}, method: {} -- 未查询到实现类: {}", slog.getClassName(), slog.getMethodName(), serviceClass);
+		    		}
+	            	if(implClass != null){
+    					//执行方法
+    					Object ores = method.invoke(implClass, condition);
+    	            	logger.debug("SysLogAspect -- class: {}, method: {} -- 查询数据: {}", slog.getClassName(), slog.getMethodName(), ores);
+    					//记录
+	    				if(ores != null) {
+		    				slog.setExt(JsonTools.toJsonString(ores));  //额外信息。超长不能截取，方便恢复。
+		    			}
+    				}
+    			}
+	    		logger.debug("SysLogAspect -- class: {}, method: {} -- 查询耗时（ms）: {}", slog.getClassName(), slog.getMethodName(), (System.currentTimeMillis() - oldTime));
+    		}
+		} catch (Exception e) {
+			//do nothing
+		}*/
         
     	//执行业务
+    	long startTime = System.currentTimeMillis();
         Throwable exception = null;
         Object res = null;
 		try {
 			res = joinPoint.proceed();
+//			slog.setSuccess("Y");	//标记业务执行成功
 		} catch (Throwable e) {
 			
 			String str = e.toString() + " --- ";
@@ -61,35 +157,22 @@ public class SysLogAspect {
 	    			break;
 	    		}
 			}
-	    	str = str.substring(0, str.length() > 65535 ? 65535 : str.length()); //超过一定长度截取。
-//	    	slog.setException(str);
+			str = formatStr(str);
+	    	
+//	    	slog.setException(str);	//记录失败异常
+//			slog.setSuccess("N");	//标记业务执行失败
 	    	
 	    	exception = e;
 		}
-		
-        //记录日志
-        try {
-        	/*
-        	User user = null;
-        	slog.setPid(Utils.newSnowflakeIdStr());
-        	slog.setVersions(0);
-        	slog.setDate(DateTools.formatDate());
-        	if(user != null) {
-        		slog.setUserId(user.getPid());
-        		slog.setUserNick(user.getNick());
-        	}
-        	slog.setIp(Tools.getIp(request));
-        	slog.setBroswer(request.getHeader("User-Agent"));
-        	slog.setName(log.name());
-        	slog.setDescribe(log.describe());
-        	slog.setTimeConsume(System.currentTimeMillis() - startTime);
-        	slog.setUri(request.getRequestURI());
-        	slog.setMethodName(joinPoint.getSignature().getName());
-        	slog.setClassName(joinPoint.getTarget().getClass().getName());
-        	slog.setType(log.type().getValue());
-        	//参数\返回值
+		long endTime = System.currentTimeMillis();
+		//业务耗时
+//		slog.setTime((int) (endTime - startTime));	//记录业务耗时（ms）
+//    	logger.debug("SysLogAspect -- class: {}, method: {} -- 业务耗时（ms）: {}", slog.getClassName(), slog.getMethodName(), (endTime - startTime));
+
+    	//参数 && 返回值
+    	/*try {
         	String str = "";
-        	// 1、需要过滤参数的
+        	// 1、需要参数脱敏的
         	switch (log.type()) {
 	    		case Login:
 	    			params.remove("password"); //移除密码参数
@@ -100,51 +183,93 @@ public class SysLogAspect {
         	// 2、需要记录参数的
         	switch (log.type()) {
     			case Upload:
-					break;
+				case Import:
+					break; //不记录
 				default:
 	    			str = JsonTools.toJsonString(params);
-	    			str = str.substring(0, str.length() > 65535 ? 65535 : str.length()); //超过一定长度截取。
-	    			slog.setRequest(str);  //参数
+					str = formatStr(str);
+	    			slog.setRequest(str);  //记录请求参数
 					break;
         	}
-        	// 3、需要记录返回值的
+			// 3、需要返回值脱敏的
+			switch (log.type()) {
+				default:
+					break;
+			}
+        	// 4、需要记录返回值的
         	switch (log.type()) {
-	    		case Add:
-	    		case Update:
-	    		case Delete:
-	    		case Login:
-	    		case Upload:
-	    		case Other:
+				case QueryAll:
+    			case Download:
+	    		case Export:
+					break; //不记录
+	    		default:
 	    			if(res != null) {
 	    				str = JsonTools.toJsonString(res);
-	    				str = str.substring(0, str.length() > 65535 ? 65535 : str.length()); //超过一定长度截取。
-	    				slog.setResponse(str);  //返回值
+						str = formatStr(str);
+	    				slog.setResponse(str);  //记录返回值
 	    			}
-	    		case Query:
-	    		case Export:
-	    		default:
 	    			break;
     		}
         	
-        	//保存
+        	//总耗时
+        	slog.setAllTime((int) (System.currentTimeMillis() - allTime));	//记录日志总耗时（ms）
+        	logger.debug("SysLogAspect -- class: {}, method: {} -- 日志总耗时（ms）: {}", slog.getClassName(), slog.getMethodName(), (System.currentTimeMillis() - allTime));
+        	
+        	//保存日志
         	pools.execute(new Runnable() {
 				
 				@Override
 				public void run() {
-					service.add(slog);
+					service.save(slog);
 				}
 			});
-        	*/
         } catch (Exception e) {
             logger.error("日志记录出错!", e);
-        }
+        }*/
 
         //抛出原异常
         if(exception != null) {
         	throw exception;
         }
 
-        return res;
+        return res; //返回原结果
+    }
+    
+    /** 截取字符串长度 */
+    private String formatStr(String str) {
+    	//如果是longtext，不处理。
+		if(str.getBytes().length > 65535) { //超过一定长度截取。mysql text 65,535 bytes
+			byte[] b = new byte[65535];
+			System.arraycopy(str.getBytes(), 0, b, 0, 65535);
+			str = new String(b);
+		}
+		return str;
+    }
+    
+    /** 查询方法 */
+    private Method findMethod(Class<?> clss) {
+		String mark = clss.getCanonicalName();
+		Method method = null;
+		if(methodCache.containsKey(mark)){
+			method = methodCache.get(mark);
+		}else {
+			method = Tools.findMethod(clss, methodName, Map.class);
+			methodCache.put(mark, method);
+		}
+		return method;
+    }
+    
+    /** 查询实现类 */
+    private Object findImpl(Class<?> clss) {
+		String mark = clss.getCanonicalName();
+		Object impl = null;
+		if(implCache.containsKey(mark)){
+			impl = implCache.get(mark);
+		}else {
+			impl = App.applicationContext.getBean(clss);
+			implCache.put(mark, impl);
+		}
+		return impl;
     }
     
 }

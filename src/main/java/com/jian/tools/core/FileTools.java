@@ -2,10 +2,12 @@ package com.jian.tools.core;
 
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.file.FileSystems;
@@ -24,6 +26,12 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.jian.exception.ToolsException;
+
+
 
 public class FileTools {
 
@@ -31,6 +39,147 @@ public class FileTools {
 	private static ExecutorService service = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(1000));
 	private static Lock lock = new ReentrantLock();
 	public static String initCharsetName = "utf-8";	//统一字符编码，默认值："utf-8"
+	
+	/**
+	 * 根据给定的文件名，获取扩展名，包含“.”。
+	 * @param filename  文件名
+	 * @return 返回扩展名。如：.txt
+	 */
+	public static String fileSuffix(String filename) {
+		if(filename.lastIndexOf( "." ) == -1) {
+			return "";
+		}
+		return filename.substring(filename.lastIndexOf( "." )).toLowerCase();
+    }
+
+	/**
+	 * 根据给定的文件名，获取扩展名，不包含“.”。
+	 * @param filename  文件名
+	 * @return 返回扩展名。如：txt
+	 */
+	public static String fileExtension(String filename) {
+		if(filename.lastIndexOf( "." ) == -1) {
+			return "";
+		}
+		return filename.substring(filename.lastIndexOf( "." ) + 1).toLowerCase();
+    }
+	
+	/**
+	 * 读取流
+	 * @param in	输入流（读）
+	 * @return	byte[]
+	 * @throws ToolsException
+	 */
+	public static byte[] read(InputStream in) throws Exception {
+		if(in == null) {
+			throw new NullPointerException("InputStream is null。");
+		}
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		byte[] b = new byte[1024];
+		int count = 0;
+		while ((count = in.read(b)) != -1) {
+			out.write(b, 0, count);
+		}
+		in.close();
+		return out.toByteArray();
+	}
+	
+	/**
+	 * 写入数据
+	 * @param out	输出流（写）
+	 * @param data	待写入数据
+	 * @throws ToolsException
+	 */
+	public static void write(OutputStream out, byte[] data) throws Exception {
+		if(out == null) {
+			throw new NullPointerException("OutputStream is null。");
+		}
+		if(data == null) {
+			throw new NullPointerException("data is null。");
+		}
+		out.write(data);
+		out.flush();
+		out.close();
+	}
+	
+	/**
+	 * 边读边写
+	 * @param in	输入流（读）
+	 * @param out	输出流（写）
+	 * @throws ToolsException
+	 */
+	public static void readWrite(InputStream in, OutputStream out) throws Exception {
+		if(in == null) {
+			throw new NullPointerException("InputStream is null。");
+		}
+		if(out == null) {
+			throw new NullPointerException("OutputStream is null。");
+		}
+		byte[] b = new byte[1024];
+		int count = 0;
+		while ((count = in.read(b)) != -1) {
+			out.write(b, 0, count);
+		}
+		out.flush();
+		in.close();
+		out.close();
+	}
+
+	/**
+	 * 分段输出。（适用于视频在线播放）
+	 * @param contentType	数据类型
+	 * @param length		数据总大小
+	 * @param in			数据流
+	 * @param request		请求
+	 * @param response		响应
+	 * @throws Exception
+	 */
+	public static void readWrite(String contentType, long length, InputStream in, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		if(in == null) {
+			throw new NullPointerException("InputStream is null。");
+		}
+		if(contentType == null) {
+			throw new NullPointerException("contentType is null。");
+		}
+//		System.out.println("request Range --->"+request.getHeader("Range"));
+		response.setHeader("Accept-Ranges", "bytes");
+		response.setContentType(contentType);
+		//Range
+		long from = 0, to = length - 1; // 定义有效数据流起始, 截止位置
+		String range = request.getHeader("Range");
+		if (range == null || "".equals(range)) {
+	        response.setHeader("Content-Length", Long.toString(length));
+	    } else {
+	    	String[] ranges = range.replace("bytes=", "").split("-"); // bytes=xx-xx
+	    	if (ranges.length > 0) 
+	    		from = Long.parseLong(ranges[0]);
+	    	if (ranges.length > 1) 
+	    		to = Long.parseLong(ranges[1]);
+//	    	System.out.println(String.format("request Range [] ---> %s-%s", from, to));
+	    	// 设置本批次数据大小
+	    	response.setHeader("Content-Length", Long.toString(to - from + 1));
+	    	// 设置本批次数据范围及数据总大小
+	    	response.setHeader("Content-Range", String.format("bytes %s-%s/%s", from, to, length));
+	    	// 设置状态码（206部分完成）
+	    	response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+	    }
+		//数据
+		OutputStream out = response.getOutputStream();
+		in.skip(from); // 跳过
+		byte[] b = new byte[1024*1024];
+		int count = 0;
+		long limit = to - from + 1; // 数据流大小限制
+		while (0 < limit && (count = in.read(b)) != -1) {
+			out.write(b, 0, count);
+			limit -= count; 
+		}
+		in.close();
+		out.flush();
+		out.close();
+//		System.out.println(String.format("request Range end......"));
+	}
+	
+	
 	
 	/**
 	 * 写文件。在原文件基础上新增内容。

@@ -1,5 +1,6 @@
 package PK;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import Config;
  * <p>使用方式：</p>
  * <pre>
 	RTools.success().putData(data).toJSONString();
+	RTools.error().toJSONString();
 	RTools.custom(Tips.ERROR0).toJSONString();
 	RTools.custom().putCode(code).putMsg(msg).putData(data).build();
  * </pre>
@@ -47,12 +49,21 @@ public class RTools {
 		RTools.config = config;
 	}
 	
+	/** 成功。*/
 	public static RBuilder success(){
 		return new RBuilder(Tips.ERROR1)
 				.setErrorCodeHandler(handler)
 				.setLanguage(getLanguage());
 	}
 	
+	/** 失败。*/
+	public static RBuilder error(){
+		return new RBuilder(Tips.ERROR0)
+				.setErrorCodeHandler(handler)
+				.setLanguage(getLanguage());
+	}
+	
+	/** 自定义。*/
 	public static RBuilder custom(){
 		return custom(null, "");
 	}
@@ -66,27 +77,67 @@ public class RTools {
 				.setErrorCodeHandler(handler)
 				.setLanguage(getLanguage());
 	}
+	
+	public static RBuilder custom(int code, String msg){
+		return new RBuilder()
+				.putCode(code)
+				.putMsg(msg)
+				.setErrorCodeHandler(handler)
+				.setLanguage(getLanguage());
+	}
+	
 
 	/**
-	 * 获取语言标识
+	 * 获取语言标识。 优先级：参数 > 请求头 > cookie
 	 * @return
 	 */
 	private static String getLanguage() {
 		if(config == null) {
-			logger.debug(" getLanguage config is null. ");
+			logger.debug(" getLanguage -- config is null. ");
+			return null;
+		}
+		if(config.languageName == null || "".equals(config.languageName)) {
+			logger.debug(" getLanguage -- config languageName is null or empty. ");
 			return null;
 		}
 		ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
 		if(servletRequestAttributes == null) {
-			logger.debug(" getLanguage servletRequestAttributes is null. ");
+			logger.debug(" getLanguage -- servletRequestAttributes is null. ");
 			return null;
 		}
 		HttpServletRequest req = servletRequestAttributes.getRequest();
 		if(req == null) {
-			logger.debug(" getLanguage req is null. ");
+			logger.debug(" getLanguage -- req is null. ");
 			return null;
 		}
-		//参数 > 请求头
-		return req.getParameter(config.languageName) != null ? req.getParameter(config.languageName) : req.getHeader(config.languageName);
+
+		//参数
+		String langStr = req.getParameter(config.languageName);
+		if(langStr != null && !"".equals(langStr)) {
+			return langStr;
+		}
+		//属性
+		langStr = (String) req.getAttribute(config.languageName);
+		if(langStr != null && !"".equals(langStr)) {
+			return langStr;
+		}
+		//请求头
+		langStr = req.getHeader(config.languageName);
+		if(langStr != null && !"".equals(langStr)) {
+			return langStr;
+		}
+		//读取cookie
+		Cookie[] cookies = req.getCookies();
+		if(cookies != null){
+			for (int i = 0; i < cookies.length; i++) {
+				Cookie tmp = cookies[i];
+				if(config.languageName.equals(tmp.getName())){
+					langStr = tmp.getValue();
+					break;
+				}
+			}
+		}
+		return langStr;
 	}
+	
 }

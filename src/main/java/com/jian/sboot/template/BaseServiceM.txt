@@ -155,5 +155,13 @@ public interface BaseService<T> {
 	 * @return
 	 */
 	public String getTableName();
+
+
+	/**
+	 * 专为日志记录留的查询接口
+	 * @param condition 查询参数
+	 * @return
+	 */
+	public List<T> selectListForLog(Map<String, Object> condition);
 	
 }

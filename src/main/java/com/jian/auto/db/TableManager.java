@@ -2,6 +2,9 @@ package com.jian.auto.db;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -161,7 +164,7 @@ public class TableManager {
 				String stype = node.get("Type")+"";
 				structure = new Structure();
 				structure.setField(node.get("Field")+"");
-				structure.setType(getType(stype.split("[(]")[0]));
+				structure.setType(getType(stype.split("[(]")[0], "YES".equals(node.get("Null"))));
 				structure.setLength(stype.split("[(]").length < 2 ? "" : stype.split("[(]")[1].replace(")", ""));
 				structure.setIsNull(node.get("Null")+"");
 				structure.setKey(node.get("Key")+"");
@@ -196,7 +199,7 @@ public class TableManager {
 		return indexs;
 	}
 	
-	private String getType(String type){
+	private String getType(String type, boolean isNull){
 		String str = "";
 		switch (type) {
 		case "varchar":
@@ -209,22 +212,22 @@ public class TableManager {
 			str = "String";
 			break;
 		case "int":
-			str = "int";
+			str = isNull ? "int" : "int";
 			break;
 		case "tinyint":
-			str = "int";
+			str = isNull ? "int" : "int";
 			break;
 		case "bigint":
-			str = "long";
+			str = isNull ? "long" : "long";
 			break;
 		case "float":
-			str = "float";
+			str = isNull ? "float" : "float";
 			break;
 		case "double":
-			str = "double";
+			str = isNull ? "double" : "double";
 			break;
 		case "decimal":
-			str = "float";
+			str = isNull ? "double" : "double";
 			break;
 		case "date":
 			str = "Timestamp";

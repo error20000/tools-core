@@ -16,7 +16,7 @@ public class VerifyLoginAspect {
 //	@Autowired
 //	private TokenHandler handler;
 
-    @Before("execution(public * com.testAuto.controller.*.*(..)) && @annotation(login)")
+    @Before("execution(public * {Controller}.*.*(..)) && @annotation(login)")
     public void before(JoinPoint joinPoint, VerifyLogin login){
 		//do verify login
 //    	boolean isLogin = handler.isLogin();

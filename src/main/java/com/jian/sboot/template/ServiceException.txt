@@ -16,12 +16,24 @@ public class ServiceException extends RuntimeException{
 		super(RTools.custom(tips, params).toJSONString());
 	}
 	
+	public ServiceException(Tips tips, String paramsFormat, Object... args) {
+		super(RTools.custom(tips, String.format(paramsFormat, args)).toJSONString());
+	}
+	
 	public ServiceException(String msg){
-		super(msg);
+		this(0, msg);
+	}
+	
+	public ServiceException(String msgFormat, Object... args) {
+		this(0, String.format(msgFormat, args));
 	}
 	
 	public ServiceException(int code, String msg){
 		super(RTools.custom().putCode(code).putMsg(msg).toJSONString());
+	}
+	
+	public ServiceException(int code, String msgFormat, Object... args) {
+		super(RTools.custom().putCode(code).putMsg(String.format(msgFormat, args)).toJSONString());
 	}
 
 }

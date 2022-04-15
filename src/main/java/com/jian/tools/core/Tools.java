@@ -26,6 +26,7 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -73,6 +74,7 @@ public class Tools {
 	private static String initDateFormatStr = "yyyy-MM-dd HH:mm:ss";	//格式化时间的格式，默认值："yyyy-MM-dd HH:mm:ss"
 	private static String initCharsetName = "utf-8";	//统一字符编码，默认值："utf-8"
 	private static String initAttackLogPath = "attacks/request/";	//记录SQL注入日志文件路径，默认值："attacks/request/"
+	private static boolean noAttackRecord = true; //不检测、不记录
 	
 	
 
@@ -305,9 +307,35 @@ public class Tools {
 	public static String parseString(Object str){
 		return String.valueOf(str);
 	}
+
+	public static long parseTimestamp(Object str){
+		if(isNullOrEmpty(str)){
+			return 0L;
+		}else if(str instanceof String){
+			return DateTools.formatDateStr((String) str, initDateFormatStr).getTime();
+		}else if(str instanceof Integer){
+			return ((Integer) str).longValue();
+		}else if(str instanceof Double){
+			return ((Double) str).longValue();
+		}else if(str instanceof Float){
+			return ((Float) str).longValue();
+		}else if(str instanceof Long){
+			return ((Long) str).longValue();
+		}else if(str instanceof Byte){
+			return ((Byte) str).longValue();
+		}else if(str instanceof Short){
+			return ((Short) str).longValue();
+		}else if(str instanceof BigInteger){
+			return ((BigInteger) str).longValue();
+		}else if(str instanceof BigDecimal){
+			return ((BigDecimal) str).longValue();
+		}else{
+			return 0L;
+		}
+	}
 	
 	/**
-	 * 格式化字符串
+	 * 格式化字符串（null转""）
 	 * @param str  null转""
 	 * @return
 	 */
@@ -317,6 +345,54 @@ public class Tools {
 		}else{
 			return str;
 		}
+	}
+	
+	/**
+	 * 截取字符串（支持负数） <p>
+     * Examples:
+     * <blockquote><pre>
+     * "unhappy".substring(2) returns "happy"
+     * "Harbison".substring(3) returns "bison"
+     * "emptiness".substring(9) returns "" (an empty string)
+     * 
+     * "unhappy".substring(-2) returns "unhap"
+     * "Harbison".substring(-3) returns "Harbi"
+     * "emptiness".substring(-9) returns "" (an empty string)
+     * 
+     * </pre></blockquote>
+	 * @param str  原字符串
+	 * @param beginIndex  起始位置（支持负数，即倒数）
+	 * @return
+	 */
+	public static String substring(String str, int beginIndex){
+		if(beginIndex < 0){
+			return str.substring(0, str.length() + beginIndex);
+		}else{
+			return str.substring(beginIndex);
+		}
+	}
+	
+	/**
+	 * 截取字符串（支持负数） 
+     * <p>
+     * Examples:
+     * <blockquote><pre>
+     * "hamburger".substring(4, 8) returns "urge"
+     * "smiles".substring(1, 5) returns "mile"
+     * 
+     * 
+     * "hamburger".substring(-3, 0) returns "ger"  //倒数 0 - 3
+     * "smiles".substring(-5, -1) returns "mile"  //倒数 1 - 5
+     * 
+     * </pre></blockquote>
+	 * @param str
+	 * @param beginIndex	起始位置（支持负数，即倒数）
+	 * @param endIndex		结束位置（支持负数，即倒数）
+	 * @return
+	 */
+	public static String substring(String str, int beginIndex, int endIndex){
+		return str.substring(beginIndex < 0 ? str.length() + beginIndex : beginIndex, 
+				endIndex <= 0 ? str.length() + endIndex : endIndex);
 	}
 	
 	/**
@@ -707,6 +783,9 @@ public class Tools {
 	 */
 	public static boolean isAttack(String value){
 		boolean flag = false;
+		if(noAttackRecord) {
+			return flag; //不检测
+		}
 		if(isNullOrEmpty(value)){
 			flag = false;
 		}else if(value.toLowerCase().matches(Attacks.sqlComment)){
@@ -748,6 +827,9 @@ public class Tools {
 	 * @param str	内容
 	 */
 	public static void attackRecord (String path, String str){
+		if(noAttackRecord) {
+			return; //不记录
+		}
 		File file = new File(path);
 		if(file.exists()){
 			path = path + File.separator + DateTools.formatDate(null, "yyyyMMdd") + ".txt";
@@ -846,39 +928,21 @@ public class Tools {
 		if(enums == null || !enums.hasMoreElements()){
 			enums = req.getAttributeNames();
 		}
+		Field[] fields = getFields(clss); //clss.getDeclaredFields();
 		while (enums.hasMoreElements()) {
 			String name = enums.nextElement();
-			Field[] fields = getFields(clss); //clss.getDeclaredFields();
+			String tmpValue = getReqParam(req, name);
 			for (Field f : fields) {
 				if(name.equals(f.getName())){
 					Object value = null;
-					String tmpValue = getReqParam(req, name);
 					//参数值attack，可不过滤，使用的SQL预编译
 					if(isAttack(tmpValue)){
 						//记录日志
 						attackRecord("", req, name, tmpValue);
 					}
-					//格式化
-					switch (f.getType().getSimpleName()) {
-					case "int":
-						value = Tools.parseInt(tmpValue);
-						break;
-					case "long":
-						value = Tools.parseLong(tmpValue);
-						break;
-					case "float":
-						value = Tools.parseFloat(tmpValue);
-						break;
-					case "double":
-						value = Tools.parseDouble(tmpValue);
-						break;
-					case "boolean":
-						value = Tools.parseBoolean(tmpValue);
-						break;
-					default:
-						value = tmpValue;
-						break;
-					}
+					//格式化值
+					value = formatValue(f.getType().getSimpleName(), tmpValue);
+					//写入
 					obj.put(name, value);
 				}
 			}
@@ -896,42 +960,24 @@ public class Tools {
 		Class<?> clss = obj.getClass();
 		Field[] fields = getFields(clss); //clss.getDeclaredFields();
 		Method[] methods = getMethods(clss); //clss.getDeclaredMethods();
-		for (Field f : fields) {
-			Object value = null;
-			Enumeration<String> enums = req.getParameterNames();
-			if(enums == null || !enums.hasMoreElements()){
-				enums = req.getAttributeNames();
-			}
-			while (enums.hasMoreElements()) {
-				String name = (String) enums.nextElement();
-				String tmpValue = getReqParam(req, name);
+		Enumeration<String> enums = req.getParameterNames();
+		if(enums == null || !enums.hasMoreElements()){
+			enums = req.getAttributeNames();
+		}
+		while (enums.hasMoreElements()) {
+			String name = (String) enums.nextElement();
+			String tmpValue = getReqParam(req, name);
+			for (Field f : fields) {
 				if(name.equals(f.getName())){
+					Object value = null;
 					//参数值attack，可不过滤，使用的sql预编译
 					if(isAttack(tmpValue)){
 						//记录日志
 						attackRecord("", req, name, tmpValue);
 					}
-					//格式化
-					switch (f.getType().getSimpleName()) {
-					case "int":
-						value = Tools.parseInt(tmpValue);
-						break;
-					case "long":
-						value = Tools.parseLong(tmpValue);
-						break;
-					case "float":
-						value = Tools.parseFloat(tmpValue);
-						break;
-					case "double":
-						value = Tools.parseDouble(tmpValue);
-						break;
-					case "boolean":
-						value = Tools.parseBoolean(tmpValue);
-						break;
-					default:
-						value = tmpValue;
-						break;
-					}
+					//格式化值
+					value = formatValue(f.getType().getSimpleName(), tmpValue);
+					//写入
 					for (Method m : methods) {
 						if(m.getName().startsWith("set") && m.getName().substring(3).equalsIgnoreCase(name)){
 							try {
@@ -947,7 +993,73 @@ public class Tools {
 		return obj;
 	}
 	
-	
+	private static Object formatValue(String typeName, String tmpValue) {
+		Object value = null;
+		//格式化
+		switch (typeName) {
+		case "int":
+			value = Tools.parseInt(tmpValue);
+			break;
+		case "Integer":
+			value = Tools.isNullOrEmpty(tmpValue) ? null : Tools.parseInt(tmpValue);
+			break;
+		case "long":
+			value = Tools.parseLong(tmpValue);
+			break;
+		case "Long":
+			value = Tools.isNullOrEmpty(tmpValue) ? null : Tools.parseLong(tmpValue);
+			break;
+		case "float":
+			value = Tools.parseFloat(tmpValue);
+			break;
+		case "Float":
+			value = Tools.isNullOrEmpty(tmpValue) ? null : Tools.parseFloat(tmpValue);
+			break;
+		case "double":
+			value = Tools.parseDouble(tmpValue);
+			break;
+		case "Double":
+			value = Tools.isNullOrEmpty(tmpValue) ? null : Tools.parseDouble(tmpValue);
+			break;
+		case "boolean":
+			value = Tools.parseBoolean(tmpValue);
+			break;
+		case "Boolean":
+			value = Tools.isNullOrEmpty(tmpValue) ? null : Tools.parseBoolean(tmpValue);
+			break;
+		case "byte":
+			value = Tools.parseByte(tmpValue);
+			break;
+		case "Byte":
+			value = Tools.isNullOrEmpty(tmpValue) ? null : Tools.parseByte(tmpValue);
+			break;
+		case "short":
+			value = Tools.parseShort(tmpValue);
+			break;
+		case "Short":
+			value = Tools.isNullOrEmpty(tmpValue) ? null : Tools.parseShort(tmpValue);
+			break;
+		case "BigInteger":
+		case "BigDecimal":
+			value = Tools.isNullOrEmpty(tmpValue) ? null : Tools.parseNumber(tmpValue);
+			break;
+		case "char":
+		case "Character":
+		case "String":
+			value = tmpValue; 
+			break;
+		case "Date":
+			value = Tools.isNullOrEmpty(tmpValue) ? null : new Date(Tools.parseTimestamp(tmpValue)); 
+			break;
+		case "Timestamp":
+			value = Tools.isNullOrEmpty(tmpValue) ? null : new Timestamp(Tools.parseTimestamp(tmpValue)); 
+			break;
+		default:
+			value = Tools.isNullOrEmpty(tmpValue) ? null : tmpValue;
+			break;
+		}
+		return value;
+	}
 	
 	/**
 	 * 对象转map
@@ -1121,6 +1233,7 @@ public class Tools {
 	 * @param request
 	 * @return tomcat http://127.0.0.1:8080/sitesnqx/   nginx http://127.0.0.1/
 	 */
+	@Deprecated
 	public static String getBaseUrl(HttpServletRequest request) {
         String base = request.getRequestURL().toString().replace(request.getRequestURI(), "");
         if(base.split(":").length >= 3){ 
@@ -1184,6 +1297,7 @@ public class Tools {
     }
 	
 	//TODO 文件
+	
 	/**
 	 * 写文件。在原文件基础上新增内容。
 	 * @param file	待写入文件
@@ -1564,14 +1678,22 @@ public class Tools {
 		if(methodArrays.containsKey(mark)){
 			return methodArrays.get(mark);
 		} else {
-			List<Method> methodList = new ArrayList<Method>();
+			//getDeclaredMethods能拿到所有（不包括继承的方法），而getMethods只能拿到public方法（包括继承的类或接口的方法）
+			//一般方法不获取私有方法
+			/*List<Method> methodList = new ArrayList<Method>();
 			for (; clazz != null && clazz != Object.class; clazz = clazz.getSuperclass()) {
 				Method[] tmpMethods = clazz.getDeclaredMethods();
+				if(clazz.isInterface()) {
+					tmpMethods = clazz.getMethods(); //接口只能用getMethods，应为getSuperclass为空，不能获取继承的。
+				}
 				methodList.addAll(Arrays.asList(tmpMethods));
 			}
 			methods = methodList.toArray(new Method[]{});
-			methodArrays.put(mark,methods);
-			methodList.clear();
+			methodArrays.put(mark, methods);
+			methodList.clear();*/
+			//只获取公有方法
+			methods = clazz.getMethods();
+			methodArrays.put(mark, methods);
 		}
 		return methods;
 	}
@@ -1613,8 +1735,7 @@ public class Tools {
 	 * @return			   方法对象
 	 * @throws ReflectiveOperationException 反射异常
 	 */
-	public static Method findMethod(Class<?> clazz, String name, Class<?>... paramTypes) 
-			throws ReflectiveOperationException {
+	public static Method findMethod(Class<?> clazz, String name, Class<?>... paramTypes)  {
 		String mark = clazz.getCanonicalName()+"#"+name;
 		for(Class<?> paramType : paramTypes){
 			mark = mark + "$" + paramType.getCanonicalName();
@@ -1624,14 +1745,25 @@ public class Tools {
 			return methods.get(mark);
 		}else {
 			Method method = null;
-
-			for (; clazz != null && clazz != Object.class; clazz = clazz.getSuperclass()) {
+			//一般方法不获取私有方法
+			/*for (; clazz != null && clazz != Object.class; clazz = clazz.getSuperclass()) {
 				try {
-					method = clazz.getDeclaredMethod(name, paramTypes);
+					if(clazz.isInterface()) {
+						method = clazz.getMethod(name, paramTypes);
+					}else {
+						method = clazz.getDeclaredMethod(name, paramTypes);
+					}
 					break;
-				}catch(ReflectiveOperationException e){
+				}catch(Exception e){
 					method = null;
 				}
+			}*/
+
+			//只获取公有方法
+			try {
+				method = clazz.getMethod(name, paramTypes);
+			}catch(Exception e){
+				method = null;
 			}
 
 			methods.put(mark, method);
@@ -1659,7 +1791,7 @@ public class Tools {
 			ArrayList<Method> methodList = new ArrayList<Method>();
 			Method[] allMethods = getMethods(clazz, name);
 			for (Method method : allMethods) {
-				if (method.getParameterTypes().length == paramCount) {
+				if (method.getParameterCount() == paramCount) {
 					methodList.add(method);
 				}
 			}
@@ -1847,6 +1979,16 @@ public class Tools {
 			System.out.print(i);
 			System.out.print(" ");
 		}
+        System.out.println();
+        
+        System.out.println(substring("unhappy", -2));
+        System.out.println(substring("Harbison", -3));
+        System.out.println(substring("emptiness", -9));
+        System.out.println(substring("emptiness", 4));
+        System.out.println(substring("hamburger", 5, 8));
+        System.out.println(substring("smiles", 1, 5));
+        System.out.println(substring("hamburger", -3, 0));
+        System.out.println(substring("smiles", -5, -1));
         
 	}
 	

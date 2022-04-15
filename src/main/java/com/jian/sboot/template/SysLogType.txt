@@ -2,28 +2,43 @@ package PK;
 
 public enum SysLogType {
 
-	Query("query"), 
-	Update("update"), 
-	Delete("delete"), 
-	Add("add"), 
-	Other("other"), 
-	Upload("upload"), 
-	Login("login"), 
-	Export("export");
+	/** 查询 **/
+	Query,
 	
-	public String value;
+	/** 查询所有 **/
+	QueryAll,
 	
-	private SysLogType(String value) {
-		this.value = value;
-	}
-
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
+	/** 修改 **/
+	Update,
 	
+	/** 删除 **/
+	Delete,
+	
+	/** 新增 **/
+	Add,
+	
+	/** 其他 **/
+	Other,
+	
+	/** 上传 **/
+	Upload,
+	
+	/** 下载 **/
+	Download,
+	
+	/** 登入 **/
+	Login,
+	
+	/** 登出 **/
+	Logout,
+	
+	/** 导出 **/
+	Export,
+	
+	/** 导入 **/
+	Import,
+	
+	/** 测试 **/
+	Test;
 	
 }

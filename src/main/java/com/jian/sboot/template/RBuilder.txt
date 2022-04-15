@@ -10,9 +10,9 @@ import com.jian.tools.core.JsonTools;
 public class RBuilder {
 
 	
-	private ErrorCodeHandler handler;
+	private ErrorCodeHandler handler; //转译策略
 	
-	private String language;
+	private String language; //语言标识
 
 	private Map<String, Object> map = null;
 
@@ -21,7 +21,7 @@ public class RBuilder {
     }
     
 	RBuilder(Tips tips) {
-        this(null, "");
+        this(tips, "");
     }
     
 	RBuilder(Tips tips, String param) {
@@ -34,16 +34,17 @@ public class RBuilder {
     }
 	
 	
+    /** 设置错误码转译策略 */
 	public RBuilder setErrorCodeHandler(ErrorCodeHandler handler){
 		this.handler = handler;
         return this;
     }
 	
+	/** 设置语言标识 */
 	public RBuilder setLanguage(String language){
 		this.language = language;
         return this;
     }
-    
     
     public RBuilder put(String key, Object value){
 		this.map.put(key, value);
@@ -60,28 +61,51 @@ public class RBuilder {
         return this;
     }
     
+    /** 设置错误码 */
     public RBuilder putCode(int code){
         this.map.put(RKey.CODE, code);
         return this;
     }
     
+    /** 设置错误信息 */
     public RBuilder putMsg(String msg){
         this.map.put(RKey.MSG, msg);
         return this;
     }
     
+    /** 设置错误信息转译。注意：如果手动设置，不会调用ErrorCodeHandler进行转译。 */
     public RBuilder putTMsg(String tmsg){
         this.map.put(RKey.TMSG, tmsg);
         return this;
     }
     
+    /** 设置异常、调试信息 */
+    public RBuilder putNMsg(String nmsg){
+        this.map.put(RKey.NMSG, nmsg);
+        return this;
+    }
+    
+    /** 设置数据 */
     public RBuilder putData(Object data){
         this.map.put(RKey.DATA, data);
         return this;
     }
     
+    /** 设置总条数 */
     public RBuilder putTotal(long total){
         this.map.put(RKey.TOTAL, total);
+        return this;
+    }
+    
+    /** 设置页码 */
+    public RBuilder putPage(int page){
+        this.map.put(RKey.PAGE, page);
+        return this;
+    }
+    
+    /** 设置每页条数 */
+    public RBuilder putRows(int rows){
+        this.map.put(RKey.ROWS, rows);
         return this;
     }
     
@@ -105,6 +129,7 @@ public class RBuilder {
     	return JsonTools.toJsonString(this.map);
     }
 	
+	//转译
     private void translate() {
     	String msg = "";
     	if(this.handler == null) {
@@ -112,6 +137,9 @@ public class RBuilder {
     	}
     	if(this.map.get(RKey.CODE) == null) {
     		return; //如果没有错误码，直接返回。
+    	}
+    	if(this.map.get(RKey.TMSG) != null) {
+    		return; //已手动设置，直接返回。
     	}
     	if(this.language == null) {
     		msg = this.handler.translate((int) this.map.get(RKey.CODE), (String) this.map.get(RKey.MSG));

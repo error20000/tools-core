@@ -223,6 +223,10 @@ public abstract class BaseServiceImpl<T, M extends BaseDao<T>> implements BaseSe
 		}
 		return tableName;
 	}
+	
+	public List<T> selectListForLog(Map<String, Object> condition) {
+		return findList(condition);
+	}
 
 	//TODO ----------------------------------------------------------------------tool
 	

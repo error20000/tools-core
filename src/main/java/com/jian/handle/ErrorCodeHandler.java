@@ -8,7 +8,7 @@ package com.jian.handle;
 public interface ErrorCodeHandler {
 
     /**
-     * 	转译
+     * 	转译（用户友好提示）
      * 
      * @param code 错误码
      * @param msg 错误描述
@@ -17,7 +17,7 @@ public interface ErrorCodeHandler {
     String translate(int code, String msg);
     
     /**
-     * 转译（多语言）
+     * 转译（用户友好提示、多语言等）
      * 
      * @param code 错误码
      * @param msg 错误描述
