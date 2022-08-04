@@ -126,15 +126,16 @@ public class FileTools {
 	}
 
 	/**
-	 * 分段输出。（适用于视频在线播放）
+	 * 断点、分段输出。（适用于视频在线播放，断点、分片下载）
 	 * @param contentType	数据类型
 	 * @param length		数据总大小
+	 * @param size			数据分片大小 默认1M
 	 * @param in			数据流
 	 * @param request		请求
 	 * @param response		响应
 	 * @throws Exception
 	 */
-	public static void readWrite(String contentType, long length, InputStream in, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public static void readWrite(String contentType, long length, int size, InputStream in, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		if(in == null) {
 			throw new NullPointerException("InputStream is null。");
 		}
@@ -145,30 +146,32 @@ public class FileTools {
 		response.setHeader("Accept-Ranges", "bytes");
 		response.setContentType(contentType);
 		//Range
-		long from = 0, to = length - 1; // 定义有效数据流起始, 截止位置
+		long from = 0, to = length; // 定义有效数据流起始, 截止位置
+    	byte[] b = new byte[size <= 0 ? 1024 * 1024 : size]; // 固定数据大小：1M
 		String range = request.getHeader("Range");
 		if (range == null || "".equals(range)) {
 	        response.setHeader("Content-Length", Long.toString(length));
-	    } else {
-	    	String[] ranges = range.replace("bytes=", "").split("-"); // bytes=xx-xx
-	    	if (ranges.length > 0) 
-	    		from = Long.parseLong(ranges[0]);
-	    	if (ranges.length > 1) 
-	    		to = Long.parseLong(ranges[1]);
-//	    	System.out.println(String.format("request Range [] ---> %s-%s", from, to));
-	    	// 设置本批次数据大小
-	    	response.setHeader("Content-Length", Long.toString(to - from + 1));
-	    	// 设置本批次数据范围及数据总大小
-	    	response.setHeader("Content-Range", String.format("bytes %s-%s/%s", from, to, length));
-	    	// 设置状态码（206部分完成）
-	    	response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+	        return; //没有Range，只返回头信息。告诉客户端，我们是支持断点传输的。
 	    }
+		String[] ranges = range.replace("bytes=", "").split("-"); // bytes=xx-xx or bytes=xx-
+		if (ranges.length > 0) 
+			from = Long.parseLong(ranges[0]); //数据起始位置
+		if (ranges.length > 1) 
+			to = Long.parseLong(ranges[1]) > length ? length : Long.parseLong(ranges[1]); //数据截止位置。视频播放一般为空(bytes=xx-)。
+    	else
+    		to = from + b.length > length ? length : from + b.length; //返回固定的大小片段
+//		System.out.println(String.format("request Range [] ---> %s-%s", from, to));
+		// 设置本批次数据大小
+		response.setHeader("Content-Length", Long.toString(to - from));
+		// 设置本批次数据范围及数据总大小
+		response.setHeader("Content-Range", String.format("bytes %s-%s/%s", from, to - 1, length)); // to - 1 因为指定范围永远不能超过等于总大小，完全是写法问题。
+		// 设置状态码（206部分完成）
+		response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
 		//数据
 		OutputStream out = response.getOutputStream();
 		in.skip(from); // 跳过
-		byte[] b = new byte[1024*1024];
 		int count = 0;
-		long limit = to - from + 1; // 数据流大小限制
+		long limit = to - from; // 数据流大小限制
 		while (0 < limit && (count = in.read(b)) != -1) {
 			out.write(b, 0, count);
 			limit -= count; 

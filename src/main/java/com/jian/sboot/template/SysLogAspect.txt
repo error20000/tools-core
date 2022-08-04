@@ -25,6 +25,10 @@ import com.jian.tools.core.Tools;
 import App;
 import SysLog;
 
+/**
+ * 系统日志
+ * 
+ */
 @Aspect
 @Component
 @Order(4)
@@ -74,6 +78,9 @@ public class SysLogAspect {
     	//修改、删除时，需要记录旧值。
     	/*try {
     		Class<?>[] clazz = Tools.getGenericType(joinPoint.getTarget().getClass());
+    		if(clazz == null || clazz.length < 2) {
+    			throw new NotFoundException("Class not found.");
+    		}
     		Class<?> entityClass = clazz[0]; //获取 entity class
     		Class<?> serviceClass = clazz[1]; //获取 service class
 			//查询参数
@@ -137,6 +144,7 @@ public class SysLogAspect {
     		}
 		} catch (Exception e) {
 			//do nothing
+			logger.debug("SysLogAspect -- 记录旧值异常。( {} ) class: {}", e.toString(), joinPoint.getTarget().getClass());
 		}*/
         
     	//执行业务

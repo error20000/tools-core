@@ -47,6 +47,10 @@ public class HttpTools {
 		
 	}
 	
+	/**
+	 * 获取实例。
+	 * @return HttpTools
+	 */
 	public static HttpTools getInstance(){
 		if (instance == null) {
 			instance = new HttpTools();
@@ -54,6 +58,36 @@ public class HttpTools {
 		return instance;
 	}
 	
+	/**
+	 * 获取响应内容。 可搭配 sendHttpPostResp、sendHttpGetResp 使用.
+	 * @param response
+	 * @return	返回内容并关闭连接。
+	 */
+	public static String getContent(CloseableHttpResponse response) {
+		String responseContent = null;
+		if(response == null) {
+			return responseContent;
+		}
+		try {
+			HttpEntity entity = response.getEntity();
+			responseContent = EntityUtils.toString(entity, Consts.UTF_8);
+		} catch (Exception e) {
+			throw new HttpException(e);
+		} finally {
+			try {
+				// 关闭连接,释放资源
+				if (response != null) {
+					response.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				response = null;
+			}
+		}
+		return responseContent;
+	}
+
 	//TODO -------------------------------------------------------------------------------------------------- POST
 	
 	/**
@@ -99,6 +133,33 @@ public class HttpTools {
 			StringEntity stringEntity = new StringEntity(params, type.getCharset());
 			stringEntity.setContentType(type.getMimeType());
 			httpPost.setEntity(stringEntity);
+		} catch (Exception e) {
+			throw new HttpException(e);
+		}
+		return sendHttpPost(httpPost);
+	}
+	
+	/**
+	 * 发送 post请求
+	 * @param httpUrl 地址
+	 * @param params 参数
+	 * @param type 参数格式
+	 * @param headers 请求头
+	 * @throws HttpException 
+	 */
+	public String sendHttpPost(String httpUrl, String params, ContentType type, Map<String, String> headers) throws HttpException {
+		HttpPost httpPost = new HttpPost(httpUrl);// 创建httpPost  
+		try {
+			//设置参数
+			StringEntity stringEntity = new StringEntity(params, type.getCharset());
+			stringEntity.setContentType(type.getMimeType());
+			httpPost.setEntity(stringEntity);
+			//设置头
+			if(headers != null && !headers.isEmpty()){
+				for (String key : headers.keySet()) {
+					httpPost.setHeader(key, headers.get(key));
+				}
+			}
 		} catch (Exception e) {
 			throw new HttpException(e);
 		}
@@ -172,9 +233,9 @@ public class HttpTools {
 	
 	/**
 	 * 发送Post请求（自定义）
-	 * @param httpPost
-	 * @param requestConfig
-	 * @param httpClient
+	 * @param httpPost		
+	 * @param requestConfig	
+	 * @param httpClient	
 	 * @return
 	 * @throws HttpException 
 	 */
@@ -204,6 +265,27 @@ public class HttpTools {
 			}
 		}
 		return responseContent;
+	}
+	
+	/**
+	 * 发送Post请求（自定义）
+	 * @param httpPost
+	 * @param requestConfig
+	 * @param httpClient
+	 * @return	返回Response
+	 * @throws HttpException
+	 */
+	public CloseableHttpResponse sendHttpPostResp(HttpPost httpPost, RequestConfig requestConfig, CloseableHttpClient httpClient) throws HttpException {
+		CloseableHttpResponse response = null;
+		try {
+			// 配置
+			httpPost.setConfig(requestConfig);
+			// 执行请求
+			response = httpClient.execute(httpPost);
+		} catch (Exception e) {
+			throw new HttpException(e);
+		}
+		return response;
 	}
 	
 	//TODO -------------------------------------------------------------------------------------------------- GET
@@ -274,7 +356,27 @@ public class HttpTools {
 		}
 		return responseContent;
 	}
-	
+
+	/**
+	 * 发送Get请求（自定义）
+	 * @param httpGet
+	 * @param requestConfig
+	 * @param httpClient
+	 * @return
+	 * @throws HttpException
+	 */
+	public CloseableHttpResponse sendHttpGetResp(HttpGet httpGet, RequestConfig requestConfig, CloseableHttpClient httpClient) throws HttpException {
+		CloseableHttpResponse response = null;
+		try {
+			// 配置
+			httpGet.setConfig(requestConfig);
+			// 执行请求
+			response = httpClient.execute(httpGet);
+		} catch (Exception e) {
+			throw new HttpException(e);
+		}
+		return response;
+	}
 	
 	
 	/**

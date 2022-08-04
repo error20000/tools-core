@@ -8,6 +8,10 @@ import org.springframework.stereotype.Component;
 
 import VerifyAuth;
 
+/**
+ * 系统权限
+ * 
+ */
 @Aspect
 @Component
 @Order(3)

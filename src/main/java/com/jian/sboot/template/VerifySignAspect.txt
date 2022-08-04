@@ -8,6 +8,10 @@ import org.springframework.stereotype.Component;
 
 import VerifySign;
 
+/**
+ * 参数验证
+ * 
+ */
 @Aspect
 @Component
 @Order(1)

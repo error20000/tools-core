@@ -7,16 +7,16 @@ import org.springframework.stereotype.Component;
 public class Config {
 	
 	//本地静态资源
-	@Value("${out_static_path:}")
+	@Value("${out.static.path:}")
 	public String out_static_path; //外部静态资源  如上传
-	@Value("${logs_path:}")
-	public String logs_path; //日志地址
+	@Value("${out.logs.path:}")
+	public String out_logs_path; //日志地址  如直接访问日志文件
 	
 	//登录session
 	@Value("${login.session.key:xxx_user}")
 	public String login_session_key;
 	//登录token name
-	@Value("${login.token.name:xxx_token}")
+	@Value("${login.token.name:xxx-token}")
 	public String login_token_name;
 
 	//登录SSO
@@ -27,7 +27,7 @@ public class Config {
 	
 	
 	/** 语言标识 */
-	public String languageName = "xxx_language"; 
+	public String languageName = "xxx-language"; 
 	
 	/** 登录密码错误次数限制 0--不限 */
 	public int maxLoginCount = 5; //登录密码错误次数限制 0--不限
@@ -52,9 +52,9 @@ public class Config {
 	public String tokenEncodeKey = "1234567890000000"; //密钥
 
 	/** 密码正则表达式 */
-	public String pwdReg = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$"; //密码正则表达式
+	public String pwdReg = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z#?!@$%^&*-._+~()]{6,20}$"; //密码正则表达式
 	/** 密码格式提示 */
-	public String pwdRegTips = "（密码至少包含 数字和英文，长度6-20）"; //密码格式提示
+	public String pwdRegTips = "密码至少包含 数字和英文，长度6-20"; //密码格式提示
 	
 	/** 超管账号 默认：admin */
 	public String adminUsername = "admin"; //超管账号

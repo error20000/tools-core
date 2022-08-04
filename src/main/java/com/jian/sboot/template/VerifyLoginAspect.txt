@@ -8,6 +8,10 @@ import org.springframework.stereotype.Component;
 
 import VerifyLogin;
 
+/**
+ * 用户登录
+ * 
+ */
 @Aspect
 @Component
 @Order(2)

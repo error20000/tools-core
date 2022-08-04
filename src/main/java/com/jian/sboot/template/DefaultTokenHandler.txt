@@ -23,7 +23,7 @@ import ServiceException;
 import Tips;
 
 /**
- * token工具类
+ * token、登录、密码，工具类
  * 
  * @author liujian
  * @Date 2021/11/02
@@ -363,7 +363,7 @@ public class DefaultTokenHandler implements TokenHandler  {
 	 * @param <T>
 	 * @param req
 	 * @param clss	转换类
-	 * @return
+	 * @return  不会返回null
 	 */
 	public <T> T getLoginUser(HttpServletRequest req, Class<T> clss) {
 		String tokenStr = getLoginToken(req);
@@ -377,7 +377,8 @@ public class DefaultTokenHandler implements TokenHandler  {
 		}
 		T user = JsonTools.jsonToObj((String)test.getValue(), clss);
 		if(user == null ) {
-			throw new ServiceException(Tips.ERROR114, "获取登录用户信息");
+//			throw new ServiceException(Tips.ERROR114, "获取登录用户信息");
+			throw new ServiceException(Tips.ERROR111);
 		}
 		return user;
 	}
@@ -404,17 +405,18 @@ public class DefaultTokenHandler implements TokenHandler  {
 	 * @param tokenStr
 	 */
 	public void clearLogin(String tokenStr) {
+		//查找key
+		String tkey = "";
+		String ukey = "";
 		try {
-			if(!checkLoginToken(tokenStr)) {
-				throw new ServiceException(Tips.ERROR213, config.login_token_name);
-			}
+			tkey = getTokenCacheKey(Constant.userLoginOn, tokenStr);
+			ukey = getUserCacheKey(Constant.userLoginOn, tokenStr);
 		} catch (Exception e) {
-			//Do nothing
-			System.out.println("清除登录信息：" + e.getMessage());
+			//do nothing
+			System.out.println("清除登录信息异常：" + e.getMessage());
 			return;
 		}
-		String tkey = getTokenCacheKey(Constant.userLoginOn, tokenStr);
-		String ukey = getUserCacheKey(Constant.userLoginOn, tokenStr);
+		//清除
 		CacheTools.clearCacheObj(tkey);	//清除Token
 		CacheTools.clearCacheObj(ukey); //清除用户信息
 	}

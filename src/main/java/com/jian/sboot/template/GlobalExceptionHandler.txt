@@ -21,9 +21,15 @@ import com.jian.exception.HttpException;
 import com.jian.exception.JsonException;
 import com.jian.exception.ToolsException;
 
+import App;
 import RTools;
 import Tips;
 
+/**
+ * 
+ * 全局异常处理
+ *
+ */
 @ResponseBody
 @Order(-1)
 @ControllerAdvice
@@ -38,7 +44,7 @@ public class GlobalExceptionHandler {
 	@ResponseStatus(HttpStatus.OK)
 	public String handleServiceException(HttpServletRequest request, HttpServletResponse response, ServiceException e) {
 		String message = e.getMessage();
-		log.error(">>> 业务异常：{}", message);
+		log.info(">>> 业务异常：{}, {}", message, location(e));
 		return message;
 	}
 
@@ -47,13 +53,13 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler({ HttpException.class, JsonException.class, ToolsException.class })
 	@ResponseStatus(HttpStatus.OK)
-	public String handleToolsException(HttpServletRequest request, HttpServletResponse response, HttpException e) {
+	public String handleToolsException(HttpServletRequest request, HttpServletResponse response, Exception e) {
 
 		Writer result = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(result);
 		e.printStackTrace(printWriter);
 		
-		log.error(">>> 工具类异常：{}", result.toString());
+		log.error(">>> 工具类异常：{}, {}", result.toString(), location(e));
 
 		return RTools.custom(Tips.ERROR0).putMsg(e.getMessage()).toJSONString();
 	}
@@ -69,10 +75,10 @@ public class GlobalExceptionHandler {
 		PrintWriter printWriter = new PrintWriter(result);
 		e.printStackTrace(printWriter);
 		
-		log.error(">>> 未知异常：{}", result.toString());
+		log.error(">>> 未知异常：{}, {}", result.toString(), location(e));
 		
 		//由于匹配了Exception，会导致下面的OutOfMemoryError匹配不到，所以在这里处理OutOfMemoryError。
-		if(e.getMessage().contains("java.lang.OutOfMemoryError")) {
+		if(e.getMessage() != null && e.getMessage().contains("java.lang.OutOfMemoryError")) {
 			outOfMemoryError();
 		}
 		
@@ -91,7 +97,7 @@ public class GlobalExceptionHandler {
 		PrintWriter printWriter = new PrintWriter(result);
 		e.printStackTrace(printWriter);
 		
-		log.error(">>> 内存溢出：{}", result.toString());
+		log.error(">>> 内存溢出：{}, {}", result.toString(), location(e));
 		
 		outOfMemoryError();
 		
@@ -170,6 +176,25 @@ public class GlobalExceptionHandler {
 			//e2.printStackTrace();
 			//do nothing
 		}
+	}
+	
+	
+	/**
+	 * 异常位置
+	 * @param e
+	 * @return
+	 */
+	private String location(Throwable e) {
+		String str = "";
+		StackTraceElement[]  stackTrace = e.getStackTrace();
+    	for (StackTraceElement stackTraceElement : stackTrace) {
+    		String sstr = stackTraceElement.toString();
+    		if(sstr.contains(App.class.getPackage().getName())) { //取第一条跟本包相关的信息
+    			str += sstr;
+    			break;
+    		}
+		}
+    	return str;
 	}
 	
 }

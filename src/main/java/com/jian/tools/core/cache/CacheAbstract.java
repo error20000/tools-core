@@ -38,7 +38,11 @@ public abstract class CacheAbstract implements Cache {
 	protected abstract void doClearCacheObj(String key);
 
 	protected abstract List<String> doKeys(String regex);
-
+	
+	
+	public List<Map<String, String>> getSortMap() {
+		return sortMap;
+	}
 	
 	protected void initAutoClear() {
 		System.out.println(DateTools.formatDate()+":	clear ing ..." + sortMap.size());

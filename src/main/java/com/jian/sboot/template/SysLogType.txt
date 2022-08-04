@@ -1,5 +1,9 @@
 package PK;
 
+/**
+ * 系统日志类型
+ * 
+ */
 public enum SysLogType {
 
 	/** 查询 **/
