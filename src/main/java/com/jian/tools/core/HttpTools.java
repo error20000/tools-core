@@ -266,6 +266,16 @@ public class HttpTools {
 		}
 		return responseContent;
 	}
+
+	/**
+	 * 发送Post请求
+	 * @param httpPost
+	 * @return	返回Response
+	 * @throws HttpException
+	 */
+	public CloseableHttpResponse sendHttpPostResp(HttpPost httpPost) throws HttpException {
+		return sendHttpPostResp(httpPost, requestConfig, httpClient);
+	}
 	
 	/**
 	 * 发送Post请求（自定义）
@@ -358,11 +368,21 @@ public class HttpTools {
 	}
 
 	/**
+	 * 发送Get请求
+	 * @param httpGet
+	 * @return	返回Response
+	 * @throws HttpException
+	 */
+	public CloseableHttpResponse sendHttpGetResp(HttpGet httpGet) throws HttpException {
+		return sendHttpGetResp(httpGet, requestConfig, httpClient);
+	}
+
+	/**
 	 * 发送Get请求（自定义）
 	 * @param httpGet
 	 * @param requestConfig
 	 * @param httpClient
-	 * @return
+	 * @return	返回Response
 	 * @throws HttpException
 	 */
 	public CloseableHttpResponse sendHttpGetResp(HttpGet httpGet, RequestConfig requestConfig, CloseableHttpClient httpClient) throws HttpException {
